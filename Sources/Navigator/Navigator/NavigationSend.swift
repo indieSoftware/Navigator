@@ -28,7 +28,8 @@ extension Navigator {
 }
 
 public typealias NavigationSendValues = (value: any Hashable, values: [any Hashable])
-public typealias NavigationReceiveHandler<T> = (_ navigator: Navigator, _ value: T) -> NavigationReceiveResumeType
+public typealias NavigationReceiveHandler<T> = (_ value: T, _ navigator: Navigator) -> NavigationReceiveResumeType
+public typealias NavigationReceiveValueHandler<T> = (_ value: T) -> NavigationReceiveResumeType
 
 public enum NavigationReceiveResumeType {
     case auto
@@ -43,8 +44,12 @@ extension View {
         self.modifier(OnNavigationReceiveModifier(handler: handler))
     }
 
+    public func onNavigationReceive<T: Hashable>(handler: @escaping NavigationReceiveValueHandler<T>) -> some View {
+        self.modifier(OnNavigationReceiveModifier(handler: { (value, _) in handler(value) }))
+    }
+
     public func onNavigationReceive<T: NavigationDestinations>(_ type: T.Type) -> some View {
-        self.modifier(OnNavigationReceiveModifier<T> { (navigator, value) in
+        self.modifier(OnNavigationReceiveModifier<T> { (value, navigator) in
             navigator.navigate(to: value)
             return .auto
         })
@@ -65,7 +70,7 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
         content
             .onReceive(publisher) { (value, values) in
                 print("Navigator \(navigator.id) receiving \(value)")
-                resume(handler(navigator, value), values: values)
+                resume(handler(value, navigator), values: values)
             }
     }
 

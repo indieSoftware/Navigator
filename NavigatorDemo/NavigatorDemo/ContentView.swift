@@ -51,16 +51,24 @@ struct ContentPopSection: View {
             Button("Button Pop") {
                 navigator.pop()
             }
-            .disabled(navigator.isPathEmpty)
-            Button("Button Pop To Page 2") {
+            .disabled(navigator.isEmpty)
+            Button("Button Pop To 2") {
                 navigator.pop(to: 1) // count from zero
             }
-            .disabled(navigator.isPathEmpty)
+            .disabled(navigator.isEmpty)
             Button("Button Pop All") {
                 navigator.popAll()
             }
-            .disabled(navigator.isPathEmpty)
+            .disabled(navigator.isEmpty)
         }
+        Section {
+            Button("Return To Checkpoint Home") {
+                navigator.returnToCheckpoint("home")
+            }
+            Button("Return To Checkpoint Page 2") {
+                navigator.returnToCheckpoint(HomeDestinations.page2)
+            }
+       }
     }
 }
 

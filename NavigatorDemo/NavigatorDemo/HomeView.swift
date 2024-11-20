@@ -12,8 +12,9 @@ struct RootHomeView: View {
     var body: some View {
         ManagedNavigationStack {
             HomeContentView(name: "Root Navigation")
+                .navigationCheckpoint("home")
                 .navigationDestinations(HomeDestinations.self)
-                .onNavigationReceive { (navigator, destination: HomeDestinations) in
+                .onNavigationReceive { (destination: HomeDestinations, navigator) in
                     navigator.navigate(to: destination)
                     return .auto
                 }
@@ -70,6 +71,7 @@ struct HomePage2View: View {
             ContentPopSection()
             ContentSheetSection()
         }
+        .navigationCheckpoint(HomeDestinations.page2)
         .navigationTitle("Page 2")
     }
 }

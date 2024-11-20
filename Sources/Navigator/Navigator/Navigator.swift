@@ -17,7 +17,12 @@ public enum NavigationMethod {
 
 public class Navigator: ObservableObject {
 
-    @Published internal var path: NavigationPath = .init()
+    @Published internal var path: NavigationPath = .init() {
+        didSet {
+            cleanCheckpoints()
+        }
+    }
+
     @Published internal var sheet: AnyNavigationDestination? = nil
     @Published internal var fullScreenCover: AnyNavigationDestination? = nil
 
@@ -27,6 +32,8 @@ public class Navigator: ObservableObject {
     internal var children: [UUID : WeakNavigator] = [:]
 
     internal var dismissible: DismissAction? = nil
+
+    internal var checkpoints: [String: WeakCheckpoint] = [:]
 
     internal var publisher: PassthroughSubject<NavigationSendValues, Never>
 
@@ -123,8 +130,13 @@ extension Navigator {
     }
 
     @MainActor
-    public var isPathEmpty: Bool {
+    public var isEmpty: Bool {
         path.isEmpty
+    }
+
+    @MainActor
+    public var count: Int {
+        path.count
     }
 
 }
