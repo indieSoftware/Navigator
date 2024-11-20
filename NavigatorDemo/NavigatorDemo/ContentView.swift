@@ -51,11 +51,15 @@ struct ContentPopSection: View {
             Button("Button Pop") {
                 navigator.pop()
             }
-            .disabled(navigator.isEmpty)
+            .disabled(navigator.isPathEmpty)
+            Button("Button Pop To Page 2") {
+                navigator.pop(to: 1) // count from zero
+            }
+            .disabled(navigator.isPathEmpty)
             Button("Button Pop All") {
                 navigator.popAll()
             }
-            .disabled(navigator.isEmpty)
+            .disabled(navigator.isPathEmpty)
         }
     }
 }

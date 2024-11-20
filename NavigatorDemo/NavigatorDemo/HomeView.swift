@@ -14,7 +14,7 @@ struct RootHomeView: View {
             HomeContentView(name: "Root Navigation")
                 .navigationDestinations(HomeDestinations.self)
                 .onNavigationReceive { (navigator, destination: HomeDestinations) in
-                    navigator.push(destination)
+                    navigator.navigate(to: destination)
                     return .auto
                 }
         }

@@ -99,12 +99,19 @@ extension Navigator {
 extension Navigator {
 
     @MainActor
-    public func push(_ page: any NavigationDestinations) {
-        path.append(page)
+    public func push(_ destination: any NavigationDestinations) {
+        path.append(destination)
     }
 
     @MainActor
-    public func pop(k: Int = 1) {
+    public func pop(to position: Int) {
+        if position <= path.count {
+            path.removeLast(path.count - position)
+        }
+    }
+
+    @MainActor
+    public func pop(last k: Int = 1) {
         if path.count >= k {
             path.removeLast(k)
         }
@@ -112,13 +119,11 @@ extension Navigator {
 
     @MainActor
     public func popAll() {
-        if !isEmpty {
-            path.removeLast(path.count)
-        }
+        path.removeLast(path.count)
     }
 
     @MainActor
-    public var isEmpty: Bool {
+    public var isPathEmpty: Bool {
         path.isEmpty
     }
 
@@ -134,18 +139,24 @@ extension Navigator {
             dismissible = nil
             return true
         }
-        for child in children.values {
-            if let navigator = child.navigator, navigator.dismiss() {
-                return true
-            }
-        }
         return false
     }
 
     @MainActor
     @discardableResult
     public func dismissAll() -> Bool {
-        root.dismiss()
+        root.dismissAllChildren()
+    }
+
+    @MainActor
+    @discardableResult
+    public func dismissAllChildren() -> Bool {
+        for child in children.values {
+            if let child = child.navigator, child.dismiss() || child.dismissAllChildren() {
+                return true
+            }
+        }
+        return false
     }
 
     public nonisolated var isPresented: Bool {
@@ -154,6 +165,10 @@ extension Navigator {
 
     public nonisolated var isPresenting: Bool {
         children.values.first(where: { $0.navigator?.isPresented ?? false }) != nil
+    }
+
+    public nonisolated var isChildPresenting: Bool {
+        children.values.first(where: { $0.navigator?.isPresented ?? false || $0.navigator?.isChildPresenting ?? false }) != nil
     }
 
 }
