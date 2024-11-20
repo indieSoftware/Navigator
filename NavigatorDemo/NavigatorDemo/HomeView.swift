@@ -24,10 +24,7 @@ struct RootHomeView: View {
 struct HomeContentView: View {
     let name: String
     @Environment(\.navigator) var navigator: Navigator
-    @State var text: String = ""
-    @State var value = 0
     var body: some View {
-//        let _ = Self._printChanges()
         List {
             Section {
                 NavigationLink(value: HomeDestinations.page2) {
@@ -55,15 +52,12 @@ struct HomeContentView: View {
             ContentSheetSection()
         }
         .navigationTitle(name)
-//        .searchable(text: $text)
     }
 }
 
 struct HomePage2View: View {
     @Environment(\.navigator) var navigator: Navigator
-//    @State var text: String = ""
     var body: some View {
-//        let _ = Self._printChanges()
         List {
             Section {
                 NavigationLink(value: HomeDestinations.page3) {
@@ -77,7 +71,6 @@ struct HomePage2View: View {
             ContentSheetSection()
         }
         .navigationTitle("Page 2")
-//        .searchable(text: $text)
     }
 }
 
