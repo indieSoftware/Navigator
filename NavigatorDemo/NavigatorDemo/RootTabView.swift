@@ -31,7 +31,7 @@ struct RootTabView : View {
         .onNavigationReceive { (navigator, tab: RootTabs) in
             navigator.dismissAll()
             selectedTab = tab
-            navigator.resume()
+            return .auto
         }
     }
 }

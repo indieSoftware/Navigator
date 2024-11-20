@@ -15,7 +15,7 @@ struct RootHomeView: View {
                 .navigationDestinations(HomeDestinations.self)
                 .onNavigationReceive { (navigator, destination: HomeDestinations) in
                     navigator.push(destination)
-                    navigator.resume()
+                    return .auto
                 }
         }
     }

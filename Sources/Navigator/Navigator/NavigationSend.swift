@@ -10,22 +10,25 @@ import SwiftUI
 
 extension Navigator {
 
+    @MainActor
     public func send(_ value: any Hashable) {
         print("Navigator \(id) sending \(value)")
-        Navigator.values = []
-        publisher.send(value)
+        publisher.send((value, []))
     }
 
+    @MainActor
     public func send(values: [any Hashable]) {
         guard let value: any Hashable = values.first else {
             return
         }
         print("Navigator \(id) sending \(value)")
-        Navigator.values = Array(values.dropFirst())
-        publisher.send(value)
+        publisher.send((value, Array(values.dropFirst())))
     }
 
 }
+
+public typealias NavigationSendValues = (value: any Hashable, values: [any Hashable])
+public typealias NavigationReceiveHandler<T> = (_ navigator: Navigator, _ value: T) -> NavigationReceiveResumeType
 
 public enum NavigationReceiveResumeType {
     case auto
@@ -35,71 +38,59 @@ public enum NavigationReceiveResumeType {
     case cancel
 }
 
-public typealias NavigationReceiveResumeHandler = (NavigationReceiveResumeType) -> Void
-
 extension View {
-    public func onNavigationReceive<T: Hashable>(handler: @escaping (Navigator, T) -> Void) -> some View {
+    public func onNavigationReceive<T: Hashable>(handler: @escaping NavigationReceiveHandler<T>) -> some View {
         self.modifier(OnNavigationReceiveModifier(handler: handler))
     }
 
     public func onNavigationReceive<T: NavigationDestinations>(_ type: T.Type) -> some View {
         self.modifier(OnNavigationReceiveModifier<T> { (navigator, value) in
             navigator.navigate(to: value)
-            navigator.resume()
+            return .auto
         })
     }
 }
 
-extension Navigator {
-
-    @MainActor
-    public func resume(_ action: NavigationReceiveResumeType = .auto, delay: TimeInterval = 0.7) {
-        switch action {
-        case .auto:
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                self.send(values: Navigator.values)
-            }
-        case .immediately:
-            self.send(values: Navigator.values)
-        case .after(let interval):
-            DispatchQueue.main.asyncAfter(deadline: .now() + interval) {
-                self.send(values: Navigator.values)
-            }
-        case .with(let newValues):
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                self.send(values: newValues)
-            }
-        case .cancel:
-            Navigator.values = []
-        }
-    }
-
-    nonisolated(unsafe) internal static var values: [any Hashable] = []
-
-}
-
 private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
 
-    private let handler: (_ navigator: Navigator, _ value: T) -> Void
+    private let handler: NavigationReceiveHandler<T>
 
     @Environment(\.navigator) var navigator: Navigator
 
-    init(handler: @escaping (_ navigator: Navigator, _ value: T) -> Void) {
+    init(handler: @escaping NavigationReceiveHandler<T>) {
         self.handler = handler
     }
 
     func body(content: Content) -> some View {
         content
-            .onReceive(publisher) { value in
+            .onReceive(publisher) { (value, values) in
                 print("Navigator \(navigator.id) receiving \(value)")
-                handler(navigator, value)
+                resume(handler(navigator, value), values: values)
             }
     }
 
-    var publisher: AnyPublisher<T, Never> {
+    var publisher: AnyPublisher<(T, [any Hashable]), Never> {
         navigator.publisher
-            .compactMap { $0 as? T }
+            .compactMap { $0 as? (T, [any Hashable]) }
             .eraseToAnyPublisher()
+    }
+
+    func resume(_ action: NavigationReceiveResumeType, values: [any Hashable], delay: TimeInterval = 0.7) {
+        guard !values.isEmpty else { return }
+        switch action {
+        case .auto:
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                navigator.send(values: values)
+            }
+        case .immediately:
+            navigator.send(values: values)
+        case .after(let interval):
+            resume(.auto, values: values, delay: interval)
+        case .with(let newValues):
+            resume(.auto, values: newValues)
+        case .cancel:
+            break
+        }
     }
 
 }

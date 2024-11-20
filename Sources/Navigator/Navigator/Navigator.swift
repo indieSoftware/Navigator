@@ -28,7 +28,7 @@ public class Navigator: ObservableObject {
 
     internal var dismissible: DismissAction? = nil
 
-    internal var publisher: PassthroughSubject<any Hashable, Never>
+    internal var publisher: PassthroughSubject<NavigationSendValues, Never>
 
     public init(parent: Navigator? = nil, action: DismissAction? = nil) {
         self.dismissible = action
