@@ -15,22 +15,31 @@ extension View {
 
 struct NavigationDismissibleModifier: ViewModifier {
 
-    @Environment(\.navigator) var navigator: Navigator
+    @Environment(\.navigator) var parent: Navigator
     @Environment(\.dismiss) var action: DismissAction
 
     func body(content: Content) -> some View {
         content
-            .modifier(WrappedDismissibleModifier(navigator: navigator, action: action))
+            .modifier(WrappedDismissibleModifier(parent: parent, action: action))
     }
     
     struct WrappedDismissibleModifier:  ViewModifier {
 
-        init(navigator: Navigator, action: DismissAction) {
-            navigator.setDismissAction(action)
+        @StateObject private var navigator: Navigator
+
+        init(parent: Navigator, action: DismissAction) {
+            self._navigator = .init(wrappedValue: .init(parent: parent, action: action))
         }
 
         func body(content: Content) -> some View {
             content
+                .sheet(item: $navigator.sheet ) { destination in
+                    destination.asView
+                }
+                .fullScreenCover(item: $navigator.fullScreenCover) { destination in
+                    destination.asView
+                }
+                .environment(\.navigator, navigator)
         }
 
     }

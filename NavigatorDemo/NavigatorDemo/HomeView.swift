@@ -112,10 +112,9 @@ struct HomePageNView: View {
 
 struct NestedHomeContentView: View {
     var body: some View {
-        ManagedNavigationStack {
+        ManagedNavigationStack(dismissible: true) {
             HomeContentView(name: "Nested Navigation")
                 .navigationDestinations(HomeDestinations.self)
-                .navigationDismissible()
         }
     }
 }

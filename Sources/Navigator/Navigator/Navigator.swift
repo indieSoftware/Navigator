@@ -26,11 +26,12 @@ public class Navigator: ObservableObject {
     internal weak var parent: Navigator?
     internal var children: [UUID : WeakNavigator] = [:]
 
-    internal var dismissible: Dismissible? = nil
+    internal var dismissible: DismissAction? = nil
 
     internal var publisher: PassthroughSubject<any Hashable, Never>
 
-    public init(parent: Navigator? = nil) {
+    public init(parent: Navigator? = nil, action: DismissAction? = nil) {
+        self.dismissible = action
         if let parent {
             self.parent = parent
             self.publisher = parent.publisher
@@ -103,9 +104,9 @@ extension Navigator {
     }
 
     @MainActor
-    public func pop() {
-        if !isEmpty {
-            path.removeLast()
+    public func pop(k: Int = 1) {
+        if path.count >= k {
+            path.removeLast(k)
         }
     }
 
@@ -128,18 +129,17 @@ extension Navigator {
     @MainActor
     @discardableResult
     public func dismiss() -> Bool {
-        var dismissed = false
         if isPresented {
-            parent?.dismissible?.dismiss()
-            parent?.dismissible = nil
-            dismissed = true
+            dismissible?()
+            dismissible = nil
+            return true
         }
         for child in children.values {
             if let navigator = child.navigator, navigator.dismiss() {
-                dismissed = true
+                return true
             }
         }
-        return dismissed
+        return false
     }
 
     @MainActor
@@ -149,27 +149,11 @@ extension Navigator {
     }
 
     public nonisolated var isPresented: Bool {
-        parent?.dismissible?.navigator != nil
+        dismissible != nil
     }
 
     public nonisolated var isPresenting: Bool {
-        dismissible?.navigator != nil
-    }
-
-    internal func setDismissAction(_ action: DismissAction) {
-        guard !isPresented else {
-            return
-        }
-        parent?.dismissible = .init(navigator: self, dismiss: action)
-    }
-
-    internal class Dismissible {
-        internal init(navigator: Navigator?, dismiss: DismissAction) {
-            self.navigator = navigator
-            self.dismiss = dismiss
-        }
-        weak var navigator: Navigator?
-        let dismiss: DismissAction
+        children.values.first(where: { $0.navigator?.isPresented ?? false }) != nil
     }
 
 }
@@ -179,5 +163,6 @@ extension EnvironmentValues {
 }
 
 extension Navigator {
+    // Exists since EnvironmentValues loves to recreate default values
     nonisolated(unsafe) internal static let root: Navigator = Navigator()
 }

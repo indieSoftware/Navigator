@@ -11,26 +11,35 @@ import SwiftUI
 public struct ManagedNavigationStack<Content: View>: View {
 
     @Environment(\.navigator) private var parent: Navigator
+    @Environment(\.dismiss) private var action: DismissAction
 
+    private var dismissible: Bool
     private var content: Content
 
-    /// Initializes NavigationStack without Navigator
-    public init(@ViewBuilder content: @escaping () -> Content) {
+    /// Initializes NavigationStack
+    public init(content: () -> Content) {
+        self.dismissible = false
+        self.content = content()
+    }
+
+    /// Initializes NavigationStack
+    public init(dismissible: Bool, content: () -> Content) {
+        self.dismissible = dismissible
         self.content = content()
     }
 
     public var body: some View {
-        WrappedNavigationStack(parent: parent, content: content)
+        WrappedNavigationStack(parent: parent, action: dismissible ? action : nil, content: content)
     }
 
-    // Wrapped view exists so environment variables can be extracted and passed to navigator.
+    // Wrapped view exists so parent environment variables can be extracted and passed to navigator.
     private struct WrappedNavigationStack: View {
 
         @StateObject private var navigator: Navigator
         private let content: Content
 
-        init(parent: Navigator, content: Content) {
-            self._navigator = .init(wrappedValue: .init(parent: parent))
+        init(parent: Navigator, action: DismissAction?, content: Content) {
+            self._navigator = .init(wrappedValue: .init(parent: parent, action: action))
             self.content = content
         }
 
@@ -48,18 +57,4 @@ public struct ManagedNavigationStack<Content: View>: View {
         }
     }
 
-}
-
-public struct WithNavigator<Content: View>: View {
-
-    @Environment(\.navigator) private var navigator: Navigator
-    private var content: (Navigator) -> Content
-    
-    public init(@ViewBuilder content: @escaping (Navigator) -> Content) {
-        self.content = content
-    }
-    
-    public var body: some View {
-        content(navigator)
-    }
 }
