@@ -12,7 +12,7 @@ extension Navigator {
 
     @MainActor
     public func send(_ value: any Hashable) {
-        print("Navigator \(id) sending \(value)")
+        log("Navigator \(id) sending \(value)")
         publisher.send((value, []))
     }
 
@@ -21,7 +21,7 @@ extension Navigator {
         guard let value: any Hashable = values.first else {
             return
         }
-        print("Navigator \(id) sending \(value)")
+        log("Navigator \(id) sending \(value)")
         publisher.send((value, Array(values.dropFirst())))
     }
 
@@ -69,7 +69,7 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
     func body(content: Content) -> some View {
         content
             .onReceive(publisher) { (value, values) in
-                print("Navigator \(navigator.id) receiving \(value)")
+                navigator.log("Navigator \(navigator.id) receiving \(value)")
                 resume(handler(value, navigator), values: values)
             }
     }

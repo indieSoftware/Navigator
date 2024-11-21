@@ -13,7 +13,16 @@ struct NavigatorDemoApp: App {
     var body: some Scene {
         WindowGroup {
             RootTabView()
-                .environment(\.navigator, Navigator())
+                .environment(\.navigator, Navigator(configuration: configuration))
         }
+    }
+
+    var configuration: NavigationConfiguration {
+        NavigationConfiguration(
+            linkHanders: [
+                HomeLinkHander(),
+                SettingsLinkHander()
+            ]
+        )
     }
 }

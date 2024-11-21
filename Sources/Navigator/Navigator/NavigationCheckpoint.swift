@@ -26,17 +26,15 @@ extension Navigator {
 
     internal func addCheckpoint(_ checkpoint: NavigationCheckpoint) {
         guard checkpoints[checkpoint.name] == nil else { return }
+        log("Navigator adding checkpoint \(checkpoint.name)")
         checkpoint.navigator = self
         checkpoint.index = path.count
         checkpoints[checkpoint.name] = WeakObject(checkpoint)
     }
 
     internal func removeCheckpoint(_ name: String) {
+        log("Navigator removing checkpoint \(name)")
         checkpoints.removeValue(forKey: name)
-    }
-
-    internal func cleanCheckpoints() {
-        checkpoints = checkpoints.filter { $1.object != nil }
     }
 
 }

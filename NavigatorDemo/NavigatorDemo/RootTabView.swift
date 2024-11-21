@@ -15,6 +15,7 @@ enum RootTabs: CaseIterable, Identifiable {
 
 struct RootTabView : View {
     @State var selectedTab: RootTabs = .home
+    @Environment(\.navigator) var navigator
     var body: some View {
         TabView(selection: $selectedTab) {
             RootHomeView()
@@ -28,10 +29,13 @@ struct RootTabView : View {
                 }
                 .tag(RootTabs.settings)
         }
-        .onNavigationReceive { (tab: RootTabs, navigator) in
+        .onNavigationReceive { (tab: RootTabs) in
             navigator.dismissAll()
             selectedTab = tab
             return .auto
+        }
+        .onOpenURL { url in
+            navigator.openURL(url)
         }
     }
 }

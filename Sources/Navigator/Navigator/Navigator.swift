@@ -17,17 +17,13 @@ public enum NavigationMethod {
 
 public class Navigator: ObservableObject {
 
-    @Published internal var path: NavigationPath = .init() {
-        didSet {
-            cleanCheckpoints()
-        }
-    }
-
+    @Published internal var path: NavigationPath = .init()
     @Published internal var sheet: AnyNavigationDestination? = nil
     @Published internal var fullScreenCover: AnyNavigationDestination? = nil
 
     internal var id: UUID = .init()
-    
+    internal var configuration: NavigationConfiguration
+
     internal weak var parent: Navigator?
     internal var children: [UUID : WeakObject<Navigator>] = [:]
 
@@ -37,23 +33,29 @@ public class Navigator: ObservableObject {
 
     internal var publisher: PassthroughSubject<NavigationSendValues, Never>
 
-    public init(parent: Navigator? = nil, action: DismissAction? = nil) {
+    public init(configuration: NavigationConfiguration = NavigationConfiguration()) {
+        self.configuration = configuration
+        self.parent = nil
+        self.publisher = .init()
+        print("Navigator init: \(id)")
+    }
+
+    public init(parent: Navigator, action: DismissAction? = nil) {
+        self.configuration = parent.configuration
+        self.parent = parent
+        self.publisher = parent.publisher
         self.dismissible = action
-        if let parent {
-            self.parent = parent
-            self.publisher = parent.publisher
-            parent.addChild(self)
-            print("Navigator init: \(id) parent \(parent.id)")
-        } else {
-            self.parent = nil
-            self.publisher = .init()
-            print("Navigator init: \(id)")
-        }
+        parent.addChild(self)
+        log("Navigator init: \(id) parent \(parent.id)")
      }
 
     deinit {
-        print("Navigator deinit: \(id)")
+        log("Navigator deinit: \(id)")
         parent?.removeChild(self)
+    }
+
+    public func log(_ message: String) {
+        configuration.log?(message)
     }
 
     public var root: Navigator {
@@ -193,10 +195,10 @@ struct WeakObject<T: AnyObject> {
 }
 
 extension EnvironmentValues {
-    @Entry public var navigator: Navigator = Navigator.root
+    @Entry public var navigator: Navigator = Navigator.defaultNavigator
 }
 
 extension Navigator {
     // Exists since EnvironmentValues loves to recreate default values
-    nonisolated(unsafe) internal static let root: Navigator = Navigator()
+    nonisolated(unsafe) internal static let defaultNavigator: Navigator = Navigator()
 }
