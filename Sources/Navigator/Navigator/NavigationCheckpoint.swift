@@ -11,7 +11,7 @@ extension Navigator {
 
     @MainActor
     public func returnToCheckpoint(_ name: String) {
-        guard let found = checkpoints[name], let index = found.checkpoint?.index else {
+        guard let found = checkpoints[name], let index = found.object?.index else {
             parent?.returnToCheckpoint(name)
             return
         }
@@ -28,7 +28,7 @@ extension Navigator {
         guard checkpoints[checkpoint.name] == nil else { return }
         checkpoint.navigator = self
         checkpoint.index = path.count
-        checkpoints[checkpoint.name] = WeakCheckpoint(name: checkpoint.name, checkpoint: checkpoint)
+        checkpoints[checkpoint.name] = WeakObject(checkpoint)
     }
 
     internal func removeCheckpoint(_ name: String) {
@@ -36,32 +36,9 @@ extension Navigator {
     }
 
     internal func cleanCheckpoints() {
-        checkpoints = checkpoints.filter { $1.checkpoint != nil }
+        checkpoints = checkpoints.filter { $1.object != nil }
     }
 
-    internal struct WeakCheckpoint: Hashable {
-        let name: String
-        weak var checkpoint: NavigationCheckpoint?
-        func hash(into hasher: inout Hasher) {
-            hasher.combine(name)
-        }
-        static func == (lhs: Navigator.WeakCheckpoint, rhs: Navigator.WeakCheckpoint) -> Bool {
-            lhs.name == rhs.name
-        }
-    }
-
-}
-
-internal class NavigationCheckpoint: ObservableObject {
-    var name: String
-    weak var navigator: Navigator? = nil
-    var index: Int = 0
-    init(name: String) {
-        self.name = name
-    }
-    deinit {
-        navigator?.removeCheckpoint(name)
-    }
 }
 
 extension View {
@@ -96,4 +73,16 @@ internal struct NavigationCheckpointModifier: ViewModifier {
         }
     }
     
+}
+
+internal class NavigationCheckpoint: ObservableObject {
+    var name: String
+    weak var navigator: Navigator? = nil
+    var index: Int = 0
+    init(name: String) {
+        self.name = name
+    }
+    deinit {
+        navigator?.removeCheckpoint(name)
+    }
 }

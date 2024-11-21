@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public protocol NavigationDestinations: Hashable, Identifiable {
+public protocol NavigationDestination: Hashable, Identifiable {
 
     associatedtype Body: View
 
@@ -17,26 +17,26 @@ public protocol NavigationDestinations: Hashable, Identifiable {
 
 }
 
-extension NavigationDestinations {
+extension NavigationDestination {
 
     public var id: Int {
-        return self.hashValue
+        self.hashValue
     }
 
     public var method: NavigationMethod {
         .push
     }
 
-    @MainActor public var asView: AnyView {
+    @MainActor public func asView() -> AnyView {
         AnyView(self.body)
     }
 
 }
 
 extension View {
-    public func navigationDestinations<T: NavigationDestinations>(_ type: T.Type) -> some View {
+    public func navigationDestination<T: NavigationDestination>(_ type: T.Type) -> some View {
         self.navigationDestination(for: type) { destination in
-            destination.asView
+            destination.asView()
         }
     }
 }

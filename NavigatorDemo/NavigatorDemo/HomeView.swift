@@ -13,7 +13,7 @@ struct RootHomeView: View {
         ManagedNavigationStack {
             HomeContentView(name: "Root Navigation")
                 .navigationCheckpoint("home")
-                .navigationDestinations(HomeDestinations.self)
+                .navigationDestination(HomeDestinations.self)
                 .onNavigationReceive { (destination: HomeDestinations, navigator) in
                     navigator.navigate(to: destination)
                     return .auto
@@ -27,7 +27,7 @@ struct HomeContentView: View {
     @Environment(\.navigator) var navigator: Navigator
     var body: some View {
         List {
-            Section {
+            Section("Navigation Actions") {
                 NavigationLink(value: HomeDestinations.page2) {
                     Text("Link to Home Page 2!")
                 }
@@ -38,8 +38,7 @@ struct HomeContentView: View {
                     navigator.push(HomeDestinations.pageN(55))
                 }
             }
-            ContentPopSection()
-            Section {
+            Section("Send Actions") {
                 Button("Send Home Page 88, 99") {
                     navigator.send(values: [
                         HomeDestinations.pageN(88),
@@ -51,6 +50,7 @@ struct HomeContentView: View {
                 }
             }
             ContentSheetSection()
+            ContentPopSection()
         }
         .navigationTitle(name)
     }
@@ -60,7 +60,7 @@ struct HomePage2View: View {
     @Environment(\.navigator) var navigator: Navigator
     var body: some View {
         List {
-            Section {
+            Section("Navigation Actions") {
                 NavigationLink(value: HomeDestinations.page3) {
                     Text("Link to Home Page 3!")
                 }
@@ -68,8 +68,8 @@ struct HomePage2View: View {
                     Text("Link to Home Page 55!")
                 }
             }
-            ContentPopSection()
             ContentSheetSection()
+            ContentPopSection()
         }
         .navigationCheckpoint(HomeDestinations.page2)
         .navigationTitle("Page 2")
@@ -80,7 +80,7 @@ struct HomePage3View: View {
     @Environment(\.navigator) var navigator: Navigator
     var body: some View {
         List {
-            Section {
+            Section("Navigation Actions") {
                 NavigationLink(value: HomeDestinations.pageN(66)) {
                     Text("Link to Home Page 66!")
                 }
@@ -88,8 +88,8 @@ struct HomePage3View: View {
                     navigator.push(HomeDestinations.pageN(77))
                 }
             }
-            ContentPopSection()
             ContentSheetSection()
+            ContentPopSection()
         }
         .navigationTitle("Page 3")
     }
@@ -100,13 +100,13 @@ struct HomePageNView: View {
     @Environment(\.navigator) var navigator: Navigator
     var body: some View {
         List {
-            Section {
+            Section("Navigation Actions") {
                 Button("Button Push to Home Page 88") {
                     navigator.push(HomeDestinations.pageN(88))
                 }
             }
-            ContentPopSection()
             ContentSheetSection()
+            ContentPopSection()
         }
         .navigationTitle("Page \(number)")
     }
@@ -116,7 +116,7 @@ struct NestedHomeContentView: View {
     var body: some View {
         ManagedNavigationStack(dismissible: true) {
             HomeContentView(name: "Nested Navigation")
-                .navigationDestinations(HomeDestinations.self)
+                .navigationDestination(HomeDestinations.self)
         }
     }
 }

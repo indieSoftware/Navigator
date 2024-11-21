@@ -34,10 +34,10 @@ struct NavigationDismissibleModifier: ViewModifier {
         func body(content: Content) -> some View {
             content
                 .sheet(item: $navigator.sheet ) { destination in
-                    destination.asView
+                    destination.asView()
                 }
                 .fullScreenCover(item: $navigator.fullScreenCover) { destination in
-                    destination.asView
+                    destination.asView()
                 }
                 .environment(\.navigator, navigator)
         }

@@ -21,7 +21,7 @@ struct ContentSheetSection: View {
     @Environment(\.navigator) var navigator: Navigator
     @State var showSheet: Bool = false
     var body: some View {
-        Section {
+        Section("Presentation Actions") {
             Button("Button Presents Page Sheet") {
                 navigator.navigate(to: HomeDestinations.sheet, via: .sheet)
             }
@@ -47,7 +47,15 @@ struct ContentSheetSection: View {
 struct ContentPopSection: View {
     @Environment(\.navigator) var navigator: Navigator
     var body: some View {
-        Section {
+        Section("Checkpoint Actions") {
+            Button("Return To Checkpoint Home") {
+                navigator.returnToCheckpoint("home")
+            }
+            Button("Return To Checkpoint Page 2") {
+                navigator.returnToCheckpoint(HomeDestinations.page2)
+            }
+        }
+        Section("Pop Actions") {
             Button("Button Pop") {
                 navigator.pop()
             }
@@ -61,14 +69,6 @@ struct ContentPopSection: View {
             }
             .disabled(navigator.isEmpty)
         }
-        Section {
-            Button("Return To Checkpoint Home") {
-                navigator.returnToCheckpoint("home")
-            }
-            Button("Return To Checkpoint Page 2") {
-                navigator.returnToCheckpoint(HomeDestinations.page2)
-            }
-       }
     }
 }
 

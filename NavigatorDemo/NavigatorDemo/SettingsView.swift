@@ -12,7 +12,7 @@ struct RootSettingsView: View {
     var body: some View {
         ManagedNavigationStack {
             SettingsView(name: "Root Settings")
-                .navigationDestinations(SettingsDestinations.self)
+                .navigationDestination(SettingsDestinations.self)
                 .onNavigationReceive(SettingsDestinations.self)
         }
     }
@@ -21,10 +21,14 @@ struct RootSettingsView: View {
 struct SettingsView: View {
     let name: String
     @Environment(\.navigator) var navigator: Navigator
-    @State var text: String = ""
     var body: some View {
         List {
-            Section {
+            Section("Sheet Actions") {
+                Button("Present Settings Sheet") {
+                    navigator.navigate(to: SettingsDestinations.sheet)
+                }
+            }
+            Section("Navigation Actions") {
                 NavigationLink(value: SettingsDestinations.page2) {
                     Text("Link to Settings Page 2!")
                 }
@@ -32,7 +36,7 @@ struct SettingsView: View {
                     navigator.push(SettingsDestinations.page3)
                 }
             }
-            Section {
+            Section("Send Actions") {
                 Button("Send Settings Page 3") {
                     navigator.send(SettingsDestinations.page3)
                 }
@@ -42,7 +46,6 @@ struct SettingsView: View {
             }
         }
         .navigationTitle(name)
-        .searchable(text: $text)
     }
 }
 
@@ -50,7 +53,7 @@ struct Page2SettingsView: View {
     @Environment(\.navigator) var navigator: Navigator
     var body: some View {
         List {
-            Section {
+            Section("Navigation Actions") {
                 NavigationLink(value: SettingsDestinations.page3) {
                     Text("Link to Test Page 3!")
                 }
@@ -70,3 +73,19 @@ struct Page3SettingsView: View {
         .navigationTitle("Page 3")
     }
 }
+
+struct SettingsSheetView: View {
+    @Environment(\.navigator) var navigator: Navigator
+    var body: some View {
+        List {
+            Section("Send Actions") {
+                Button("Send Tab Home") {
+                    navigator.send(RootTabs.home)
+                }
+            }
+            ContentSheetSection()
+        }
+        .navigationTitle("Sheet")
+    }
+}
+

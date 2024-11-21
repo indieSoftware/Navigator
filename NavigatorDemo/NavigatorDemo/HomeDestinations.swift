@@ -15,7 +15,7 @@ public enum HomeDestinations {
     case sheet
 }
 
-extension HomeDestinations: NavigationDestinations {
+extension HomeDestinations: NavigationDestination {
     public var body: some View {
         switch self {
         case .page2:

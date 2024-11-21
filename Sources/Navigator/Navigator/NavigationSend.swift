@@ -29,7 +29,7 @@ extension Navigator {
 
 public typealias NavigationSendValues = (value: any Hashable, values: [any Hashable])
 public typealias NavigationReceiveHandler<T> = (_ value: T, _ navigator: Navigator) -> NavigationReceiveResumeType
-public typealias NavigationReceiveValueHandler<T> = (_ value: T) -> NavigationReceiveResumeType
+public typealias NavigationReceiveValueOnlyHandler<T> = (_ value: T) -> NavigationReceiveResumeType
 
 public enum NavigationReceiveResumeType {
     case auto
@@ -44,11 +44,11 @@ extension View {
         self.modifier(OnNavigationReceiveModifier(handler: handler))
     }
 
-    public func onNavigationReceive<T: Hashable>(handler: @escaping NavigationReceiveValueHandler<T>) -> some View {
+    public func onNavigationReceive<T: Hashable>(handler: @escaping NavigationReceiveValueOnlyHandler<T>) -> some View {
         self.modifier(OnNavigationReceiveModifier(handler: { (value, _) in handler(value) }))
     }
 
-    public func onNavigationReceive<T: NavigationDestinations>(_ type: T.Type) -> some View {
+    public func onNavigationReceive<T: NavigationDestination>(_ type: T.Type) -> some View {
         self.modifier(OnNavigationReceiveModifier<T> { (value, navigator) in
             navigator.navigate(to: value)
             return .auto
@@ -81,7 +81,9 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
     }
 
     func resume(_ action: NavigationReceiveResumeType, values: [any Hashable], delay: TimeInterval = 0.7) {
-        guard !values.isEmpty else { return }
+        guard !values.isEmpty else {
+            return
+        }
         switch action {
         case .auto:
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {

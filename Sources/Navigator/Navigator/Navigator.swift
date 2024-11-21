@@ -29,11 +29,11 @@ public class Navigator: ObservableObject {
     internal var id: UUID = .init()
     
     internal weak var parent: Navigator?
-    internal var children: [UUID : WeakNavigator] = [:]
+    internal var children: [UUID : WeakObject<Navigator>] = [:]
 
     internal var dismissible: DismissAction? = nil
 
-    internal var checkpoints: [String: WeakCheckpoint] = [:]
+    internal var checkpoints: [String: WeakObject<NavigationCheckpoint>] = [:]
 
     internal var publisher: PassthroughSubject<NavigationSendValues, Never>
 
@@ -61,7 +61,7 @@ public class Navigator: ObservableObject {
     }
 
     internal func addChild(_ child: Navigator) {
-        children[child.id] = WeakNavigator(navigator: child)
+        children[child.id] = WeakObject(child)
     }
 
     internal func removeChild(_ child: Navigator) {
@@ -69,9 +69,9 @@ public class Navigator: ObservableObject {
     }
 
     internal struct AnyNavigationDestination: Identifiable {
-        public let destination: any NavigationDestinations
+        public let destination: any NavigationDestination
         public var id: Int { destination.id }
-        @MainActor public var asView: AnyView { destination.asView }
+        @MainActor public func asView() -> AnyView { destination.asView() }
     }
 
     internal struct WeakNavigator {
@@ -83,12 +83,12 @@ public class Navigator: ObservableObject {
 extension Navigator {
 
     @MainActor
-    public func navigate(to destination: any NavigationDestinations) {
+    public func navigate(to destination: any NavigationDestination) {
         navigate(to: destination, via: destination.method)
     }
 
     @MainActor
-    public func navigate(to destination: any NavigationDestinations, via method: NavigationMethod) {
+    public func navigate(to destination: any NavigationDestination, via method: NavigationMethod) {
         switch method {
         case .push:
             push(destination)
@@ -106,7 +106,7 @@ extension Navigator {
 extension Navigator {
 
     @MainActor
-    public func push(_ destination: any NavigationDestinations) {
+    public func push(_ destination: any NavigationDestination) {
         path.append(destination)
     }
 
@@ -164,7 +164,7 @@ extension Navigator {
     @discardableResult
     public func dismissAllChildren() -> Bool {
         for child in children.values {
-            if let child = child.navigator, child.dismiss() || child.dismissAllChildren() {
+            if let navigator = child.object, navigator.dismiss() || navigator.dismissAllChildren() {
                 return true
             }
         }
@@ -176,13 +176,20 @@ extension Navigator {
     }
 
     public nonisolated var isPresenting: Bool {
-        children.values.first(where: { $0.navigator?.isPresented ?? false }) != nil
+        children.values.first(where: { $0.object?.isPresented ?? false }) != nil
     }
 
     public nonisolated var isChildPresenting: Bool {
-        children.values.first(where: { $0.navigator?.isPresented ?? false || $0.navigator?.isChildPresenting ?? false }) != nil
+        children.values.first(where: { $0.object?.isPresented ?? false || $0.object?.isChildPresenting ?? false }) != nil
     }
 
+}
+
+struct WeakObject<T: AnyObject> {
+    weak var object: T?
+    init(_ object: T) {
+        self.object = object
+    }
 }
 
 extension EnvironmentValues {
