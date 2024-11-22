@@ -34,8 +34,8 @@ struct HomeContentView: View {
                 NavigationLink(value: HomeDestinations.pageN(44)) {
                     Text("Link to Home Page 44!")
                 }
-                Button("Button Push to Home Page 55") {
-                    navigator.push(HomeDestinations.pageN(55))
+                Button("Button Navigate to Home Page 55") {
+                    navigator.navigate(to: HomeDestinations.pageN(55))
                 }
             }
             Section("Send Actions") {

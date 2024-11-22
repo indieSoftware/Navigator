@@ -1,3 +1,3 @@
 # Navigator
 
-Managed NavigationStacks for SwiftUI.
+Managed Navigation for SwiftUI.
