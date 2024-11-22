@@ -27,16 +27,18 @@ public class Navigator: ObservableObject {
     internal var dismissible: DismissAction? = nil
     internal var checkpoints: [String: WeakObject<NavigationCheckpoint>] = [:]
     internal var publisher: PassthroughSubject<NavigationSendValues, Never>
+    internal var logger: ((_ message: String) -> Void)? = { print($0) }
 
-    public var logger: ((_ message: String) -> Void)? = { print($0) }
-
-    public init() {
+    /// Allows public initialization of root Navigators.
+    public init(logger: ((_ message: String) -> Void)? = { print($0) }) {
         self.parent = nil
         self.publisher = .init()
+        self.logger = logger
         print("Navigator root: \(id)")
     }
 
-    public init(parent: Navigator, action: DismissAction? = nil) {
+    /// Internal initializer used by ManagedNavigationStack and navigationDismissible modifiers.
+    internal init(parent: Navigator, action: DismissAction?) {
         self.parent = parent
         self.publisher = parent.publisher
         self.dismissible = action
@@ -44,35 +46,30 @@ public class Navigator: ObservableObject {
         log("Navigator init: \(id) parent \(parent.id)")
      }
 
+    /// Sentinel code removes child from parent when Navigator is dismissed.
     deinit {
         log("Navigator deinit: \(id)")
         parent?.removeChild(self)
     }
 
+    /// Walks up the parent tree and returns the root Navigator.
     public var root: Navigator {
         parent?.root ?? self
     }
 
+    /// Adds a child Navigator to a parent Navigator.
     internal func addChild(_ child: Navigator) {
         children[child.id] = WeakObject(child)
     }
 
+    /// Removes a child Navigator from a parent Navigator.
     internal func removeChild(_ child: Navigator) {
         children.removeValue(forKey: child.id)
     }
 
-    public func log(_ message: String) {
+    /// Internal logging function.
+    internal func log(_ message: String) {
         root.logger?(message)
-    }
-
-    internal struct AnyNavigationDestination: Identifiable {
-        public let destination: any NavigationDestination
-        public var id: Int { destination.id }
-        @MainActor public func asView() -> AnyView { destination.asView() }
-    }
-
-    internal struct WeakNavigator {
-        weak var navigator: Navigator?
     }
 
 }
@@ -182,14 +179,29 @@ extension Navigator {
 
 }
 
-struct WeakObject<T: AnyObject> {
+/// Wrapper boxes a specific NavigationDestination.
+internal struct AnyNavigationDestination {
+    public let destination: any NavigationDestination
+}
+
+extension AnyNavigationDestination: Identifiable {
+    public var id: Int { destination.id }
+    @MainActor public func asView() -> AnyView { destination.asView() }
+}
+
+/// Allows weak storage of reference types in arrays, dictionaries, and other collection types.
+internal struct WeakObject<T: AnyObject> {
     weak var object: T?
     init(_ object: T) {
         self.object = object
     }
+    func callAsFunction() -> T? {
+        object
+    }
 }
 
 extension EnvironmentValues {
+    /// Reference to the Navigator managing the current ManagedNavigationStack.
     @Entry public var navigator: Navigator = Navigator.defaultNavigator
 }
 

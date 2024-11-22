@@ -9,6 +9,9 @@ import SwiftUI
 
 extension Navigator {
 
+    /// Returns to a named checkpoint in the navigation system.
+    ///
+    /// This function will pop and/or dismiss intervening views as needed.
     @MainActor
     public func returnToCheckpoint(_ name: String) {
         guard let found = checkpoints[name], let index = found.object?.index else {
@@ -19,6 +22,9 @@ extension Navigator {
         pop(to: index)
     }
 
+    /// Returns to a named checkpoint in the navigation system.
+    ///
+    /// This function will pop and/or dismiss intervening views as needed.
     @MainActor
     public func returnToCheckpoint(_ hashable: any Hashable) {
         returnToCheckpoint("\(hashable.hashValue)")
@@ -40,9 +46,15 @@ extension Navigator {
 }
 
 extension View {
+    /// Establishes a named checkpoint in the navigation system.
+    ///
+    /// Navigators know how to pop and/or dismiss views in order to return to this checkpoint when needed.
     public func navigationCheckpoint(_ name: String) -> some View {
         self.modifier(NavigationCheckpointModifier(name: name))
     }
+    /// Establishes a named checkpoint in the navigation system.
+    ///
+    /// Navigators know how to pop and/or dismiss views in order to return to this checkpoint when needed.
     public func navigationCheckpoint(_ hashable: any Hashable) -> some View {
         self.modifier(NavigationCheckpointModifier(name: "\(hashable.hashValue)"))
     }
@@ -59,10 +71,11 @@ internal struct NavigationCheckpointModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .modifier(WrappedCheckpointModifier(navigator: navigator, checkpoint: checkpoint))
+            .modifier(WrappedModifier(navigator: navigator, checkpoint: checkpoint))
     }
     
-    struct WrappedCheckpointModifier:  ViewModifier {
+    // Wrapped modifier allows parent environment variables can be extracted and passed to navigator.
+    struct WrappedModifier:  ViewModifier {
         init(navigator: Navigator, checkpoint: NavigationCheckpoint) {
             navigator.addCheckpoint(checkpoint)
         }
@@ -73,6 +86,7 @@ internal struct NavigationCheckpointModifier: ViewModifier {
     
 }
 
+/// The NavigationCheckpoint sentinel removes checkpoints when host views are popped or dismissed.
 internal class NavigationCheckpoint: ObservableObject {
     var name: String
     weak var navigator: Navigator? = nil

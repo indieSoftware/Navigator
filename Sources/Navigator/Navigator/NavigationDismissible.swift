@@ -20,10 +20,11 @@ struct NavigationDismissibleModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .modifier(WrappedDismissibleModifier(parent: parent, action: action))
+            .modifier(WrappedModifier(parent: parent, action: action))
     }
     
-    struct WrappedDismissibleModifier:  ViewModifier {
+    // Wrapped modifier allows parent environment variables can be extracted and passed to navigator.
+    struct WrappedModifier:  ViewModifier {
 
         @StateObject private var navigator: Navigator
 
