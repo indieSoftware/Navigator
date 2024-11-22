@@ -13,7 +13,7 @@ struct RootSettingsView: View {
         ManagedNavigationStack {
             SettingsView(name: "Root Settings")
                 .navigationDestination(SettingsDestinations.self)
-                .onNavigationReceive(SettingsDestinations.self)
+                .onNavigationSend(SettingsDestinations.self)
         }
     }
 }

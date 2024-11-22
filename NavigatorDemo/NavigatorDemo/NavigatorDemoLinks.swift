@@ -1,5 +1,5 @@
 //
-//  NavigatorURLs.swift
+//  NavigatorDemoLinks.swift
 //  NavigatorDemo
 //
 //  Created by Michael Long on 11/21/24.
@@ -8,7 +8,7 @@
 import Navigator
 import SwiftUI
 
-struct HomeLinkHander: NavigationLinkHander {
+struct HomeURLHander: NavigationURLHander {
     public func handles(_ url: URL) -> [any Hashable]? {
         guard url.pathComponents.count > 1, url.pathComponents[1] == "home" else {
             return nil
@@ -27,7 +27,7 @@ struct HomeLinkHander: NavigationLinkHander {
     }
 }
 
-struct SettingsLinkHander: NavigationLinkHander {
+struct SettingsURLHander: NavigationURLHander {
     public func handles(_ url: URL) -> [any Hashable]? {
         guard url.pathComponents.count > 1, url.pathComponents[1] == "settings" else {
             return nil

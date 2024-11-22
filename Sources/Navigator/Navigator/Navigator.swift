@@ -10,9 +10,9 @@ import SwiftUI
 
 public enum NavigationMethod {
     case push
+    case send
     case sheet
     case fullScreenCover
-    case send
 }
 
 public class Navigator: ObservableObject {
@@ -22,26 +22,21 @@ public class Navigator: ObservableObject {
     @Published internal var fullScreenCover: AnyNavigationDestination? = nil
 
     internal var id: UUID = .init()
-    internal var configuration: NavigationConfiguration
-
     internal weak var parent: Navigator?
     internal var children: [UUID : WeakObject<Navigator>] = [:]
-
     internal var dismissible: DismissAction? = nil
-
     internal var checkpoints: [String: WeakObject<NavigationCheckpoint>] = [:]
-
     internal var publisher: PassthroughSubject<NavigationSendValues, Never>
 
-    public init(configuration: NavigationConfiguration = NavigationConfiguration()) {
-        self.configuration = configuration
+    public var logger: ((_ message: String) -> Void)? = { print($0) }
+
+    public init() {
         self.parent = nil
         self.publisher = .init()
-        print("Navigator init: \(id)")
+        print("Navigator root: \(id)")
     }
 
     public init(parent: Navigator, action: DismissAction? = nil) {
-        self.configuration = parent.configuration
         self.parent = parent
         self.publisher = parent.publisher
         self.dismissible = action
@@ -54,10 +49,6 @@ public class Navigator: ObservableObject {
         parent?.removeChild(self)
     }
 
-    public func log(_ message: String) {
-        configuration.log?(message)
-    }
-
     public var root: Navigator {
         parent?.root ?? self
     }
@@ -68,6 +59,10 @@ public class Navigator: ObservableObject {
 
     internal func removeChild(_ child: Navigator) {
         children.removeValue(forKey: child.id)
+    }
+
+    public func log(_ message: String) {
+        root.logger?(message)
     }
 
     internal struct AnyNavigationDestination: Identifiable {
@@ -94,12 +89,12 @@ extension Navigator {
         switch method {
         case .push:
             push(destination)
+        case .send:
+            send(destination)
         case .sheet:
             sheet = AnyNavigationDestination(destination: destination)
         case .fullScreenCover:
             fullScreenCover = AnyNavigationDestination(destination: destination)
-        case .send:
-            send(destination)
         }
     }
 

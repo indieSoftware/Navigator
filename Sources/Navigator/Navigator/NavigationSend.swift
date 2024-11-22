@@ -28,10 +28,10 @@ extension Navigator {
 }
 
 public typealias NavigationSendValues = (value: any Hashable, values: [any Hashable])
-public typealias NavigationReceiveHandler<T> = (_ value: T, _ navigator: Navigator) -> NavigationReceiveResumeType
-public typealias NavigationReceiveValueOnlyHandler<T> = (_ value: T) -> NavigationReceiveResumeType
+public typealias NavigationSendHandler<T> = (_ value: T, _ navigator: Navigator) -> NavigationSendResumeType
+public typealias NavigationSendValueOnlyHandler<T> = (_ value: T) -> NavigationSendResumeType
 
-public enum NavigationReceiveResumeType {
+public enum NavigationSendResumeType {
     case auto
     case immediately
     case after(TimeInterval)
@@ -40,29 +40,29 @@ public enum NavigationReceiveResumeType {
 }
 
 extension View {
-    public func onNavigationReceive<T: Hashable>(handler: @escaping NavigationReceiveHandler<T>) -> some View {
-        self.modifier(OnNavigationReceiveModifier(handler: handler))
+    public func onNavigationSend<T: Hashable>(handler: @escaping NavigationSendHandler<T>) -> some View {
+        self.modifier(OnNavigationSendModifier(handler: handler))
     }
 
-    public func onNavigationReceive<T: Hashable>(handler: @escaping NavigationReceiveValueOnlyHandler<T>) -> some View {
-        self.modifier(OnNavigationReceiveModifier(handler: { (value, _) in handler(value) }))
+    public func onNavigationSend<T: Hashable>(handler: @escaping NavigationSendValueOnlyHandler<T>) -> some View {
+        self.modifier(OnNavigationSendModifier(handler: { (value, _) in handler(value) }))
     }
 
-    public func onNavigationReceive<T: NavigationDestination>(_ type: T.Type) -> some View {
-        self.modifier(OnNavigationReceiveModifier<T> { (value, navigator) in
+    public func onNavigationSend<T: NavigationDestination>(_ type: T.Type) -> some View {
+        self.modifier(OnNavigationSendModifier<T> { (value, navigator) in
             navigator.navigate(to: value)
             return .auto
         })
     }
 }
 
-private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
+private struct OnNavigationSendModifier<T: Hashable>: ViewModifier {
 
-    private let handler: NavigationReceiveHandler<T>
+    private let handler: NavigationSendHandler<T>
 
     @Environment(\.navigator) var navigator: Navigator
 
-    init(handler: @escaping NavigationReceiveHandler<T>) {
+    init(handler: @escaping NavigationSendHandler<T>) {
         self.handler = handler
     }
 
@@ -80,7 +80,7 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
             .eraseToAnyPublisher()
     }
 
-    func resume(_ action: NavigationReceiveResumeType, values: [any Hashable], delay: TimeInterval = 0.7) {
+    func resume(_ action: NavigationSendResumeType, values: [any Hashable], delay: TimeInterval = 0.7) {
         guard !values.isEmpty else {
             return
         }

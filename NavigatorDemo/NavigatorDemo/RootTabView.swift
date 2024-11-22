@@ -7,15 +7,16 @@
 
 import SwiftUI
 
-enum RootTabs: CaseIterable, Identifiable {
+enum RootTabs: Identifiable {
     case home
     case settings
     var id: Self { self }
 }
 
 struct RootTabView : View {
+
     @State var selectedTab: RootTabs = .home
-    @Environment(\.navigator) var navigator
+
     var body: some View {
         TabView(selection: $selectedTab) {
             RootHomeView()
@@ -29,15 +30,17 @@ struct RootTabView : View {
                 }
                 .tag(RootTabs.settings)
         }
-        .onNavigationReceive { (tab: RootTabs) in
+        .onNavigationSend { (tab: RootTabs, navigator) in
             navigator.dismissAll()
             selectedTab = tab
             return .auto
         }
-        .onOpenURL { url in
-            navigator.openURL(url)
-        }
+        .onNavigationOpenURL(handlers: [
+            HomeURLHander(),
+            SettingsURLHander()
+        ])
     }
+
 }
 
 #Preview {
