@@ -10,7 +10,7 @@ import SwiftUI
 
 struct RootSettingsView: View {
     var body: some View {
-        ManagedNavigationStack {
+        ManagedNavigationStack(name: "Settings") {
             SettingsView(name: "Root Settings")
                 .navigationDestination(SettingsDestinations.self)
                 .onNavigationSend(SettingsDestinations.self)

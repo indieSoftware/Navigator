@@ -8,7 +8,7 @@
 import Navigator
 import SwiftUI
 
-public enum SettingsDestinations {
+public enum SettingsDestinations: Int, Codable {
     case page2
     case page3
     case sheet

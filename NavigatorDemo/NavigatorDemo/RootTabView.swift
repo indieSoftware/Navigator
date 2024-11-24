@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum RootTabs: Identifiable {
+enum RootTabs: Int, Identifiable, Codable {
     case home
     case settings
     var id: Self { self }
@@ -15,7 +15,7 @@ enum RootTabs: Identifiable {
 
 struct RootTabView : View {
 
-    @State var selectedTab: RootTabs = .home
+    @SceneStorage("selectedTab") var selectedTab: RootTabs = .home
 
     var body: some View {
         TabView(selection: $selectedTab) {

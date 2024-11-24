@@ -23,7 +23,7 @@ struct ContentSheetSection: View {
     var body: some View {
         Section("Presentation Actions") {
             Button("Button Presents Page Sheet") {
-                navigator.navigate(to: HomeDestinations.sheet, via: .sheet)
+                navigator.navigate(to: HomeDestinations.sheet, method: .sheet)
             }
             Button("Button Presents Custom Sheet") {
                 showSheet = true

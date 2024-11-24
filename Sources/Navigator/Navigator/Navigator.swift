@@ -8,40 +8,39 @@
 import Combine
 import SwiftUI
 
-public enum NavigationMethod {
-    case push
-    case send
-    case sheet
-    case fullScreenCover
-}
-
 public class Navigator: ObservableObject {
 
     @Published internal var path: NavigationPath = .init()
     @Published internal var sheet: AnyNavigationDestination? = nil
     @Published internal var fullScreenCover: AnyNavigationDestination? = nil
+    @Published internal var triggerDismissAction: Bool = false
 
-    internal var id: UUID = .init()
     internal weak var parent: Navigator?
     internal var children: [UUID : WeakObject<Navigator>] = [:]
-    internal var dismissible: DismissAction? = nil
-    internal var checkpoints: [String: WeakObject<NavigationCheckpoint>] = [:]
+
+    internal var id: UUID = .init()
+    internal var dismissible: Bool
+    internal var checkpoints: [String: WeakObject<NavigationCheckpointSentinel>] = [:]
     internal var publisher: PassthroughSubject<NavigationSendValues, Never>
     internal var logger: ((_ message: String) -> Void)? = { print($0) }
+
+    internal let decoder = JSONDecoder()
+    internal let encoder = JSONEncoder()
 
     /// Allows public initialization of root Navigators.
     public init(logger: ((_ message: String) -> Void)? = { print($0) }) {
         self.parent = nil
         self.publisher = .init()
+        self.dismissible = false
         self.logger = logger
         print("Navigator root: \(id)")
     }
 
     /// Internal initializer used by ManagedNavigationStack and navigationDismissible modifiers.
-    internal init(parent: Navigator, action: DismissAction?) {
+    internal init(parent: Navigator, dismissible: Bool) {
         self.parent = parent
         self.publisher = parent.publisher
-        self.dismissible = action
+        self.dismissible = dismissible
         parent.addChild(self)
         log("Navigator init: \(id) parent \(parent.id)")
      }
@@ -68,8 +67,10 @@ public class Navigator: ObservableObject {
     }
 
     /// Internal logging function.
-    internal func log(_ message: String) {
-        root.logger?(message)
+    internal func log(_ message: @autoclosure () -> String) {
+        #if DEBUG
+        root.logger?(message())
+        #endif
     }
 
 }
@@ -78,20 +79,20 @@ extension Navigator {
 
     @MainActor
     public func navigate(to destination: any NavigationDestination) {
-        navigate(to: destination, via: destination.method)
+        navigate(to: destination, method: destination.method)
     }
 
     @MainActor
-    public func navigate(to destination: any NavigationDestination, via method: NavigationMethod) {
+    public func navigate(to destination: any NavigationDestination, method method: NavigationMethod) {
         switch method {
         case .push:
             push(destination)
         case .send:
             send(destination)
         case .sheet:
-            sheet = AnyNavigationDestination(destination: destination)
+            sheet = AnyNavigationDestination(wrapped: destination)
         case .fullScreenCover:
-            fullScreenCover = AnyNavigationDestination(destination: destination)
+            fullScreenCover = AnyNavigationDestination(wrapped: destination)
         }
     }
 
@@ -101,7 +102,11 @@ extension Navigator {
 
     @MainActor
     public func push(_ destination: any NavigationDestination) {
-        path.append(destination)
+        if let destination = destination as? any Hashable & Codable {
+            path.append(destination)
+        } else {
+            path.append(destination)
+        }
     }
 
     @MainActor
@@ -141,8 +146,7 @@ extension Navigator {
     @discardableResult
     public func dismiss() -> Bool {
         if isPresented {
-            dismissible?()
-            dismissible = nil
+            triggerDismissAction = true
             return true
         }
         return false
@@ -166,7 +170,7 @@ extension Navigator {
     }
 
     public nonisolated var isPresented: Bool {
-        dismissible != nil
+        dismissible ?? false
     }
 
     public nonisolated var isPresenting: Bool {
@@ -179,14 +183,20 @@ extension Navigator {
 
 }
 
-/// Wrapper boxes a specific NavigationDestination.
-internal struct AnyNavigationDestination {
-    public let destination: any NavigationDestination
-}
-
-extension AnyNavigationDestination: Identifiable {
-    public var id: Int { destination.id }
-    @MainActor public func asView() -> AnyView { destination.asView() }
+extension Navigator {
+    // Experimental
+    internal func encoded() -> Data? {
+        try? path.codable.map(encoder.encode)
+    }
+    // Experimental
+    internal func restore(from data: Data) {
+        do {
+            let representation = try decoder.decode(NavigationPath.CodableRepresentation.self, from: data)
+            path = NavigationPath(representation)
+        } catch {
+            path = NavigationPath()
+        }
+    }
 }
 
 /// Allows weak storage of reference types in arrays, dictionaries, and other collection types.
@@ -194,9 +204,6 @@ internal struct WeakObject<T: AnyObject> {
     weak var object: T?
     init(_ object: T) {
         self.object = object
-    }
-    func callAsFunction() -> T? {
-        object
     }
 }
 

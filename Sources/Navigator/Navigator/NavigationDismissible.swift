@@ -16,29 +16,32 @@ extension View {
 struct NavigationDismissibleModifier: ViewModifier {
 
     @Environment(\.navigator) var parent: Navigator
-    @Environment(\.dismiss) var action: DismissAction
 
     func body(content: Content) -> some View {
         content
-            .modifier(WrappedModifier(parent: parent, action: action))
+            .modifier(WrappedModifier(parent: parent))
     }
     
     // Wrapped modifier allows parent environment variables can be extracted and passed to navigator.
     struct WrappedModifier:  ViewModifier {
 
         @StateObject private var navigator: Navigator
+        @Environment(\.dismiss) var dismiss: DismissAction
 
-        init(parent: Navigator, action: DismissAction) {
-            self._navigator = .init(wrappedValue: .init(parent: parent, action: action))
+        init(parent: Navigator) {
+            self._navigator = .init(wrappedValue: .init(parent: parent, dismissible: true))
         }
 
         func body(content: Content) -> some View {
             content
+                .onChange(of: navigator.triggerDismissAction) { _ in
+                    dismiss()
+                }
                 .sheet(item: $navigator.sheet ) { destination in
-                    destination.asView()
+                    destination.view()
                 }
                 .fullScreenCover(item: $navigator.fullScreenCover) { destination in
-                    destination.asView()
+                    destination.view()
                 }
                 .environment(\.navigator, navigator)
         }

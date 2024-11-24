@@ -17,7 +17,7 @@ import SwiftUI
 /// * Imperatively by asking a ``Navigator`` to perform the desired action.
 /// * Or via a deep link action enabled by a ``NavigationURLHander``.
 ///
-/// NavigationDestination types are one of the core elements that make Navigator possible.
+/// They're one of the core elements that make Navigator possible.
 ///
 /// ### Defining Navigation Destinations
 /// Destinations are typically just a simple list of enumerated values.
@@ -131,17 +131,37 @@ extension NavigationDestination {
     }
 
     /// Convenience function returns body as wrapped AnyView.
-    @MainActor public func asView() -> AnyView {
+    @MainActor public func view() -> AnyView {
         AnyView(self.body)
     }
 
 }
 
+/// Wrapper boxes a specific NavigationDestination.
+internal struct AnyNavigationDestination {
+    public let wrapped: any NavigationDestination
+}
+
+extension AnyNavigationDestination: Identifiable {
+    public var id: Int { wrapped.id }
+}
+
+extension AnyNavigationDestination {
+    @MainActor public func view() -> AnyView { wrapped.view() }
+}
+
 extension View {
     /// Registers ``NavigationDestination`` types in order to enable `navigationLink(value:label)` behaviors.
+    /// ```swift
+    /// ManagedNavigationStack {
+    ///     HomeView()
+    ///         .navigationDestination(HomeDestinations.self)
+    /// }
+    /// ```
+    /// This also makes using the same destination type with more than one navigation stack a lot easier.
     public func navigationDestination<T: NavigationDestination>(_ type: T.Type) -> some View {
         self.navigationDestination(for: type) { destination in
-            destination.asView()
+            destination.view()
         }
     }
 }

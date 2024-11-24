@@ -12,8 +12,7 @@ extension Navigator {
 
     @MainActor
     public func send(_ value: any Hashable) {
-        log("Navigator \(id) sending \(value)")
-        publisher.send((value, []))
+        send(value, [])
     }
 
     @MainActor
@@ -21,8 +20,12 @@ extension Navigator {
         guard let value: any Hashable = values.first else {
             return
         }
+        send(value, Array(values.dropFirst()))
+    }
+
+    internal func send(_ value: any Hashable, _ values: [any Hashable]) {
         log("Navigator \(id) sending \(value)")
-        publisher.send((value, Array(values.dropFirst())))
+        publisher.send((value, values))
     }
 
 }
