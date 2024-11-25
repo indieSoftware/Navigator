@@ -22,7 +22,7 @@ public struct ManagedNavigationStack<Content: View>: View {
         self.content = content()
     }
 
-    public init(name: String, @ViewBuilder content: () -> Content) {
+    public init(scene name: String, @ViewBuilder content: () -> Content) {
         self.name = name
         self.content = content()
     }

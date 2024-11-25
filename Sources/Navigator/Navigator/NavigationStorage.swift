@@ -16,23 +16,24 @@ extension Navigator {
             id: id,
             path: path ?? Data(),
             checkpoints: checkpoints,
-            dismissible: dismissible
+            dismissible: dismissible,
+            sheet: nil,
+            fullScreenCover: nil
         )
         return try? encoder.encode(storage)
     }
 
     // Experimental
     internal func restore(from data: Data) {
-        do {
-            let storage = try decoder.decode(NavigationStorage.self, from: data)
-            id = storage.id
-            checkpoints = storage.checkpoints
-            dismissible = storage.dismissible
-            let representation = try decoder.decode(NavigationPath.CodableRepresentation.self, from: storage.path)
-            path = NavigationPath(representation)
-        } catch {
-            path = NavigationPath()
+        guard let storage = try? decoder.decode(NavigationStorage.self, from: data) else {
+            return
         }
+        id = storage.id
+        if let pathRepresentation = try? decoder.decode(NavigationPath.CodableRepresentation.self, from: storage.path) {
+            path = NavigationPath(pathRepresentation)
+        }
+        checkpoints = storage.checkpoints
+        dismissible = storage.dismissible
     }
 
 }
@@ -42,19 +43,34 @@ internal struct NavigationStorage {
     var path: Data
     var checkpoints: [String: NavigationCheckpoint]
     var dismissible: Bool
-//    let sheet: AnyNavigationDestination?
-//    let fullScreenCover: AnyNavigationDestination?
+    let sheet: Data?
+    let fullScreenCover: Data?
 
     internal init(
         id: UUID = UUID(),
         path: Data = Data(),
         checkpoints: [String : NavigationCheckpoint] = [:],
-        dismissible: Bool = false
+        dismissible: Bool = false,
+        sheet: Data?,
+        fullScreenCover: Data?
     ) {
         self.id = id
         self.path = path
         self.checkpoints = checkpoints
         self.dismissible = dismissible
+        self.sheet = sheet
+        self.fullScreenCover = fullScreenCover
+    }
+}
+
+extension AnyNavigationDestination {
+    internal struct CodableRepresentation : Codable {
+        public init(from decoder: any Decoder) throws {
+
+        }
+        public func encode(to encoder: any Encoder) throws {
+
+        }
     }
 }
 

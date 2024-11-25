@@ -22,6 +22,13 @@ extension Navigator {
         pop(to: found.index)
     }
 
+    public nonisolated func canReturnToCheckpoint(_ name: String) -> Bool {
+        guard let found = checkpoints[name] else {
+            return parent?.canReturnToCheckpoint(name) ?? false
+        }
+        return found.index < path.count
+    }
+
     internal func addCheckpoint(_ name: String) {
         guard checkpoints[name] == nil else { return }
         log("Navigator adding checkpoint \(name)")

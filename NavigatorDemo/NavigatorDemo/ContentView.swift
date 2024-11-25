@@ -51,9 +51,11 @@ struct ContentPopSection: View {
             Button("Return To Checkpoint Home") {
                 navigator.returnToCheckpoint("home")
             }
+            .disabled(!navigator.canReturnToCheckpoint("home"))
             Button("Return To Checkpoint Page 2") {
                 navigator.returnToCheckpoint("page2")
             }
+            .disabled(!navigator.canReturnToCheckpoint("page2"))
         }
         Section("Pop Actions") {
             Button("Button Pop") {

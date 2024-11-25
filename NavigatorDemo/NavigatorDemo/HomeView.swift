@@ -10,7 +10,7 @@ import SwiftUI
 
 struct RootHomeView: View {
     var body: some View {
-        ManagedNavigationStack(name: "Home") {
+        ManagedNavigationStack(scene: "home") {
             HomeContentView(name: "Root Navigation")
                 .navigationCheckpoint("home")
                 .navigationDestination(HomeDestinations.self)
