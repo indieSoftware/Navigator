@@ -71,7 +71,7 @@ struct HomePage2View: View {
             ContentSheetSection()
             ContentPopSection()
         }
-        .navigationCheckpoint(HomeDestinations.page2)
+        .navigationCheckpoint("page2")
         .navigationTitle("Page 2")
     }
 }

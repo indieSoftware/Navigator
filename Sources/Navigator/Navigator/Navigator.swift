@@ -10,19 +10,25 @@ import SwiftUI
 
 public class Navigator: ObservableObject {
 
-    @Published internal var path: NavigationPath = .init()
+    @Published internal var path: NavigationPath = .init() {
+        didSet {
+            cleanCheckpoints()
+        }
+    }
+    
     @Published internal var sheet: AnyNavigationDestination? = nil
     @Published internal var fullScreenCover: AnyNavigationDestination? = nil
-    @Published internal var triggerDismissAction: Bool = false
+    @Published internal var triggerDismiss: Bool = false
 
     internal weak var parent: Navigator?
     internal var children: [UUID : WeakObject<Navigator>] = [:]
 
     internal var id: UUID = .init()
+    internal var checkpoints: [String: NavigationCheckpoint] = [:]
     internal var dismissible: Bool
-    internal var checkpoints: [String: WeakObject<NavigationCheckpointSentinel>] = [:]
-    internal var publisher: PassthroughSubject<NavigationSendValues, Never>
-    internal var logger: ((_ message: String) -> Void)? = { print($0) }
+
+    internal let publisher: PassthroughSubject<NavigationSendValues, Never>
+    internal let logger: ((_ message: String) -> Void)?
 
     internal let decoder = JSONDecoder()
     internal let encoder = JSONEncoder()
@@ -41,6 +47,7 @@ public class Navigator: ObservableObject {
         self.parent = parent
         self.publisher = parent.publisher
         self.dismissible = dismissible
+        self.logger = parent.logger
         parent.addChild(self)
         log("Navigator init: \(id) parent \(parent.id)")
      }
@@ -146,7 +153,7 @@ extension Navigator {
     @discardableResult
     public func dismiss() -> Bool {
         if isPresented {
-            triggerDismissAction = true
+            triggerDismiss = true
             return true
         }
         return false
@@ -181,22 +188,6 @@ extension Navigator {
         children.values.first(where: { $0.object?.isPresented ?? false || $0.object?.isChildPresenting ?? false }) != nil
     }
 
-}
-
-extension Navigator {
-    // Experimental
-    internal func encoded() -> Data? {
-        try? path.codable.map(encoder.encode)
-    }
-    // Experimental
-    internal func restore(from data: Data) {
-        do {
-            let representation = try decoder.decode(NavigationPath.CodableRepresentation.self, from: data)
-            path = NavigationPath(representation)
-        } catch {
-            path = NavigationPath()
-        }
-    }
 }
 
 /// Allows weak storage of reference types in arrays, dictionaries, and other collection types.

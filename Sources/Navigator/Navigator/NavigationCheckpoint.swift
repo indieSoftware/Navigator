@@ -14,35 +14,28 @@ extension Navigator {
     /// This function will pop and/or dismiss intervening views as needed.
     @MainActor
     public func returnToCheckpoint(_ name: String) {
-        guard let found = checkpoints[name], let index = found.object?.index else {
+        guard let found = checkpoints[name] else {
             parent?.returnToCheckpoint(name)
             return
         }
         dismissAllChildren()
-        pop(to: index)
+        pop(to: found.index)
     }
 
-    /// Returns to a named checkpoint in the navigation system.
-    ///
-    /// This function will pop and/or dismiss intervening views as needed.
-    @MainActor
-    public func returnToCheckpoint(_ hashable: any Hashable) {
-        returnToCheckpoint("\(hashable.hashValue)")
+    internal func addCheckpoint(_ name: String) {
+        guard checkpoints[name] == nil else { return }
+        log("Navigator adding checkpoint \(name)")
+        checkpoints[name] = NavigationCheckpoint(name: name, index: path.count)
     }
 
-    internal func addCheckpoint(_ checkpoint: NavigationCheckpointSentinel) {
-        guard checkpoints[checkpoint.name] == nil else { return }
-        log("Navigator adding checkpoint \(checkpoint.name)")
-        checkpoint.navigator = self
-        checkpoint.index = path.count
-        checkpoints[checkpoint.name] = WeakObject(checkpoint)
+    internal func cleanCheckpoints() {
+        checkpoints = checkpoints.filter { $1.index <= path.count }
     }
+}
 
-    internal func removeCheckpoint(_ name: String) {
-        log("Navigator removing checkpoint \(name)")
-        checkpoints.removeValue(forKey: name)
-    }
-
+internal struct NavigationCheckpoint: Codable {
+    let name: String
+    let index: Int
 }
 
 extension View {
@@ -52,49 +45,31 @@ extension View {
     public func navigationCheckpoint(_ name: String) -> some View {
         self.modifier(NavigationCheckpointModifier(name: name))
     }
-    /// Establishes a named checkpoint in the navigation system.
-    ///
-    /// Navigators know how to pop and/or dismiss views in order to return to this checkpoint when needed.
-    public func navigationCheckpoint(_ hashable: any Hashable) -> some View {
-        self.modifier(NavigationCheckpointModifier(name: "\(hashable.hashValue)"))
-    }
 }
 
 internal struct NavigationCheckpointModifier: ViewModifier {
 
-    @StateObject var checkpoint: NavigationCheckpointSentinel
     @Environment(\.navigator) var navigator: Navigator
 
+    private let name: String
+
     init(name: String) {
-        self._checkpoint = .init(wrappedValue: .init(name: name))
+        self.name = name
     }
 
     func body(content: Content) -> some View {
         content
-            .modifier(WrappedModifier(navigator: navigator, checkpoint: checkpoint))
+            .modifier(WrappedModifier(name: name, navigator: navigator))
     }
     
     // Wrapped modifier allows parent environment variables can be extracted and passed to navigator.
     struct WrappedModifier:  ViewModifier {
-        init(navigator: Navigator, checkpoint: NavigationCheckpointSentinel) {
-            navigator.addCheckpoint(checkpoint)
+        init(name: String, navigator: Navigator) {
+            navigator.addCheckpoint(name)
         }
         func body(content: Content) -> some View {
             content
         }
     }
-    
-}
 
-/// The NavigationCheckpoint sentinel removes checkpoints when host views are popped or dismissed.
-internal class NavigationCheckpointSentinel: ObservableObject {
-    var name: String
-    weak var navigator: Navigator? = nil
-    var index: Int = 0
-    init(name: String) {
-        self.name = name
-    }
-    deinit {
-        navigator?.removeCheckpoint(name)
-    }
 }

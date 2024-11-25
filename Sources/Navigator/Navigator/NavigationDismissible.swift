@@ -34,7 +34,7 @@ struct NavigationDismissibleModifier: ViewModifier {
 
         func body(content: Content) -> some View {
             content
-                .onChange(of: navigator.triggerDismissAction) { _ in
+                .onChange(of: navigator.triggerDismiss) { _ in
                     dismiss()
                 }
                 .sheet(item: $navigator.sheet ) { destination in

@@ -54,6 +54,9 @@ public struct ManagedNavigationStack<Content: View>: View {
             NavigationStack(path: $navigator.path) {
                 content
             }
+            .onChange(of: navigator.triggerDismiss) { _ in
+                dismiss()
+            }
             .onChange(of: scenePhase) { phase in
                 guard name != nil else {
                     return
@@ -63,9 +66,6 @@ public struct ManagedNavigationStack<Content: View>: View {
                 } else {
                     sceneStorage = navigator.encoded()
                 }
-            }
-            .onChange(of: navigator.triggerDismissAction) { _ in
-                dismiss()
             }
             .sheet(item: $navigator.sheet ) { destination in
                 destination.view()

@@ -52,7 +52,7 @@ struct ContentPopSection: View {
                 navigator.returnToCheckpoint("home")
             }
             Button("Return To Checkpoint Page 2") {
-                navigator.returnToCheckpoint(HomeDestinations.page2)
+                navigator.returnToCheckpoint("page2")
             }
         }
         Section("Pop Actions") {
