@@ -47,5 +47,5 @@ struct NavigationDismissibleModifier: ViewModifier {
         }
 
     }
-    
+
 }

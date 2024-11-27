@@ -46,16 +46,21 @@ struct ContentSheetSection: View {
 
 struct ContentPopSection: View {
     @Environment(\.navigator) var navigator: Navigator
+    @State var returnToCheckpoint: Bool = false
     var body: some View {
         Section("Checkpoint Actions") {
             Button("Return To Checkpoint Home") {
-                navigator.returnToCheckpoint("home")
+                navigator.returnToCheckpoint(.home)
             }
-            .disabled(!navigator.canReturnToCheckpoint("home"))
+            .disabled(!navigator.canReturnToCheckpoint(.home))
             Button("Return To Checkpoint Page 2") {
-                navigator.returnToCheckpoint("page2")
+                returnToCheckpoint = true
             }
-            .disabled(!navigator.canReturnToCheckpoint("page2"))
+            .navigationReturnToCheckpoint(trigger: $returnToCheckpoint, checkpoint: .page2)
+            .disabled(!navigator.canReturnToCheckpoint(.page2))
+            Button("Return To Unknown Checkpoint") {
+                navigator.returnToCheckpoint("unknown")
+            }
         }
         Section("Pop Actions") {
             Button("Button Pop") {

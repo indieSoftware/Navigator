@@ -65,7 +65,7 @@ public class Navigator: ObservableObject {
 
     /// Adds a child Navigator to a parent Navigator.
     internal func addChild(_ child: Navigator) {
-        children[child.id] = WeakObject(child)
+        children[child.id] = WeakObject(object: child)
     }
 
     /// Removes a child Navigator from a parent Navigator.
@@ -80,6 +80,11 @@ public class Navigator: ObservableObject {
         #endif
     }
 
+    /// Allows weak storage of reference types in arrays, dictionaries, and other collection types.
+    internal struct WeakObject<T: AnyObject> {
+        weak var object: T?
+    }
+
 }
 
 extension Navigator {
@@ -91,6 +96,7 @@ extension Navigator {
 
     @MainActor
     public func navigate(to destination: any NavigationDestination, method method: NavigationMethod) {
+        log("Navigator navigating to: \(destination)")
         switch method {
         case .push:
             push(destination)
@@ -110,7 +116,7 @@ extension Navigator {
     @MainActor
     public func push(_ destination: any NavigationDestination) {
         if let destination = destination as? any Hashable & Codable {
-            path.append(destination)
+            path.append(destination) // ensures NavigationPath knows type is Codable
         } else {
             path.append(destination)
         }
@@ -145,57 +151,6 @@ extension Navigator {
         path.count
     }
 
-}
-
-extension Navigator {
-
-    @MainActor
-    @discardableResult
-    public func dismiss() -> Bool {
-        if isPresented {
-            triggerDismiss = true
-            return true
-        }
-        return false
-    }
-
-    @MainActor
-    @discardableResult
-    public func dismissAll() -> Bool {
-        root.dismissAllChildren()
-    }
-
-    @MainActor
-    @discardableResult
-    public func dismissAllChildren() -> Bool {
-        for child in children.values {
-            if let navigator = child.object, navigator.dismiss() || navigator.dismissAllChildren() {
-                return true
-            }
-        }
-        return false
-    }
-
-    public nonisolated var isPresented: Bool {
-        dismissible ?? false
-    }
-
-    public nonisolated var isPresenting: Bool {
-        children.values.first(where: { $0.object?.isPresented ?? false }) != nil
-    }
-
-    public nonisolated var isChildPresenting: Bool {
-        children.values.first(where: { $0.object?.isPresented ?? false || $0.object?.isChildPresenting ?? false }) != nil
-    }
-
-}
-
-/// Allows weak storage of reference types in arrays, dictionaries, and other collection types.
-internal struct WeakObject<T: AnyObject> {
-    weak var object: T?
-    init(_ object: T) {
-        self.object = object
-    }
 }
 
 extension EnvironmentValues {

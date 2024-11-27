@@ -8,11 +8,16 @@
 import Navigator
 import SwiftUI
 
+extension NavigationCheckpoint {
+    public static var home: NavigationCheckpoint = "home"
+    public static var page2: NavigationCheckpoint = "page2"
+}
+
 struct RootHomeView: View {
     var body: some View {
         ManagedNavigationStack(scene: "home") {
             HomeContentView(name: "Root Navigation")
-                .navigationCheckpoint("home")
+                .navigationCheckpoint(.home)
                 .navigationDestination(HomeDestinations.self)
                 .onNavigationSend { (destination: HomeDestinations, navigator) in
                     navigator.navigate(to: destination)
@@ -71,7 +76,7 @@ struct HomePage2View: View {
             ContentSheetSection()
             ContentPopSection()
         }
-        .navigationCheckpoint("page2")
+        .navigationCheckpoint(.page2)
         .navigationTitle("Page 2")
     }
 }
@@ -121,6 +126,6 @@ struct NestedHomeContentView: View {
     }
 }
 
-#Preview {
-    RootHomeView()
-}
+//#Preview {
+//    RootHomeView()
+//}

@@ -21,6 +21,7 @@ struct RootSettingsView: View {
 struct SettingsView: View {
     let name: String
     @Environment(\.navigator) var navigator: Navigator
+    @State var destination: SettingsDestinations?
     var body: some View {
         List {
             Section("Sheet Actions") {
@@ -37,9 +38,13 @@ struct SettingsView: View {
                 }
             }
             Section("Send Actions") {
-                Button("Send Settings Page 3") {
-                    navigator.send(SettingsDestinations.page3)
+                Button("Send Page 2 via Navigator") {
+                    navigator.send(SettingsDestinations.page2)
                 }
+                Button("Send Page 3 via Modifier") {
+                    destination = SettingsDestinations.page3
+                }
+                .navigationSend($destination)
                 Button("Send Tab Home, Page 2") {
                     navigator.send(values: [RootTabs.home, HomeDestinations.page2])
                 }

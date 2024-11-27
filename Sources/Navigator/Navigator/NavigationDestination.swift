@@ -92,7 +92,7 @@ import SwiftUI
 ///
 /// > Important: When using `NavigationLink(value:label:)` the method will be ignored and SwiftUI will push
 /// the value onto the navigation stack as it would normally.
-public protocol NavigationDestination: Hashable, Identifiable {
+public protocol NavigationDestination: Hashable, Equatable, Identifiable {
 
     associatedtype Body: View
 
@@ -135,10 +135,15 @@ extension NavigationDestination {
         AnyView(self.body)
     }
 
+    /// Equatable conformance.
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.id == rhs.id
+    }
+
 }
 
 /// Wrapper boxes a specific NavigationDestination.
-internal struct AnyNavigationDestination {
+public struct AnyNavigationDestination {
     public let wrapped: any NavigationDestination
 }
 
@@ -163,5 +168,43 @@ extension View {
         self.navigationDestination(for: type) { destination in
             destination.view()
         }
+    }
+}
+
+extension View {
+    public func navigate(to destination: Binding<(some NavigationDestination)?>) -> some View {
+        self.modifier(NavigateToModifier(destination: destination))
+    }
+    public func navigate(trigger: Binding<Bool>, destination: some NavigationDestination) -> some View {
+        self.modifier(NavigateTriggerModifier(trigger: trigger, destination: destination))
+    }
+}
+
+private struct NavigateToModifier<T: NavigationDestination>: ViewModifier {
+    @Binding internal var destination: T?
+    @Environment(\.navigator) internal var navigator: Navigator
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: destination) { destination in
+                if let destination {
+                    navigator.navigate(to: destination)
+                    self.destination = nil
+                }
+            }
+    }
+}
+
+private struct NavigateTriggerModifier<T: NavigationDestination>: ViewModifier {
+    @Binding internal var trigger: Bool
+    let destination: T
+    @Environment(\.navigator) internal var navigator: Navigator
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: trigger) { trigger in
+                if trigger {
+                    navigator.navigate(to: destination)
+                    self.trigger = false
+                }
+            }
     }
 }

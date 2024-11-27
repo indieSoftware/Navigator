@@ -30,16 +30,41 @@ extension Navigator {
 
 }
 
-public typealias NavigationSendValues = (value: any Hashable, values: [any Hashable])
-public typealias NavigationSendHandler<T> = (_ value: T, _ navigator: Navigator) -> NavigationSendResumeType
-public typealias NavigationSendValueOnlyHandler<T> = (_ value: T) -> NavigationSendResumeType
+extension View {
+    public func navigationSend<T: Hashable & Equatable>(_ item: Binding<T?>) -> some View {
+        self.modifier(NavigationSendModifier<T>(item: item))
+    }
+    public func navigationSend<T: Hashable & Equatable>(values: Binding<[T]?>) -> some View {
+        self.modifier(NavigationSendValuesModifier<T>(values: values))
+    }
+}
 
-public enum NavigationSendResumeType {
-    case auto
-    case immediately
-    case after(TimeInterval)
-    case with([AnyHashable])
-    case cancel
+private struct NavigationSendModifier<T: Hashable & Equatable>: ViewModifier {
+    @Binding internal var item: T?
+    @Environment(\.navigator) internal var navigator: Navigator
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: item) { item in
+                if let item {
+                    navigator.send(item)
+                    self.item = nil
+                }
+            }
+    }
+}
+
+private struct NavigationSendValuesModifier<T: Hashable & Equatable>: ViewModifier {
+    @Binding internal var values: [T]?
+    @Environment(\.navigator) internal var navigator: Navigator
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: values) { values in
+                if let values {
+                    navigator.send(values: values)
+                    self.values = nil
+                }
+            }
+    }
 }
 
 extension View {
@@ -103,4 +128,16 @@ private struct OnNavigationSendModifier<T: Hashable>: ViewModifier {
         }
     }
 
+}
+
+public typealias NavigationSendValues = (value: any Hashable, values: [any Hashable])
+public typealias NavigationSendHandler<T> = (_ value: T, _ navigator: Navigator) -> NavigationSendResumeType
+public typealias NavigationSendValueOnlyHandler<T> = (_ value: T) -> NavigationSendResumeType
+
+public enum NavigationSendResumeType {
+    case auto
+    case immediately
+    case after(TimeInterval)
+    case with([AnyHashable])
+    case cancel
 }
