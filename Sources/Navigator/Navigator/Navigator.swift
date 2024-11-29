@@ -15,10 +15,12 @@ public class Navigator: ObservableObject {
             cleanCheckpoints()
         }
     }
-    
+
     @Published internal var sheet: AnyNavigationDestination? = nil
-    @Published internal var fullScreenCover: AnyNavigationDestination? = nil
+    @Published internal var cover: AnyNavigationDestination? = nil
     @Published internal var triggerDismiss: Bool = false
+
+//    @Published public var custom: AnyNavigationDestination? = nil
 
     internal weak var parent: Navigator?
     internal var children: [UUID : WeakObject<Navigator>] = [:]
@@ -96,7 +98,7 @@ extension Navigator {
 
     @MainActor
     public func navigate(to destination: any NavigationDestination, method method: NavigationMethod) {
-        log("Navigator navigating to: \(destination)")
+        log("Navigator navigating to: \(destination) via: \(method)")
         switch method {
         case .push:
             push(destination)
@@ -104,8 +106,10 @@ extension Navigator {
             send(destination)
         case .sheet:
             sheet = AnyNavigationDestination(wrapped: destination)
-        case .fullScreenCover:
-            fullScreenCover = AnyNavigationDestination(wrapped: destination)
+        case .cover:
+            cover = AnyNavigationDestination(wrapped: destination)
+//        case .custom:
+//            custom = AnyNavigationDestination(wrapped: destination)
         }
     }
 

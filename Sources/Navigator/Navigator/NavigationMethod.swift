@@ -33,12 +33,18 @@
 /// > Important: When using `NavigationLink(value:label:)` the method will be ignored and SwiftUI will push
 /// the value onto the navigation stack as it would normally.
 public enum NavigationMethod {
-    /// Pushes the view onto the navigation stack path.
+    /// Pushes the destination onto the navigation stack path.
     case push
+
     /// Publishes the destination using `navigator.send()`.
     case send
-    /// Displays the view as a SwiftUI sheet.
+
+    /// Displays the destination as a SwiftUI full screen cover.
+    case cover
+
+    /// Displays the destination as a SwiftUI sheet.
     case sheet
-    /// Displays the view as a SwiftUI full screen cover.
-    case fullScreenCover
+
+//    /// Assigns destination to a custom published value.
+//    case custom
 }

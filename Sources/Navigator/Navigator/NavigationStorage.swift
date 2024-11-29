@@ -9,12 +9,12 @@ import SwiftUI
 
 internal struct NavigationStorage: Codable {
 
-    var id: UUID
-    var path: Data?
-    var checkpoints: [String: NavigationCheckpoint]
-    var dismissible: Bool
+    let id: UUID
+    let path: Data?
+    let checkpoints: [String: NavigationCheckpoint]
+    let dismissible: Bool
     let sheet: Data?
-    let fullScreenCover: Data?
+    let cover: Data?
 
     internal init(
         id: UUID = UUID(),
@@ -22,14 +22,14 @@ internal struct NavigationStorage: Codable {
         checkpoints: [String : NavigationCheckpoint] = [:],
         dismissible: Bool = false,
         sheet: Data?,
-        fullScreenCover: Data?
+        cover: Data?
     ) {
         self.id = id
         self.path = path
         self.checkpoints = checkpoints
         self.dismissible = dismissible
         self.sheet = sheet
-        self.fullScreenCover = fullScreenCover
+        self.cover = cover
     }
 
 }
@@ -45,7 +45,7 @@ extension Navigator {
             checkpoints: checkpoints,
             dismissible: dismissible,
             sheet: try? encoder.encode(sheet),
-            fullScreenCover: try? encoder.encode(fullScreenCover)
+            cover: try? encoder.encode(cover)
         )
         return try? encoder.encode(storage)
     }
@@ -68,10 +68,10 @@ extension Navigator {
         } else {
             sheet = nil
         }
-        if let data = storage.fullScreenCover {
-            fullScreenCover = try? decoder.decode(AnyNavigationDestination.self, from: data)
+        if let data = storage.cover {
+            cover = try? decoder.decode(AnyNavigationDestination.self, from: data)
         } else {
-            fullScreenCover = nil
+            cover = nil
         }
     }
 

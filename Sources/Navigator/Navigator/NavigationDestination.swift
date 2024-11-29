@@ -130,9 +130,9 @@ extension NavigationDestination {
         .push
     }
 
-    /// Convenience function returns body as wrapped AnyView.
-    @MainActor public func view() -> AnyView {
-        AnyView(self.body)
+    /// Convenience function returns body.
+    @MainActor public func callAsFunction() -> some View {
+        body
     }
 
     /// Equatable conformance.
@@ -152,7 +152,7 @@ extension AnyNavigationDestination: Identifiable {
 }
 
 extension AnyNavigationDestination {
-    @MainActor public func view() -> AnyView { wrapped.view() }
+    @MainActor public func callAsFunction() -> AnyView { AnyView(wrapped.body) }
 }
 
 extension View {
@@ -166,7 +166,7 @@ extension View {
     /// This also makes using the same destination type with more than one navigation stack a lot easier.
     public func navigationDestination<T: NavigationDestination>(_ type: T.Type) -> some View {
         self.navigationDestination(for: type) { destination in
-            destination.view()
+            destination()
         }
     }
 }

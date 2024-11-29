@@ -20,25 +20,34 @@ struct CustomContentView: View {
 struct ContentSheetSection: View {
     @Environment(\.navigator) var navigator: Navigator
     @State var showSheet: Bool = false
+    @State var dismiss: Bool = false
+    @State var dismissAll: Bool = false
     var body: some View {
         Section("Presentation Actions") {
-            Button("Button Presents Page Sheet") {
-                navigator.navigate(to: HomeDestinations.sheet, method: .sheet)
+            Button("Present Nested Navigation View") {
+                navigator.navigate(to: HomeDestinations.presented1)
             }
-            Button("Button Presents Custom Sheet") {
+
+            Button("Present Dismissible View") {
                 showSheet = true
             }
             .sheet(isPresented: $showSheet) {
                 CustomContentView()
                     .navigationDismissible()
             }
+
             Button("Dismiss", role: .cancel) {
-                navigator.dismiss()
+                dismiss = true
+                // navigator.dismiss()
             }
+            .navigationDismiss(trigger: $dismiss)
             .disabled(!navigator.isPresented)
+
             Button("Dismiss All") {
-                navigator.dismissAll()
+                dismissAll = true
+                // navigator.dismissAll()
             }
+            .navigationDismissAll(trigger: $dismissAll)
             .disabled(!navigator.isPresented)
         }
     }
@@ -53,25 +62,30 @@ struct ContentPopSection: View {
                 navigator.returnToCheckpoint(.home)
             }
             .disabled(!navigator.canReturnToCheckpoint(.home))
+
             Button("Return To Checkpoint Page 2") {
                 returnToCheckpoint = true
             }
             .navigationReturnToCheckpoint(trigger: $returnToCheckpoint, checkpoint: .page2)
             .disabled(!navigator.canReturnToCheckpoint(.page2))
+
             Button("Return To Unknown Checkpoint") {
                 navigator.returnToCheckpoint("unknown")
             }
         }
+
         Section("Pop Actions") {
-            Button("Button Pop") {
+            Button("Pop Current Screen") {
                 navigator.pop()
             }
             .disabled(navigator.isEmpty)
-            Button("Button Pop To 2") {
+
+            Button("Pop To 2nd Screen") {
                 navigator.pop(to: 1) // count from zero
             }
             .disabled(navigator.isEmpty)
-            Button("Button Pop All") {
+
+            Button("Pop All Screens") {
                 navigator.popAll()
             }
             .disabled(navigator.isEmpty)
@@ -80,5 +94,5 @@ struct ContentPopSection: View {
 }
 
 #Preview {
-    HomeContentView(name: "Content")
+    HomeContentView(title: "Content")
 }

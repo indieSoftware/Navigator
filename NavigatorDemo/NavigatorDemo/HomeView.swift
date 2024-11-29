@@ -16,7 +16,7 @@ extension NavigationCheckpoint {
 struct RootHomeView: View {
     var body: some View {
         ManagedNavigationStack(scene: "home") {
-            HomeContentView(name: "Root Navigation")
+            HomeContentView(title: "Root Navigation")
                 .navigationCheckpoint(.home)
                 .navigationDestination(HomeDestinations.self)
                 .onNavigationSend { (destination: HomeDestinations, navigator) in
@@ -28,7 +28,7 @@ struct RootHomeView: View {
 }
 
 struct HomeContentView: View {
-    let name: String
+    let title: String
     @Environment(\.navigator) var navigator: Navigator
     var body: some View {
         List {
@@ -57,7 +57,7 @@ struct HomeContentView: View {
             ContentSheetSection()
             ContentPopSection()
         }
-        .navigationTitle(name)
+        .navigationTitle(title)
     }
 }
 
@@ -118,9 +118,10 @@ struct HomePageNView: View {
 }
 
 struct NestedHomeContentView: View {
+    var title: String
     var body: some View {
         ManagedNavigationStack {
-            HomeContentView(name: "Nested Navigation")
+            HomeContentView(title: title)
                 .navigationDestination(HomeDestinations.self)
         }
     }
