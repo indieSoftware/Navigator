@@ -2,9 +2,22 @@
 
 Managed Navigation for SwiftUI.
 
-## Navigation Basics
+## Introduction
 
-Navigator.
+Navigator provides SwiftUI with a simple, cohesive navigation layer based on NavigationStack. 
+
+It supports...
+
+* Separation of concerns. 
+* Simple and easy navigation linking and presentation of views.
+* Easily returning to a specific spot in the navigation tree via navigation checkpoints.
+* Application deep linking and internal application navigation.
+* Imperative, programatic navigation and control.
+* Navigation state restoration.
+
+Navigator is written entirely in Swift and SwiftUI, and supports iOS 16 and above.
+
+## The Code
 
 ### Defining Navigation Destinations
 Destinations are typically just a simple list of enumerated values.
