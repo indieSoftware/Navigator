@@ -43,7 +43,7 @@ import SwiftUI
 ///     }
 /// }
 /// ```
-/// Note how associated values can be used to pass paramters to views as needed.
+/// Note how associated values can be used to pass parameters to views as needed.
 ///
 /// ### Using Navigation Destinations
 /// This can be done via using a standard SwiftUI `NavigationLink(value:label:)` view.
