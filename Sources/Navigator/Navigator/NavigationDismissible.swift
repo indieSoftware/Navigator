@@ -8,9 +8,12 @@
 import SwiftUI
 
 extension View {
+
+    /// Allows presented views to be dismissed using a Navigator.
     public func navigationDismissible() -> some View {
         self.modifier(NavigationDismissibleModifier())
     }
+
 }
 
 struct NavigationDismissibleModifier: ViewModifier {

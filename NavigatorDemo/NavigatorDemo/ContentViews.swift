@@ -24,8 +24,12 @@ struct ContentSheetSection: View {
     @State var dismissAll: Bool = false
     var body: some View {
         Section("Presentation Actions") {
-            Button("Present Nested Navigation View") {
+            Button("Present Navigation View via Sheet") {
                 navigator.navigate(to: HomeDestinations.presented1)
+            }
+
+            Button("Present Navigation View via Cover") {
+                navigator.navigate(to: HomeDestinations.presented2)
             }
 
             Button("Present Dismissible View") {

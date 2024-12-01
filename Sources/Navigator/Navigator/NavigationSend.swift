@@ -31,15 +31,37 @@ extension Navigator {
 }
 
 extension View {
+
     public func navigationSend<T: Hashable & Equatable>(_ item: Binding<T?>) -> some View {
-        self.modifier(NavigationSendModifier<T>(item: item))
+        self.modifier(NavigationSendValueModifier<T>(item: item))
     }
+
     public func navigationSend<T: Hashable & Equatable>(values: Binding<[T]?>) -> some View {
         self.modifier(NavigationSendValuesModifier<T>(values: values))
     }
+
 }
 
-private struct NavigationSendModifier<T: Hashable & Equatable>: ViewModifier {
+extension View {
+
+    public func onNavigationSend<T: Hashable>(handler: @escaping NavigationSendHandler<T>) -> some View {
+        self.modifier(OnNavigationSendModifier(handler: handler))
+    }
+
+    public func onNavigationSend<T: Hashable>(handler: @escaping NavigationSendValueOnlyHandler<T>) -> some View {
+        self.modifier(OnNavigationSendModifier(handler: { (value, _) in handler(value) }))
+    }
+
+    public func onNavigationSend<T: NavigationDestination>(_ type: T.Type) -> some View {
+        self.modifier(OnNavigationSendModifier<T> { (value, navigator) in
+            navigator.navigate(to: value)
+            return .auto
+        })
+    }
+
+}
+
+private struct NavigationSendValueModifier<T: Hashable & Equatable>: ViewModifier {
     @Binding internal var item: T?
     @Environment(\.navigator) internal var navigator: Navigator
     func body(content: Content) -> some View {
@@ -64,23 +86,6 @@ private struct NavigationSendValuesModifier<T: Hashable & Equatable>: ViewModifi
                     self.values = nil
                 }
             }
-    }
-}
-
-extension View {
-    public func onNavigationSend<T: Hashable>(handler: @escaping NavigationSendHandler<T>) -> some View {
-        self.modifier(OnNavigationSendModifier(handler: handler))
-    }
-
-    public func onNavigationSend<T: Hashable>(handler: @escaping NavigationSendValueOnlyHandler<T>) -> some View {
-        self.modifier(OnNavigationSendModifier(handler: { (value, _) in handler(value) }))
-    }
-
-    public func onNavigationSend<T: NavigationDestination>(_ type: T.Type) -> some View {
-        self.modifier(OnNavigationSendModifier<T> { (value, navigator) in
-            navigator.navigate(to: value)
-            return .auto
-        })
     }
 }
 

@@ -12,6 +12,7 @@ struct RootSettingsView: View {
     var body: some View {
         ManagedNavigationStack(scene: "settings") {
             SettingsView(name: "Root Settings")
+                .navigationCheckpoint(.home)
                 .navigationDestination(SettingsDestinations.self)
                 .onNavigationSend(SettingsDestinations.self)
         }
@@ -21,7 +22,8 @@ struct RootSettingsView: View {
 struct SettingsView: View {
     let name: String
     @Environment(\.navigator) var navigator: Navigator
-    @State var destination: SettingsDestinations?
+    @State var triggerPage3: Bool = false
+    @State var destinationSend: SettingsDestinations?
     var body: some View {
         List {
             Section("Sheet Actions") {
@@ -29,22 +31,28 @@ struct SettingsView: View {
                     navigator.navigate(to: SettingsDestinations.sheet)
                 }
             }
+
             Section("Navigation Actions") {
                 NavigationLink(value: SettingsDestinations.page2) {
                     Text("Link to Settings Page 2!")
                 }
-                Button("Button Push to Settings Page 3!") {
+                Button("Navigator Push to Settings Page 3!") {
                     navigator.push(SettingsDestinations.page3)
                 }
+                Button("Modifier Navigate to Settings Page 3!") {
+                    triggerPage3.toggle()
+                }
+                .navigate(trigger: $triggerPage3, destination: SettingsDestinations.page3)
             }
+
             Section("Send Actions") {
                 Button("Send Page 2 via Navigator") {
                     navigator.send(SettingsDestinations.page2)
                 }
                 Button("Send Page 3 via Modifier") {
-                    destination = SettingsDestinations.page3
+                    destinationSend = SettingsDestinations.page3
                 }
-                .navigationSend($destination)
+                .navigationSend($destinationSend)
                 Button("Send Tab Home, Page 2") {
                     navigator.send(values: [RootTabs.home, HomeDestinations.page2])
                 }

@@ -32,18 +32,20 @@ extension Navigator {
     ///
     /// This function will pop and/or dismiss intervening views as needed.
     @MainActor
-    public func returnToCheckpoint(_ checkpoint: NavigationCheckpoint) {
+    @discardableResult
+    public func returnToCheckpoint(_ checkpoint: NavigationCheckpoint) -> Bool {
         guard let found = checkpoints[checkpoint.name] else {
             if let parent {
                 return parent.returnToCheckpoint(checkpoint)
             } else {
                 log("Navigator checkpoint not found: \(checkpoint.name)")
-                return
+                return false
             }
         }
         log("Navigator returning to checkpoint: \(checkpoint.name)")
         dismissAllChildren()
         pop(to: found.index)
+        return true
     }
 
     public nonisolated func canReturnToCheckpoint(_ checkpoint: NavigationCheckpoint) -> Bool {
@@ -65,26 +67,27 @@ extension Navigator {
 }
 
 extension View {
+
     /// Establishes a named checkpoint in the navigation system.
     ///
     /// Navigators know how to pop and/or dismiss views in order to return to this checkpoint when needed.
     public func navigationCheckpoint(_ checkpoint: NavigationCheckpoint) -> some View {
         self.modifier(NavigationCheckpointModifier(checkpoint: checkpoint))
     }
+
     public func navigationReturnToCheckpoint(_ checkpoint: Binding<NavigationCheckpoint?>) -> some View {
         self.modifier(NavigationReturnToCheckpointModifier(checkpoint: checkpoint))
     }
+
     public func navigationReturnToCheckpoint(trigger: Binding<Bool>, checkpoint: NavigationCheckpoint) -> some View {
         self.modifier(NavigationReturnToCheckpointTriggerModifier(trigger: trigger, checkpoint: checkpoint))
     }
+
 }
 
 private struct NavigationCheckpointModifier: ViewModifier {
     @Environment(\.navigator) var navigator: Navigator
-    private let checkpoint: NavigationCheckpoint
-    init(checkpoint: NavigationCheckpoint) {
-        self.checkpoint = checkpoint
-    }
+    internal let checkpoint: NavigationCheckpoint
     func body(content: Content) -> some View {
         content
             .modifier(WrappedModifier(checkpoint: checkpoint, navigator: navigator))
@@ -116,7 +119,7 @@ private struct NavigationReturnToCheckpointModifier: ViewModifier {
 
 private struct NavigationReturnToCheckpointTriggerModifier: ViewModifier {
     @Binding internal var trigger: Bool
-    var checkpoint: NavigationCheckpoint
+    internal let checkpoint: NavigationCheckpoint
     @Environment(\.navigator) internal var navigator: Navigator
     func body(content: Content) -> some View {
         content
