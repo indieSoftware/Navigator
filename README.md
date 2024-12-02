@@ -89,3 +89,45 @@ extension HomeDestinations: NavigationDestination {
 ```
 In this case, should `navigator.navigate(to: HomeDestinations.page3)` be called, Navigator will automatically present that view in a
 sheet. All other views will be pushed onto the navigation stack.
+
+## Documentation
+
+A single README file barely scratches the surface. Fortunately, Navigator is throughly documented. 
+
+Current DocC documentation can be found in the project.
+
+## Installation
+
+Navigator supports the Swift Package Manager.
+
+Or download the source files and add the Navigator folder to your project.
+
+Note that the current version of Navigator requires Swift 5.10 minimum and that the minimum version of iOS currently supported with this release is iOS 16.
+
+## Discussion Forum
+
+Discussion and comments on Navigator can be found in [Discussions](https://github.com/hmlongco/Navigator/discussions). Go there if you have something to say or if you want to stay up to date.
+
+## License
+
+Navigator is available under the MIT license. See the LICENSE file for more info.
+
+## Sponsor Navigator!
+
+If you want to support my work on Navigator, Factory and my other open source projects, consider a [GitHub Sponsorship](https://github.com/sponsors/hmlongco)! Many levels exist for increased support and even for mentorship and company training. 
+
+Or you can just buy me a cup of coffee!
+
+## Author
+
+Navigator is designed, implemented, documented, and maintained by [Michael Long](https://www.linkedin.com/in/hmlong/), a Lead iOS Software Engineer and a Top 1,000 Technology Writer on Medium.
+
+* LinkedIn: [@hmlong](https://www.linkedin.com/in/hmlong/)
+* Medium: [@michaellong](https://medium.com/@michaellong)
+* BlueSky: [@hmlongco](https://bsky.app/profile/hmlongco.bsky.social)
+
+Michael was also one of Google's [Open Source Peer Reward](https://opensource.googleblog.com/2021/09/announcing-latest-open-source-peer-bonus-winners.html) winners in 2021 for his work on Resolver.
+
+## Additional Resources
+
+* [Factory](https://hmlongco.github.io/Factory/)
