@@ -14,9 +14,13 @@ struct RootSettingsView: View {
             SettingsView(name: "Root Settings")
                 .navigationCheckpoint(.home)
                 .navigationDestination(SettingsDestinations.self)
-                .onNavigationSend(SettingsDestinations.self)
+                .onNavigationReceive(SettingsDestinations.self)
         }
     }
+}
+
+struct SettingsCompletion: Hashable {
+    let value: Int
 }
 
 struct SettingsView: View {
@@ -30,6 +34,11 @@ struct SettingsView: View {
                 Button("Present Settings Sheet") {
                     navigator.navigate(to: SettingsDestinations.sheet)
                 }
+                .onNavigationReceive { (result: SettingsCompletion) in
+                    print(result.value)
+                    return .checkpoint(.settings)
+                }
+                .navigationCheckpoint(.settings)
             }
 
             Section("Navigation Actions") {
@@ -94,6 +103,10 @@ struct SettingsSheetView: View {
             Section("Send Actions") {
                 Button("Send Tab Home") {
                     navigator.send(RootTabs.home)
+                }
+                Button("Send Settings Sheet Completion") {
+                    // trigger completion
+                    navigator.send(SettingsCompletion(value: 5))
                 }
             }
             ContentSheetSection()

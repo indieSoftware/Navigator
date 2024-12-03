@@ -22,6 +22,8 @@ public class Navigator: ObservableObject {
 
 //    @Published public var custom: AnyNavigationDestination? = nil
 
+    internal let configuration: NavigationConfiguration?
+
     internal weak var parent: Navigator?
     internal var children: [UUID : WeakObject<Navigator>] = [:]
 
@@ -29,27 +31,27 @@ public class Navigator: ObservableObject {
     internal var checkpoints: [String: NavigationCheckpoint] = [:]
     internal var dismissible: Bool
 
+    internal typealias NavigationSendValues = (value: any Hashable, values: [any Hashable])
     internal let publisher: PassthroughSubject<NavigationSendValues, Never>
-    internal let logger: ((_ message: String) -> Void)?
 
     internal let decoder = JSONDecoder()
     internal let encoder = JSONEncoder()
 
     /// Allows public initialization of root Navigators.
-    public init(logger: ((_ message: String) -> Void)? = { print($0) }) {
+    public init(configuration: NavigationConfiguration? = nil) {
+        self.configuration = configuration
         self.parent = nil
         self.publisher = .init()
         self.dismissible = false
-        self.logger = logger
         print("Navigator root: \(id)")
     }
 
     /// Internal initializer used by ManagedNavigationStack and navigationDismissible modifiers.
     internal init(parent: Navigator, dismissible: Bool) {
+        self.configuration = parent.configuration
         self.parent = parent
         self.publisher = parent.publisher
         self.dismissible = dismissible
-        self.logger = parent.logger
         parent.addChild(self)
         log("Navigator init: \(id) parent \(parent.id)")
      }
@@ -78,7 +80,7 @@ public class Navigator: ObservableObject {
     /// Internal logging function.
     internal func log(_ message: @autoclosure () -> String) {
         #if DEBUG
-        root.logger?(message())
+        root.configuration?.logger?(message())
         #endif
     }
 

@@ -7,9 +7,11 @@
 
 import SwiftUI
 
+/// Provides state restoration storage for named ManagedNavigationControllers.
 internal struct NavigationStorage: Codable {
 
     let id: UUID
+    let restorationKey: String
     let path: Data?
     let checkpoints: [String: NavigationCheckpoint]
     let dismissible: Bool
@@ -18,6 +20,7 @@ internal struct NavigationStorage: Codable {
 
     internal init(
         id: UUID = UUID(),
+        restorationKey: String,
         path: Data?,
         checkpoints: [String : NavigationCheckpoint] = [:],
         dismissible: Bool = false,
@@ -25,6 +28,7 @@ internal struct NavigationStorage: Codable {
         cover: Data?
     ) {
         self.id = id
+        self.restorationKey = restorationKey
         self.path = path
         self.checkpoints = checkpoints
         self.dismissible = dismissible
@@ -38,9 +42,13 @@ extension Navigator {
 
     /// Encoding for scene storage
     internal func encoded() -> Data? {
+        guard let restorationKey = configuration?.restorationKey else {
+            return nil
+        }
         let path = try? path.codable.map(encoder.encode)
         let storage = NavigationStorage(
             id: id,
+            restorationKey: restorationKey,
             path: path ?? Data(),
             checkpoints: checkpoints,
             dismissible: dismissible,
@@ -52,7 +60,8 @@ extension Navigator {
 
     /// Decoding from scene storage
     internal func restore(from data: Data) {
-        guard let storage = try? decoder.decode(NavigationStorage.self, from: data) else {
+        guard let storage = try? decoder.decode(NavigationStorage.self, from: data),
+              storage.restorationKey == configuration?.restorationKey else {
             return
         }
         id = storage.id

@@ -30,7 +30,7 @@ struct RootTabView : View {
                 }
                 .tag(RootTabs.settings)
         }
-        .onNavigationSend { (tab: RootTabs, navigator) in
+        .onNavigationReceive { (tab: RootTabs, navigator) in
             navigator.dismissAll()
             selectedTab = tab
             return .auto

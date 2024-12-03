@@ -62,7 +62,13 @@ extension Navigator {
     }
 
     internal func cleanCheckpoints() {
-        checkpoints = checkpoints.filter { $1.index <= path.count }
+        checkpoints = checkpoints.filter {
+            guard $1.index <= path.count else {
+                log("Navigator removing checkpoint: \($1.name)")
+                return false
+            }
+            return true
+        }
     }
 }
 

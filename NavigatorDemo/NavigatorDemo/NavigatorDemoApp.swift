@@ -13,7 +13,11 @@ struct NavigatorDemoApp: App {
     var body: some Scene {
         WindowGroup {
             RootTabView()
-                .environment(\.navigator, Navigator())
+                .environment(\.navigator, Navigator(configuration: configuration))
         }
+    }
+
+    var configuration: NavigationConfiguration {
+        .init(restorationKey: "1.0.0")
     }
 }

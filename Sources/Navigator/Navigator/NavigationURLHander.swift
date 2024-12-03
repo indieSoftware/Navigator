@@ -17,13 +17,13 @@ import SwiftUI
 ///     SettingsURLHander()
 /// ])
 ///```
-/// Developers can add `.onNavigationSend` modifiers to their code to listen for specific types and perform specific actions when they're
+/// Developers can add `.onNavigationReceive` modifiers to their code to listen for specific types and perform specific actions when they're
 /// received.
 ///
 /// For example, a URL like "navigator://app/settings" can be translated by the SettingsURLHander into `[RootTabs.settings]`, which can then
 /// broadcast and received to set the selected tab in a given view.
 /// ```swift
-/// .onNavigationSend { (tab: RootTabs) in
+/// .onNavigationReceive { (tab: RootTabs) in
 ///     selectedTab = tab
 ///     return .auto
 /// }

@@ -11,6 +11,7 @@ import SwiftUI
 extension NavigationCheckpoint {
     public static var home: NavigationCheckpoint = "home"
     public static var page2: NavigationCheckpoint = "page2"
+    public static var settings: NavigationCheckpoint = "settings"
 }
 
 struct RootHomeView: View {
@@ -19,7 +20,7 @@ struct RootHomeView: View {
             HomeContentView(title: "Root Navigation")
                 .navigationCheckpoint(.home)
                 .navigationDestination(HomeDestinations.self)
-                .onNavigationSend { (destination: HomeDestinations, navigator) in
+                .onNavigationReceive { (destination: HomeDestinations, navigator) in
                     navigator.navigate(to: destination)
                     return .auto
                 }
