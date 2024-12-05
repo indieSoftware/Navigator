@@ -83,11 +83,12 @@ struct HomePage2View: View {
 }
 
 struct HomePage3View: View {
+    let initialValue: Int
     @Environment(\.navigator) var navigator: Navigator
     var body: some View {
         List {
             Section("Navigation Actions") {
-                NavigationLink(value: HomeDestinations.pageN(66)) {
+                NavigationLink(value: HomeDestinations.pageN(initialValue)) {
                     Text("Link to Home Page 66!")
                 }
                 Button("Button Push to Home Page 77") {

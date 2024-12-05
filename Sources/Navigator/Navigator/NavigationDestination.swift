@@ -170,3 +170,8 @@ extension View {
         }
     }
 }
+
+public protocol NavigationDependency {
+    associatedtype Dependency
+    var dependency: Dependency { get }
+}

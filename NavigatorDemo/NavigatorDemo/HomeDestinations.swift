@@ -22,7 +22,7 @@ extension HomeDestinations: NavigationDestination {
         case .page2:
             HomePage2View()
         case .page3:
-            HomePage3View()
+            HomePage3View(initialValue: dependency.value)
         case .pageN(let value):
             HomePageNView(number: value)
         case .presented1:
@@ -31,6 +31,11 @@ extension HomeDestinations: NavigationDestination {
             NestedHomeContentView(title: "Via Cover")
         }
     }
+}
+
+extension HomeDestinations: NavigationDependency {
+    // demonstrates one dependency mechanism, view models and the like could also use a library like Factory... ;)
+    public var dependency: DemoDependency { globalDependencies }
 }
 
 extension HomeDestinations {
