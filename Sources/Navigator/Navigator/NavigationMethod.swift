@@ -44,7 +44,4 @@ public enum NavigationMethod {
 
     /// Displays the destination as a SwiftUI sheet.
     case sheet
-
-//    /// Assigns destination to a custom published value.
-//    case custom
 }

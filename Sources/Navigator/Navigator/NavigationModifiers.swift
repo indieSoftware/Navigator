@@ -24,7 +24,7 @@ extension View {
     public func navigate(trigger: Binding<Bool>, destination: some NavigationDestination, method: NavigationMethod) -> some View {
         self.modifier(NavigateTriggerModifier(trigger: trigger, destination: destination, method: method))
     }
-    
+
 }
 
 private struct NavigateToModifier<T: NavigationDestination>: ViewModifier {

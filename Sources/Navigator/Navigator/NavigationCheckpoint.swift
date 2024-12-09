@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct NavigationCheckpoint: Codable, Equatable, ExpressibleByStringLiteral {
+public struct NavigationCheckpoint: Codable, Hashable, Equatable, ExpressibleByStringLiteral {
     internal let name: String
     internal let index: Int
     public init(stringLiteral value: String) {
@@ -52,6 +52,9 @@ extension Navigator {
         guard let found = checkpoints[checkpoint.name] else {
             return parent?.canReturnToCheckpoint(checkpoint) ?? false
         }
+        if isPresenting {
+            return true
+        }
         return found.index < path.count
     }
 
@@ -69,6 +72,52 @@ extension Navigator {
             }
             return true
         }
+    }
+}
+
+extension Navigator {
+
+    /// Returns to a named checkpoint in the navigation system.
+    ///
+    /// This function will pop and/or dismiss intervening views as needed.
+    @MainActor
+    @discardableResult
+    public func returnToCheckpoint<T>(_ checkpoint: NavigationCheckpoint, value: T?) -> Bool {
+        guard canReturnToCheckpoint(checkpoint) else {
+            return false
+        }
+        send(NavigationCheckpointResult(name: checkpoint.name, type: String(describing: T.self), value: value))
+        return true
+    }
+
+}
+
+extension View {
+
+    public func navigationCheckpoint<T>(_ checkpoint: NavigationCheckpoint, completion: @escaping (T?) -> Void) -> some View {
+        self
+            .onNavigationReceive { (result: NavigationCheckpointResult<T>) in
+                guard result.name == checkpoint.name else {
+                    return .cancel
+                }
+                completion(result.value)
+                return .checkpoint(checkpoint)
+            }
+            .navigationCheckpoint(checkpoint)
+    }
+
+}
+
+internal struct NavigationCheckpointResult<T>: Equatable, Hashable {
+    let name: String
+    let type: String
+    let value: T?
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(type)
+    }
+    static func == (lhs: NavigationCheckpointResult<T>, rhs: NavigationCheckpointResult<T>) -> Bool {
+        lhs.name == rhs.name && lhs.type == rhs.type
     }
 }
 

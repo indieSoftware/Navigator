@@ -7,9 +7,15 @@
 
 import SwiftUI
 
+public enum NavigationDismissMethod: Hashable {
+    case checkpoint(NavigationCheckpoint)
+    case dismiss
+    case pop
+}
+
 extension Navigator {
 
-    /// Dismisses the current ManagedNavigationStack or navigationDismissible if presented.
+    /// Dismisses presented ManagedNavigationStack.
     @MainActor
     @discardableResult
     public func dismiss() -> Bool {
@@ -19,6 +25,19 @@ extension Navigator {
             return true
         }
         return false
+    }
+
+    /// Allows caller to tell destination how to return.
+    @MainActor
+    public func dismiss(via method: NavigationDismissMethod) {
+        switch method {
+        case .checkpoint(let checkpoint):
+            returnToCheckpoint(checkpoint)
+        case .dismiss:
+            dismiss()
+        case .pop:
+            pop()
+        }
     }
 
     /// Returns to the root Navigator and dismisses *any* presented ManagedNavigationStack.

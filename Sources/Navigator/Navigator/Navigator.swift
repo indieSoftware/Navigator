@@ -20,8 +20,6 @@ public class Navigator: ObservableObject {
     @Published internal var cover: AnyNavigationDestination? = nil
     @Published internal var triggerDismiss: Bool = false
 
-//    @Published public var custom: AnyNavigationDestination? = nil
-
     internal let configuration: NavigationConfiguration?
 
     internal weak var parent: Navigator?
@@ -110,8 +108,6 @@ extension Navigator {
             sheet = AnyNavigationDestination(wrapped: destination)
         case .cover:
             cover = AnyNavigationDestination(wrapped: destination)
-//        case .custom:
-//            custom = AnyNavigationDestination(wrapped: destination)
         }
     }
 
@@ -147,13 +143,11 @@ extension Navigator {
         path.removeLast(path.count)
     }
 
-    @MainActor
-    public var isEmpty: Bool {
+    public nonisolated var isEmpty: Bool {
         path.isEmpty
     }
 
-    @MainActor
-    public var count: Int {
+    public nonisolated var count: Int {
         path.count
     }
 

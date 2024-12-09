@@ -27,18 +27,20 @@ struct SettingsView: View {
     let name: String
     @Environment(\.navigator) var navigator: Navigator
     @State var triggerPage3: Bool = false
-    @State var destinationSend: SettingsDestinations?
+    @State var destination: SettingsDestinations?
+    @State var returnValue: Int? = nil
     var body: some View {
         List {
             Section("Sheet Actions") {
-                Button("Present Settings Sheet") {
+                Button("Settings Sheet With Return Value") {
                     navigator.navigate(to: SettingsDestinations.sheet)
                 }
-                .onNavigationReceive { (result: SettingsCompletion) in
-                    print(result.value)
-                    return .checkpoint(.settings)
+                Text("Return Value: \(String(describing: returnValue))")
+                    .foregroundStyle(.secondary)
+                // establishes a checkpoint with a return handler
+                .navigationCheckpoint(.settings) { (result: Int?) in
+                    returnValue = result
                 }
-                .navigationCheckpoint(.settings)
             }
 
             Section("Navigation Actions") {
@@ -51,7 +53,6 @@ struct SettingsView: View {
                 Button("Modifier Navigate to Settings Page 3!") {
                     triggerPage3.toggle()
                 }
-                .navigate(trigger: $triggerPage3, destination: SettingsDestinations.page3)
             }
 
             Section("Send Actions") {
@@ -59,9 +60,9 @@ struct SettingsView: View {
                     navigator.send(SettingsDestinations.page2)
                 }
                 Button("Send Page 3 via Modifier") {
-                    destinationSend = SettingsDestinations.page3
+                    destination = SettingsDestinations.page3
                 }
-                .navigationSend($destinationSend)
+                .navigationSend($destination)
                 Button("Send Tab Home, Page 2") {
                     navigator.send(values: [RootTabs.home, HomeDestinations.page2])
                 }
@@ -100,13 +101,19 @@ struct SettingsSheetView: View {
     @Environment(\.navigator) var navigator: Navigator
     var body: some View {
         List {
+            Section("Checkpoint Actions") {
+                Button("Return to Settings Checkpoint Value 5") {
+                    let value: Int? = 5
+                    navigator.returnToCheckpoint(.settings, value: 5)
+                }
+                Button("Return to Settings Checkpoint Value NIL") {
+                    let value: Int? = nil
+                    navigator.returnToCheckpoint(.settings, value: value)
+                }
+            }
             Section("Send Actions") {
                 Button("Send Tab Home") {
                     navigator.send(RootTabs.home)
-                }
-                Button("Send Settings Sheet Completion") {
-                    // trigger completion
-                    navigator.send(SettingsCompletion(value: 5))
                 }
             }
             ContentSheetSection()

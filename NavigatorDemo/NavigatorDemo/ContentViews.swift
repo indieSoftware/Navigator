@@ -42,14 +42,12 @@ struct ContentSheetSection: View {
 
             Button("Dismiss", role: .cancel) {
                 dismiss = true
-                // navigator.dismiss()
             }
             .navigationDismiss(trigger: $dismiss)
             .disabled(!navigator.isPresented)
 
             Button("Dismiss All") {
                 dismissAll = true
-                // navigator.dismissAll()
             }
             .navigationDismissAll(trigger: $dismissAll)
             .disabled(!navigator.isPresented)
@@ -59,6 +57,7 @@ struct ContentSheetSection: View {
 
 struct ContentPopSection: View {
     @Environment(\.navigator) var navigator: Navigator
+    @Environment(\.dismiss) var dismiss
     @State var returnToCheckpoint: Bool = false
     var body: some View {
         Section("Checkpoint Actions") {
@@ -94,6 +93,13 @@ struct ContentPopSection: View {
             }
             .disabled(navigator.isEmpty)
         }
+
+        Section("Classic Actions") {
+            Button("Dismiss") {
+                dismiss()
+            }
+        }
+
     }
 }
 
