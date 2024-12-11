@@ -14,6 +14,10 @@ public struct NavigationCheckpoint: Codable, Hashable, Equatable, ExpressibleByS
         self.name = value
         self.index = 0
     }
+    public init(name: String) {
+        self.name = name
+        self.index = 0
+    }
     internal init(name: String, index: Int) {
         self.name = name
         self.index = index
@@ -75,9 +79,28 @@ extension Navigator {
     }
 }
 
+extension View {
+
+    /// Establishes a named checkpoint in the navigation system.
+    ///
+    /// Navigators know how to pop and/or dismiss views in order to return to this checkpoint when needed.
+    public func navigationCheckpoint(_ checkpoint: NavigationCheckpoint) -> some View {
+        self.modifier(NavigationCheckpointModifier(checkpoint: checkpoint))
+    }
+
+    public func navigationReturnToCheckpoint(_ checkpoint: Binding<NavigationCheckpoint?>) -> some View {
+        self.modifier(NavigationReturnToCheckpointModifier(checkpoint: checkpoint))
+    }
+
+    public func navigationReturnToCheckpoint(trigger: Binding<Bool>, checkpoint: NavigationCheckpoint) -> some View {
+        self.modifier(NavigationReturnToCheckpointTriggerModifier(trigger: trigger, checkpoint: checkpoint))
+    }
+
+}
+
 extension Navigator {
 
-    /// Returns to a named checkpoint in the navigation system.
+    /// Returns to a named checkpoint in the navigation system, passing value to that checkpoint's completion handler.
     ///
     /// This function will pop and/or dismiss intervening views as needed.
     @MainActor
@@ -94,6 +117,7 @@ extension Navigator {
 
 extension View {
 
+    /// Establishes a navigation checkpoint with a completion handler.
     public func navigationCheckpoint<T>(_ checkpoint: NavigationCheckpoint, completion: @escaping (T?) -> Void) -> some View {
         self
             .onNavigationReceive { (result: NavigationCheckpointResult<T>) in
@@ -119,25 +143,6 @@ internal struct NavigationCheckpointResult<T>: Equatable, Hashable {
     static func == (lhs: NavigationCheckpointResult<T>, rhs: NavigationCheckpointResult<T>) -> Bool {
         lhs.name == rhs.name && lhs.type == rhs.type
     }
-}
-
-extension View {
-
-    /// Establishes a named checkpoint in the navigation system.
-    ///
-    /// Navigators know how to pop and/or dismiss views in order to return to this checkpoint when needed.
-    public func navigationCheckpoint(_ checkpoint: NavigationCheckpoint) -> some View {
-        self.modifier(NavigationCheckpointModifier(checkpoint: checkpoint))
-    }
-
-    public func navigationReturnToCheckpoint(_ checkpoint: Binding<NavigationCheckpoint?>) -> some View {
-        self.modifier(NavigationReturnToCheckpointModifier(checkpoint: checkpoint))
-    }
-
-    public func navigationReturnToCheckpoint(trigger: Binding<Bool>, checkpoint: NavigationCheckpoint) -> some View {
-        self.modifier(NavigationReturnToCheckpointTriggerModifier(trigger: trigger, checkpoint: checkpoint))
-    }
-
 }
 
 private struct NavigationCheckpointModifier: ViewModifier {

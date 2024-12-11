@@ -103,7 +103,6 @@ struct SettingsSheetView: View {
         List {
             Section("Checkpoint Actions") {
                 Button("Return to Settings Checkpoint Value 5") {
-                    let value: Int? = 5
                     navigator.returnToCheckpoint(.settings, value: 5)
                 }
                 Button("Return to Settings Checkpoint Value NIL") {

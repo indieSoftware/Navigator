@@ -11,7 +11,8 @@ It supports...
 * Separation of concerns. 
 * Simple and easy navigation linking and presentation of views.
 * Easily returning to a specific spot in the navigation tree via navigation checkpoints.
-* Application deep linking and internal application navigation.
+* Returning callback values via navigation checkpoints.
+* External deep linking and internal application navigation via navigation send.
 * Imperative, programatic navigation and control.
 * Navigation state restoration.
 
@@ -20,7 +21,7 @@ Navigator is written entirely in Swift and SwiftUI, and supports iOS 16 and abov
 ## The Code
 
 ### Defining Navigation Destinations
-Destinations are typically just a simple list of enumerated values.
+Destinations (or routes) are typically just a simple list of enumerated values.
 ```swift
 public enum HomeDestinations {
     case page2
@@ -46,7 +47,7 @@ extension HomeDestinations: NavigationDestination {
 Note how associated values can be used to pass parameters to views as needed.
 
 ### Using Navigation Destinations
-This can be done via using a standard SwiftUI `NavigationLink(value:label:)` view.
+Navigation Destinations can be dispatched using a standard SwiftUI `NavigationLink(value:label:)` view.
 ```swift
 NavigationLink(value: HomeDestinations.page3) {
     Text("Link to Home Page 3!")
@@ -57,7 +58,11 @@ Or imperatively by asking a Navigator to perform the desired action.
 Button("Button Navigate to Home Page 55") {
     navigator.navigate(to: HomeDestinations.pageN(55))
 }
+Button("Present Home Page 55 Via Sheet") {
+    navigator.navigate(to: HomeDestinations.pageN(55), method: .sheet)
+}
 ```
+Note that destinations dispatched via NavigationLink will always push onto the NavigationStack. That's just how SwiftUI works.
 
 ### Registering Navigation Destinations
 Like traditional `NavigationStack` destination types, `NavigationDestination` types need to be registered with the enclosing

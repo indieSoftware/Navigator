@@ -61,7 +61,7 @@ public class Navigator: ObservableObject {
     }
 
     /// Walks up the parent tree and returns the root Navigator.
-    public var root: Navigator {
+    internal var root: Navigator {
         parent?.root ?? self
     }
 
