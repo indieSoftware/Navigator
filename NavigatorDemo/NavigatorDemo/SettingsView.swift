@@ -35,12 +35,12 @@ struct SettingsView: View {
                 Button("Settings Sheet With Return Value") {
                     navigator.navigate(to: SettingsDestinations.sheet)
                 }
-                Text("Return Value: \(String(describing: returnValue))")
-                    .foregroundStyle(.secondary)
                 // establishes a checkpoint with a return value handler
                 .navigationCheckpoint(.settings) { (result: Int?) in
                     returnValue = result
                 }
+                Text("Return Value: \(String(describing: returnValue))")
+                    .foregroundStyle(.secondary)
             }
 
             Section("Navigation Actions") {

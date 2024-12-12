@@ -29,7 +29,6 @@ public class Navigator: ObservableObject {
     internal var checkpoints: [String: NavigationCheckpoint] = [:]
     internal var dismissible: Bool
 
-    internal typealias NavigationSendValues = (value: any Hashable, values: [any Hashable], SendMonitor?)
     internal let publisher: PassthroughSubject<NavigationSendValues, Never>
 
     internal let decoder = JSONDecoder()

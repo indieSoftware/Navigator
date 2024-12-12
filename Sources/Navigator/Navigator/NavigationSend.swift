@@ -26,9 +26,14 @@ extension Navigator {
     internal func send(_ value: any Hashable, _ values: [any Hashable]) {
         log("Navigator \(id) sending \(value)")
         #if DEBUG
-        publisher.send((value, values, SendMonitor(value: value, navigator: self)))
+        let values = NavigationSendValues(
+            value: value,
+            values: values,
+            checker: SendSanityCheck(value: value, navigator: self)
+        )
+        publisher.send(values)
         #else
-        publisher.send((value, values, nil))
+        publisher.send(NavigationSendValues(value: value, values: values))
         #endif
     }
 
@@ -117,16 +122,23 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .onReceive(publisher) { (value, values, monitor) in
+            .onReceive(publisher) { (value, values) in
                 navigator.log("Navigator \(navigator.id) receiving \(value)")
                 resume(handler(value, navigator), values: values)
-                monitor?.consume()
             }
     }
 
-    var publisher: AnyPublisher<(T, [any Hashable], SendMonitor?), Never> {
+    var publisher: AnyPublisher<(T, [any Hashable]), Never> {
         navigator.publisher
-            .compactMap { $0 as? (T, [any Hashable], SendMonitor?) }
+            .compactMap { received in
+                if let value = received.value as? T {
+                    #if DEBUG
+                    received.checker.check()
+                    #endif
+                    return (value, received.values)
+                }
+                return nil
+            }
             .eraseToAnyPublisher()
     }
 
@@ -152,7 +164,13 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
 }
 
 #if DEBUG
-internal class SendMonitor {
+internal struct NavigationSendValues {
+    let value: any Hashable
+    let values: [any Hashable]
+    let checker: SendSanityCheck
+}
+
+internal class SendSanityCheck {
     internal let type: String
     internal let navigator: Navigator
     internal var consumed: Bool = false
@@ -162,15 +180,20 @@ internal class SendMonitor {
     }
     deinit {
         if !consumed {
-            navigator.log("Navigator missing handler type: \(type)")
+            navigator.log("Navigator warning missing handler type: \(type) !!!")
         }
     }
-    func consume() {
+    func check() {
         guard !consumed else {
-            navigator.log("Navigator multiple handlers type: \(type)")
+            navigator.log("Navigator warning multiple handlers type: \(type) !!!")
             return
         }
         consumed = true
     }
+}
+#else
+internal struct NavigationSendValues {
+    let value: any Hashable
+    let values: [any Hashable]
 }
 #endif
