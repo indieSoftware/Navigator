@@ -109,7 +109,7 @@ extension Navigator {
         guard canReturnToCheckpoint(checkpoint) else {
             return false
         }
-        send(NavigationCheckpointResult(name: checkpoint.name, type: String(describing: T.self), value: value))
+        send(NavigationCheckpointResult(name: checkpoint.name, value: value))
         return true
     }
 
@@ -118,7 +118,7 @@ extension Navigator {
 extension View {
 
     /// Establishes a navigation checkpoint with a completion handler.
-    public func navigationCheckpoint<T>(_ checkpoint: NavigationCheckpoint, completion: @escaping (T?) -> Void) -> some View {
+    public func navigationCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, completion: @escaping (T?) -> Void) -> some View {
         self
             .onNavigationReceive { (result: NavigationCheckpointResult<T>) in
                 guard result.name == checkpoint.name else {
@@ -132,16 +132,42 @@ extension View {
 
 }
 
-internal struct NavigationCheckpointResult<T>: Equatable, Hashable {
-    let name: String
-    let type: String
-    let value: T?
+internal class NavigationCheckpointResult<T>: Hashable, CustomStringConvertible {
+    internal let name: String
+    internal let value: T?
+    internal init(name: String, value: T? = nil) {
+        self.name = name
+        self.value = value
+    }
+    var description: String {
+        if let value {
+            "checkpoint value: \(value)"
+        } else {
+            "checkpoint value: nil"
+        }
+    }
     func hash(into hasher: inout Hasher) {
         hasher.combine(name)
-        hasher.combine(type)
     }
     static func == (lhs: NavigationCheckpointResult<T>, rhs: NavigationCheckpointResult<T>) -> Bool {
-        lhs.name == rhs.name && lhs.type == rhs.type
+        lhs.name == rhs.name
+    }
+}
+
+private struct NavigationCheckpointValueModifier<T>: ViewModifier {
+    @Environment(\.navigator) var navigator: Navigator
+    internal let checkpoint: NavigationCheckpoint
+    internal let completion: (T?) -> Void
+    func body(content: Content) -> some View {
+        content
+            .onNavigationReceive { (result: NavigationCheckpointResult<T>) in
+                guard result.name == checkpoint.name else {
+                    return .cancel
+                }
+                completion(result.value)
+                return .checkpoint(checkpoint)
+            }
+            .navigationCheckpoint(checkpoint)
     }
 }
 

@@ -37,7 +37,7 @@ struct SettingsView: View {
                 }
                 Text("Return Value: \(String(describing: returnValue))")
                     .foregroundStyle(.secondary)
-                // establishes a checkpoint with a return handler
+                // establishes a checkpoint with a return value handler
                 .navigationCheckpoint(.settings) { (result: Int?) in
                     returnValue = result
                 }

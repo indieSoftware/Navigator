@@ -25,7 +25,11 @@ extension Navigator {
 
     internal func send(_ value: any Hashable, _ values: [any Hashable]) {
         log("Navigator \(id) sending \(value)")
-        publisher.send((value, values))
+        #if DEBUG
+        publisher.send((value, values, SendMonitor(value: value, navigator: self)))
+        #else
+        publisher.send((value, values, nil))
+        #endif
     }
 
 }
@@ -113,15 +117,16 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .onReceive(publisher) { (value, values) in
+            .onReceive(publisher) { (value, values, monitor) in
                 navigator.log("Navigator \(navigator.id) receiving \(value)")
                 resume(handler(value, navigator), values: values)
+                monitor?.consume()
             }
     }
 
-    var publisher: AnyPublisher<(T, [any Hashable]), Never> {
+    var publisher: AnyPublisher<(T, [any Hashable], SendMonitor?), Never> {
         navigator.publisher
-            .compactMap { $0 as? (T, [any Hashable]) }
+            .compactMap { $0 as? (T, [any Hashable], SendMonitor?) }
             .eraseToAnyPublisher()
     }
 
@@ -145,3 +150,27 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
     }
 
 }
+
+#if DEBUG
+internal class SendMonitor {
+    internal let type: String
+    internal let navigator: Navigator
+    internal var consumed: Bool = false
+    internal init<T: Hashable>(value: T?, navigator: Navigator) {
+        self.type = String(describing: T.self)
+        self.navigator = navigator
+    }
+    deinit {
+        if !consumed {
+            navigator.log("Navigator missing handler type: \(type)")
+        }
+    }
+    func consume() {
+        guard !consumed else {
+            navigator.log("Navigator multiple handlers type: \(type)")
+            return
+        }
+        consumed = true
+    }
+}
+#endif

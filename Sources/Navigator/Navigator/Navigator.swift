@@ -29,7 +29,7 @@ public class Navigator: ObservableObject {
     internal var checkpoints: [String: NavigationCheckpoint] = [:]
     internal var dismissible: Bool
 
-    internal typealias NavigationSendValues = (value: any Hashable, values: [any Hashable])
+    internal typealias NavigationSendValues = (value: any Hashable, values: [any Hashable], SendMonitor?)
     internal let publisher: PassthroughSubject<NavigationSendValues, Never>
 
     internal let decoder = JSONDecoder()
@@ -51,7 +51,7 @@ public class Navigator: ObservableObject {
         self.publisher = parent.publisher
         self.dismissible = dismissible
         parent.addChild(self)
-        log("Navigator init: \(id) parent \(parent.id)")
+        log("Navigator init: \(id), parent: \(parent.id)")
      }
 
     /// Sentinel code removes child from parent when Navigator is dismissed.
@@ -98,7 +98,7 @@ extension Navigator {
 
     @MainActor
     public func navigate(to destination: any NavigationDestination, method method: NavigationMethod) {
-        log("Navigator navigating to: \(destination) via: \(method)")
+        log("Navigator navigating to: \(destination), via: \(method)")
         switch method {
         case .push:
             push(destination)
