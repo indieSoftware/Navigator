@@ -180,12 +180,12 @@ internal class SendSanityCheck {
     }
     deinit {
         if !consumed {
-            navigator.log("Navigator warning missing handler type: \(type) !!!")
+            navigator.log(type: .warning, "Navigator missing handler type: \(type) !!!")
         }
     }
     func check() {
         guard !consumed else {
-            navigator.log("Navigator warning multiple handlers type: \(type) !!!")
+            navigator.log(type: .warning, "Navigator multiple handlers type: \(type) !!!")
             return
         }
         consumed = true

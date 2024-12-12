@@ -40,7 +40,7 @@ public class Navigator: ObservableObject {
         self.parent = nil
         self.publisher = .init()
         self.dismissible = false
-        print("Navigator root: \(id)")
+        log("Navigator root: \(id)")
     }
 
     /// Internal initializer used by ManagedNavigationStack and navigationDismissible modifiers.
@@ -75,8 +75,11 @@ public class Navigator: ObservableObject {
     }
 
     /// Internal logging function.
-    internal func log(_ message: @autoclosure () -> String) {
+    internal func log(type: NavigationConfiguration.Verbosity = .info, _ message: @autoclosure () -> String) {
         #if DEBUG
+        guard let configuration, type.rawValue >= configuration.verbosity.rawValue else {
+            return
+        }
         root.configuration?.logger?(message())
         #endif
     }

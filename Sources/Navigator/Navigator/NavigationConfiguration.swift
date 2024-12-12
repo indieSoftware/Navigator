@@ -22,12 +22,24 @@ public struct NavigationConfiguration {
     /// If logger is nil then--obviously--nothing is logged.
     let logger: ((_ message: String) -> Void)?
 
+    /// Logging verbosity
+    let verbosity: Verbosity
+
     public init(
         restorationKey: String? = nil,
-        logger: ((String) -> Void)? = { print($0) }
+        logger: ((String) -> Void)? = { print($0) },
+        verbosity: Verbosity = .warning
     ) {
         self.restorationKey = restorationKey
         self.logger = logger
+        self.verbosity = verbosity
+    }
+
+    public enum Verbosity: Int {
+        case info
+        case warning
+        case error
+        case none
     }
 
 }
