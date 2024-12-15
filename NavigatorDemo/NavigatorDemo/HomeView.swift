@@ -19,7 +19,7 @@ struct RootHomeView: View {
         ManagedNavigationStack(scene: "home") {
             HomeContentView(title: "Home Navigation")
                 .navigationCheckpoint(.home)
-                .navigationDestination(for: HomeDestinations.self)
+                .navigationDestination(HomeDestinations.self)
                 .onNavigationReceive { (destination: HomeDestinations, navigator) in
                     navigator.navigate(to: destination)
                     return .auto
@@ -140,7 +140,7 @@ struct NestedHomeContentView: View {
         ManagedNavigationStack {
             // Demonstrates using destinations to build views that may have dependencies.
             HomeDestinations.home(title).view
-                .navigationDestination(for: HomeDestinations.self)
+                .navigationDestination(HomeDestinations.self)
         }
     }
 }

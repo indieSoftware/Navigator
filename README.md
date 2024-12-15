@@ -8,7 +8,7 @@ Navigator provides SwiftUI with a simple, cohesive navigation layer based on Nav
 
 It supports...
 
-* Separation of concerns. 
+* Coordination patterns with well-defined separation of concerns. 
 * Simple and easy navigation linking and presentation of views.
 * Easily returning to a specific spot in the navigation tree via navigation checkpoints.
 * Returning callback values via navigation checkpoints.
@@ -45,7 +45,9 @@ extension HomeDestinations: NavigationDestination {
     }
 }
 ```
-Note how associated values can be used to pass parameters to views as needed.
+Note that destination values must be Hashable.
+
+Also note how associated values can be used to pass parameters to views as needed.
 
 To build views that have external dependencies or that require access to environmental values, see ``Advanced Destinations`` below.
 
@@ -69,7 +71,7 @@ Note that destinations dispatched via NavigationLink will always push onto the N
 
 ### Registering Navigation Destinations
 Like traditional `NavigationStack` destination types, `NavigationDestination` types need to be registered with the enclosing
-navigation stack in order for `navigate(to:)` and standard `NavigationLink(value:label:)` transitions and presentations 
+navigation stack in order for `navigate(to:)` presentations and standard `NavigationLink(value:label:)` transitions 
 to work correctly.
 
 But since each `NavigationDestination` already defines the view or views to be provided, registering destination types can be done
@@ -101,7 +103,7 @@ sheet. All other views will be pushed onto the navigation stack.
 
 ### Advanced Destinations
 
-What if a given view has external dependencies or requires access to the environment? 
+What if we can't construct a specific view without external dependencies or without accessing the environment? 
 
 Simple. Just delegate the view building to a standard SwiftUI view!
 ```swift
@@ -137,14 +139,26 @@ struct RootHomeView: View {
     var body: some View {
         ManagedNavigationStack(scene: "home") {
             HomeDestinations.home()
-                .navigationDestination(for: HomeDestinations.self)
+                .navigationDestination(HomeDestinations.self)
         }
     }
 }
 ```
-Calling the destination as a function obtains a resolved `HomePageView` from `HomeDestinationsView`, complete and ready to go.
+Calling the destination as a function obtains a fully resolved `HomePageView` from `HomeDestinationsView`, complete and ready to go.
 
 See the 'DemoDependency.swift' file in the NavigatorDemo project for a possible dependency injection mechanism.
+
+### Dismissing Presented Views
+
+*Introduction coming soon, in the meantime, see Demo project for examples.*
+
+### Checkpoints
+
+*Introduction coming soon, in the meantime, see Demo project for examples.*
+
+### Deep Linking Support
+
+*Introduction coming soon, in the meantime, see Demo project for examples.*
 
 ## Documentation
 

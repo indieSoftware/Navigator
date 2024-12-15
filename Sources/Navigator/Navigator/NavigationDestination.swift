@@ -165,7 +165,7 @@ extension View {
     /// This also makes using the same destination type with more than one navigation stack a lot easier.
     ///
     /// Important: NavigationDestination must be registered using this function!
-    public func navigationDestination<D: NavigationDestination>(for destinations: D.Type) -> some View {
+    public func navigationDestination<D: NavigationDestination>(_ destinations: D.Type) -> some View {
         self.modifier(NavigationDestinationModifier(destinations: destinations))
     }
 }
