@@ -13,7 +13,7 @@ It supports...
 * Easily returning to a specific spot in the navigation tree via navigation checkpoints.
 * Returning callback values via navigation checkpoints.
 * External deep linking and internal application navigation via navigation send.
-* Imperative, programatic navigation and control.
+* Declarative and Imperative navigation and control.
 * Navigation state restoration.
 * Event logging and debugging.
 
@@ -33,7 +33,7 @@ public enum HomeDestinations {
 Along with an extension that provides the correct view for a specific case.
 ```swift
 extension HomeDestinations: NavigationDestination {
-    public var body: some View {
+    public var view: some View {
         switch self {
         case .page2:
             HomePage2View()
@@ -46,6 +46,8 @@ extension HomeDestinations: NavigationDestination {
 }
 ```
 Note how associated values can be used to pass parameters to views as needed.
+
+To build views that have external dependencies or that require access to environmental values, see ``Advanced Destinations`` below.
 
 ### Using Navigation Destinations
 Navigation Destinations can be dispatched using a standard SwiftUI `NavigationLink(value:label:)` view.
@@ -67,9 +69,10 @@ Note that destinations dispatched via NavigationLink will always push onto the N
 
 ### Registering Navigation Destinations
 Like traditional `NavigationStack` destination types, `NavigationDestination` types need to be registered with the enclosing
-navigation stack in order for standard `NavigationLink(value:label:)` transitions to work correctly.
+navigation stack in order for `navigate(to:)` and standard `NavigationLink(value:label:)` transitions and presentations 
+to work correctly.
 
-But since each `NavigationDestination` already defines the view to be provided, registering destination types can be done
+But since each `NavigationDestination` already defines the view or views to be provided, registering destination types can be done
 using a simple one-line view modifier.
 ```swift
 ManagedNavigationStack {
@@ -95,6 +98,53 @@ extension HomeDestinations: NavigationDestination {
 ```
 In this case, should `navigator.navigate(to: HomeDestinations.page3)` be called, Navigator will automatically present that view in a
 sheet. All other views will be pushed onto the navigation stack.
+
+### Advanced Destinations
+
+What if a given view has external dependencies or requires access to the environment? 
+
+Simple. Just delegate the view building to a standard SwiftUI view!
+```swift
+extension HomeDestinations: NavigationDestination {
+    public var view: some View {
+        HomeDestinationsView(destination: self)
+    }
+}
+
+private struct HomeDestinationsView: View {
+    let destination: HomeDestinations
+    @Environment(\.coreDependencies) var resolver
+    var body: some View {
+        switch self {
+        case .home:
+            HomePageView(viewModel: HomePageViewModel(dependencies: resolver))
+        case .page2:
+            HomePage2View(viewModel: HomePage2ViewModel(dependencies: resolver))
+        case .page3:
+            HomePage3View(viewModel: HomePage3ViewModel(dependencies: resolver))
+        case .pageN(let value):
+            HomePageNView(viewModel: HomePageNViewModel(dependencies: resolver), number: value)
+        }
+    }
+}
+```
+In the above code, we obtain a `coreDependencies` resolver from the environment, and then use it to construct our views
+and view models.
+
+Note this technique can be used to construct fully functional views elsewhere in your view code. Consider.
+```swift
+struct RootHomeView: View {
+    var body: some View {
+        ManagedNavigationStack(scene: "home") {
+            HomeDestinations.home()
+                .navigationDestination(for: HomeDestinations.self)
+        }
+    }
+}
+```
+Calling the destination as a function obtains a resolved `HomePageView` from `HomeDestinationsView`, complete and ready to go.
+
+See the 'DemoDependency.swift' file in the NavigatorDemo project for a possible dependency injection mechanism.
 
 ## Documentation
 

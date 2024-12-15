@@ -149,13 +149,13 @@ public struct AnyNavigationDestination {
 
 extension AnyNavigationDestination: Identifiable {
     public var id: Int { wrapped.id }
-    @MainActor public func callAsFunction() -> AnyView {
+    @MainActor public func asAnyView() -> AnyView {
         AnyView(wrapped.view)
     }
 }
 
 extension View {
-    /// Registers ``NavigationDestination`` types in order to enable `navigationLink(value:label)` behaviors.
+    /// Registers ``NavigationDestination`` types in order to enable `navigate(to:)` and `NavigationLink(value:label)` behaviors.
     /// ```swift
     /// ManagedNavigationStack {
     ///     HomeView()
