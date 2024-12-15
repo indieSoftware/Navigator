@@ -53,6 +53,7 @@ struct SettingsView: View {
                 Button("Modifier Navigate to Settings Page 3!") {
                     triggerPage3.toggle()
                 }
+                .navigate(trigger: $triggerPage3, destination: SettingsDestinations.page3)
             }
 
             Section("Send Actions") {

@@ -10,9 +10,9 @@ It supports...
 
 * Simple and easy navigation linking and presentation of views.
 * Coordination patterns with well-defined separation of concerns. 
+* External deep linking and internal application navigation via navigation send.
 * Easily returning to a specific spot in the navigation tree via navigation checkpoints.
 * Returning callback values via navigation checkpoints.
-* External deep linking and internal application navigation via navigation send.
 * Both Declarative and Imperative navigation and control.
 * Navigation state restoration.
 * Event logging and debugging.
@@ -22,7 +22,7 @@ Navigator is written entirely in Swift and SwiftUI, and supports iOS 16 and abov
 ## The Code
 
 ### Defining Navigation Destinations
-Destinations (or routes) are typically just lists of enumerated values, one for each view desired.
+Destinations (or routes) are typically just public lists of enumerated values, one for each view desired.
 ```swift
 public enum HomeDestinations {
     case page2
@@ -32,7 +32,7 @@ public enum HomeDestinations {
 ```
 SwiftUI requires navigation destination values to be `Hashable`, and so do we.
 
-Next, we provide an extension that returns the correct view for a specific case.
+Next, we extend each destination with a variable that returns the correct view for each case.
 ```swift
 extension HomeDestinations: NavigationDestination {
     public var view: some View {
@@ -49,25 +49,7 @@ extension HomeDestinations: NavigationDestination {
 ```
 Note how associated values can be used to pass parameters to views as needed.
 
-To build views that have external dependencies or that require access to environmental values, see ``Advanced Destinations`` below.
-
-### Using Navigation Destinations
-Navigation Destinations can be dispatched using a standard SwiftUI `NavigationLink(value:label:)` view.
-```swift
-NavigationLink(value: HomeDestinations.page3) {
-    Text("Link to Home Page 3!")
-}
-```
-Or imperatively by asking a Navigator to perform the desired action.
-```swift
-Button("Button Navigate to Home Page 55") {
-    navigator.navigate(to: HomeDestinations.pageN(55))
-}
-Button("Present Home Page 55 Via Sheet") {
-    navigator.navigate(to: HomeDestinations.pageN(55), method: .sheet)
-}
-```
-Note that destinations dispatched via NavigationLink will always push onto the NavigationStack. That's just how SwiftUI works.
+*To build views that have external dependencies or that require access to environmental values, see ``Advanced Destinations`` below.*
 
 ### Registering Navigation Destinations
 Like traditional `NavigationStack` destination types, `NavigationDestination` types need to be registered with the enclosing
@@ -84,6 +66,40 @@ ManagedNavigationStack {
 ```
 This also makes using the same destination type with more than one navigation stack a lot easier.
 
+### Using Navigation Destinations
+With that out of the way, Navigation Destinations can be dispatched using a standard SwiftUI `NavigationLink(value:label:)` view.
+```swift
+NavigationLink(value: HomeDestinations.page3) {
+    Text("Link to Home Page 3!")
+}
+```
+Declaratively using modifiers.
+```swift
+@State var page: SettingsDestinations?
+...
+Button("Modifier Navigate to Page 3!") {
+    page = .page3
+}
+.navigate(to: $page)
+
+@State var triggerPage3: Bool = false
+...
+Button("Modifier Trigger Page 3!") {
+    triggerPage3.toggle()
+}
+.navigate(trigger: $triggerPage3, destination: SettingsDestinations.page3)
+```
+Or imperatively by asking a Navigator to perform the desired action.
+```swift
+@Environment(\.navigator) var navigator: Navigator
+...
+Button("Button Push Home Page 55") {
+    navigator.navigate(to: HomeDestinations.pageN(55))
+}
+Button("Present Home Page 55 Via Sheet") {
+    navigator.navigate(to: HomeDestinations.pageN(55), method: .sheet)
+}
+```
 ### Navigation Methods
 `NavigationDestination` can also be extended to provide a distinct ``NavigationMethod`` for each enumerated type.
 ```swift
@@ -102,6 +118,8 @@ In this case, should `navigator.navigate(to: HomeDestinations.page3)` be called,
 sheet. All other views will be pushed onto the navigation stack.
 
 The current navigation methods are: .push, .sheet, .cover, and .send.
+
+*Note that destinations dispatched via NavigationLink will always push onto the NavigationStack. That's just how SwiftUI works.*
 
 ### Dismissing Presented Views
 
