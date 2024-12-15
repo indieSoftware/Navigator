@@ -73,15 +73,16 @@ NavigationLink(value: HomeDestinations.page3) {
     Text("Link to Home Page 3!")
 }
 ```
-Declaratively using modifiers.
+Or they can be dispatched declaratively using modifiers.
 ```swift
+// Sample using optional destination
 @State var page: SettingsDestinations?
 ...
 Button("Modifier Navigate to Page 3!") {
     page = .page3
 }
 .navigate(to: $page)
-
+// Sample using trigger value
 @State var triggerPage3: Bool = false
 ...
 Button("Modifier Trigger Page 3!") {
