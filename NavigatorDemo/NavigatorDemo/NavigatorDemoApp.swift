@@ -14,6 +14,7 @@ struct NavigatorDemoApp: App {
         WindowGroup {
             RootTabView()
                 .environment(\.navigator, Navigator(configuration: configuration))
+                .environment(\.coreDependencies, AppResolver())
         }
     }
 

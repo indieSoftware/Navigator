@@ -17,14 +17,21 @@ extension NavigationCheckpoint {
 struct RootHomeView: View {
     var body: some View {
         ManagedNavigationStack(scene: "home") {
-            HomeContentView(title: "Root Navigation")
+            HomeContentView(title: "Home Navigation")
                 .navigationCheckpoint(.home)
-                .navigationDestination(HomeDestinations.self)
+                .navigationDestination(for: HomeDestinations.self)
                 .onNavigationReceive { (destination: HomeDestinations, navigator) in
                     navigator.navigate(to: destination)
                     return .auto
                 }
         }
+    }
+}
+
+class HomeContentViewModel: ObservableObject {
+    let title: String
+    init(dependencies: CoreDependencies, title: String) {
+        self.title = title + " " + dependencies.networking().load()
     }
 }
 
@@ -62,7 +69,15 @@ struct HomeContentView: View {
     }
 }
 
+class HomePage2ViewModel: ObservableObject {
+    let title: String
+    init(dependencies: CoreDependencies) {
+        title = "Page 2 " + dependencies.networking().load()
+    }
+}
+
 struct HomePage2View: View {
+    @StateObject var viewModel: HomePage2ViewModel
     @Environment(\.navigator) var navigator: Navigator
     var body: some View {
         List {
@@ -78,7 +93,7 @@ struct HomePage2View: View {
             ContentPopSection()
         }
         .navigationCheckpoint(.page2)
-        .navigationTitle("Page 2")
+        .navigationTitle(viewModel.title)
     }
 }
 
@@ -123,12 +138,14 @@ struct NestedHomeContentView: View {
     var title: String
     var body: some View {
         ManagedNavigationStack {
-            HomeContentView(title: title)
-                .navigationDestination(HomeDestinations.self)
+            // Demonstrates using destinations to build views that may have dependencies.
+            HomeDestinations.home(title).view
+                .navigationDestination(for: HomeDestinations.self)
         }
     }
 }
 
-//#Preview {
-//    RootHomeView()
-//}
+#Preview {
+    RootHomeView()
+        .environment(\.coreDependencies, MockAppResolver())
+}

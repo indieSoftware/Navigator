@@ -102,7 +102,3 @@ struct ContentPopSection: View {
 
     }
 }
-
-#Preview {
-    HomeContentView(title: "Content")
-}

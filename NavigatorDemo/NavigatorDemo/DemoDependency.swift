@@ -5,15 +5,41 @@
 //  Created by Michael Long on 12/5/24.
 //
 
-import Foundation
+import SwiftUI
 import Navigator
 
-public protocol DemoDependency {
-    var value: Int { get }
+extension EnvironmentValues {
+    @Entry var coreDependencies: CoreDependencies = MockAppResolver()
 }
 
-public var globalDependencies: DemoDependency = MyDemoDependencies()
+protocol CoreDependencies {
+    func networking() -> Networking
+}
 
-public struct MyDemoDependencies: DemoDependency {
-    public let value: Int = 66
+extension CoreDependencies {
+    func networking() -> Networking {
+        Networker()
+    }
+}
+
+struct AppResolver: CoreDependencies {
+
+}
+
+struct MockAppResolver: CoreDependencies {
+    func networking() -> Networking {
+        MockNetworker()
+    }
+}
+
+protocol Networking {
+    func load() -> String
+}
+
+struct Networker: Networking {
+    func load() -> String { "(A)" }
+}
+
+struct MockNetworker: Networking {
+    func load() -> String { "(M)" }
 }

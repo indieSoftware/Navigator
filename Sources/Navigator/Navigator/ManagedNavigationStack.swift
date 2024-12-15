@@ -67,12 +67,6 @@ public struct ManagedNavigationStack<Content: View>: View {
                     sceneStorage = navigator.encoded()
                 }
             }
-            .sheet(item: $navigator.sheet ) { destination in
-                destination()
-            }
-            .fullScreenCover(item: $navigator.cover) { destination in
-                destination()
-            }
             .environment(\.navigator, navigator)
         }
 

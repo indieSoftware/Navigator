@@ -40,12 +40,6 @@ struct NavigationDismissibleModifier: ViewModifier {
                 .onChange(of: navigator.triggerDismiss) { _ in
                     dismiss()
                 }
-                .sheet(item: $navigator.sheet ) { destination in
-                    destination()
-                }
-                .fullScreenCover(item: $navigator.cover) { destination in
-                    destination()
-                }
                 .environment(\.navigator, navigator)
         }
 

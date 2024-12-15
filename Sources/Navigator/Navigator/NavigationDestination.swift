@@ -31,7 +31,7 @@ import SwiftUI
 /// Along with an extension that provides the correct view for a specific case.
 /// ```swift
 /// extension HomeDestinations: NavigationDestination {
-///     public var body: some View {
+///     public var view: some View {
 ///         switch self {
 ///         case .page2:
 ///             HomePage2View()
@@ -94,12 +94,12 @@ import SwiftUI
 /// the value onto the navigation stack as it would normally.
 public protocol NavigationDestination: Hashable, Equatable, Identifiable {
 
-    associatedtype Body: View
+    associatedtype Content: View
 
     /// Provides the correct view for a specific case.
     /// ```swift
     /// extension HomeDestinations: NavigationDestination {
-    ///     public var body: some View {
+    ///     public var view: some View {
     ///         switch self {
     ///         case .page2:
     ///             HomePage2View()
@@ -111,7 +111,7 @@ public protocol NavigationDestination: Hashable, Equatable, Identifiable {
     ///     }
     /// }
     /// ```
-    @MainActor @ViewBuilder var body: Self.Body { get }
+    @MainActor @ViewBuilder var view: Self.Content { get }
 
     /// Can be overridden to define a specific presentation type for each destination.
     var method: NavigationMethod { get }
@@ -125,14 +125,14 @@ extension NavigationDestination {
         self.hashValue
     }
 
-    /// Default navigation method.
+    /// Default method for `.navigate(to:)`.
     public var method: NavigationMethod {
         .push
     }
 
     /// Convenience function returns body.
     @MainActor public func callAsFunction() -> some View {
-        body
+        view
     }
 
     /// Equatable conformance.
@@ -144,15 +144,14 @@ extension NavigationDestination {
 
 /// Wrapper boxes a specific NavigationDestination.
 public struct AnyNavigationDestination {
-    public let wrapped: any NavigationDestination
+    public var wrapped: any NavigationDestination
 }
 
 extension AnyNavigationDestination: Identifiable {
     public var id: Int { wrapped.id }
-}
-
-extension AnyNavigationDestination {
-    @MainActor public func callAsFunction() -> AnyView { AnyView(wrapped.body) }
+    @MainActor public func callAsFunction() -> AnyView {
+        AnyView(wrapped.view)
+    }
 }
 
 extension View {
@@ -164,14 +163,63 @@ extension View {
     /// }
     /// ```
     /// This also makes using the same destination type with more than one navigation stack a lot easier.
-    public func navigationDestination<T: NavigationDestination>(_ type: T.Type) -> some View {
-        self.navigationDestination(for: type) { destination in
-            destination()
-        }
+    ///
+    /// Important: NavigationDestination must be registered using this function!
+    public func navigationDestination<D: NavigationDestination>(for destinations: D.Type) -> some View {
+        self.modifier(NavigationDestinationModifier(destinations: destinations))
     }
 }
 
-public protocol NavigationDependency {
-    associatedtype Dependency
-    var dependency: Dependency { get }
+internal struct NavigationDestinationModifier<D: NavigationDestination>: ViewModifier {
+
+    let destinations: D.Type
+
+    @Environment(\.navigator) var navigator
+
+    func body(content: Content) -> some View {
+        content.modifier(WrappedModifier(navigator: navigator))
+    }
+
+    struct WrappedModifier: ViewModifier {
+
+        @ObservedObject var navigator: Navigator
+
+        func body(content: Content) -> some View {
+            content
+                .navigationDestination(for: D.self) { destination in
+                    destination()
+                }
+                .fullScreenCover(item: showCoverBinding) { (destination: D) in
+                    destination()
+                }
+                .sheet(item: showSheetBinding) { (destination: D) in
+                    destination()
+                }
+        }
+
+        var showCoverBinding: Binding<D?> {
+            Binding {
+                navigator.cover?.wrapped as? D
+            } set: { newValue in
+                if let newValue {
+                    navigator.cover?.wrapped = newValue
+                } else {
+                    navigator.cover = nil
+                }
+            }
+        }
+
+        var showSheetBinding: Binding<D?> {
+            Binding {
+                navigator.sheet?.wrapped as? D
+            } set: { newValue in
+                if let newValue {
+                    navigator.sheet?.wrapped = newValue
+                } else {
+                    navigator.sheet = nil
+                }
+            }
+        }
+
+    }
 }
