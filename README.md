@@ -1,19 +1,19 @@
 # Navigator
 
-Managed Navigation for SwiftUI.
+Advanced Navigation Support for SwiftUI.
 
 ## Introduction
 
-Navigator provides SwiftUI with a simple, cohesive navigation layer based on NavigationStack. 
+Navigator provides SwiftUI with a simple yet powerful navigation layer based on NavigationStack. 
 
 It supports...
 
-* Coordination patterns with well-defined separation of concerns. 
 * Simple and easy navigation linking and presentation of views.
+* Coordination patterns with well-defined separation of concerns. 
 * Easily returning to a specific spot in the navigation tree via navigation checkpoints.
 * Returning callback values via navigation checkpoints.
 * External deep linking and internal application navigation via navigation send.
-* Declarative and Imperative navigation and control.
+* Both Declarative and Imperative navigation and control.
 * Navigation state restoration.
 * Event logging and debugging.
 
@@ -22,7 +22,7 @@ Navigator is written entirely in Swift and SwiftUI, and supports iOS 16 and abov
 ## The Code
 
 ### Defining Navigation Destinations
-Destinations (or routes) are typically just a simple list of enumerated values.
+Destinations (or routes) are typically just lists of enumerated values, one for each view desired.
 ```swift
 public enum HomeDestinations {
     case page2
@@ -30,7 +30,9 @@ public enum HomeDestinations {
     case pageN(Int)
 }
 ```
-Along with an extension that provides the correct view for a specific case.
+SwiftUI requires navigation destination values to be `Hashable`, and so do we.
+
+Next, we provide an extension that returns the correct view for a specific case.
 ```swift
 extension HomeDestinations: NavigationDestination {
     public var view: some View {
@@ -45,9 +47,7 @@ extension HomeDestinations: NavigationDestination {
     }
 }
 ```
-Note that destination values must be Hashable.
-
-Also note how associated values can be used to pass parameters to views as needed.
+Note how associated values can be used to pass parameters to views as needed.
 
 To build views that have external dependencies or that require access to environmental values, see ``Advanced Destinations`` below.
 
@@ -74,7 +74,7 @@ Like traditional `NavigationStack` destination types, `NavigationDestination` ty
 navigation stack in order for `navigate(to:)` presentations and standard `NavigationLink(value:label:)` transitions 
 to work correctly.
 
-But since each `NavigationDestination` already defines the view or views to be provided, registering destination types can be done
+But since each `NavigationDestination` already defines the views to be provided, registering destination types can be done
 using a simple one-line view modifier.
 ```swift
 ManagedNavigationStack {
@@ -100,6 +100,20 @@ extension HomeDestinations: NavigationDestination {
 ```
 In this case, should `navigator.navigate(to: HomeDestinations.page3)` be called, Navigator will automatically present that view in a
 sheet. All other views will be pushed onto the navigation stack.
+
+The current navigation methods are: .push, .sheet, .cover, and .send.
+
+### Dismissing Presented Views
+
+*Introduction coming soon, in the meantime, see Demo project for examples.*
+
+### Checkpoints
+
+*Introduction coming soon, in the meantime, see Demo project for examples.*
+
+### Deep Linking Support
+
+*Introduction coming soon, in the meantime, see Demo project for examples.*
 
 ### Advanced Destinations
 
@@ -147,18 +161,6 @@ struct RootHomeView: View {
 Calling the destination as a function obtains a fully resolved `HomePageView` from `HomeDestinationsView`, complete and ready to go.
 
 See the 'DemoDependency.swift' file in the NavigatorDemo project for a possible dependency injection mechanism.
-
-### Dismissing Presented Views
-
-*Introduction coming soon, in the meantime, see Demo project for examples.*
-
-### Checkpoints
-
-*Introduction coming soon, in the meantime, see Demo project for examples.*
-
-### Deep Linking Support
-
-*Introduction coming soon, in the meantime, see Demo project for examples.*
 
 ## Documentation
 
