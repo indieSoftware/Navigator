@@ -136,7 +136,7 @@ Button("Present Home Page 55 Via Sheet") {
 
 ### Checkpoints
 
-While one can programmatically pop and dismiss their way out of a screen, that approach is problematic and fragile. One can pass bindings down the tree, but that can be equally problematic at best, and cumbersome at worst.
+While one can programmatically pop and dismiss their way out of a screen, that approach is problematic and fragile. One could pass bindings down the tree, but that can be equally problematic at worst, and cumbersome at best.
 
 Fortunately, Navigator supports checkpoints; named points in the navigation stack to which one can easily return.
 
@@ -167,13 +167,13 @@ When fired, checkpoints will dismiss any presented screens and pop any pushed vi
 
 Checkpoints can also be used to return values to a caller.
 ```swift
-// Define the checkpoint with a value handler.
+// Define a checkpoint with a value handler.
 .navigationCheckpoint(.settings) { (result: Int?) in
     returnValue = result
 }
 
 // Return, passing a value.
-Button("Return to Settings Checkpoint Value 5") {
+Button("Return to Settings Checkpoint Passing Value 5") {
     navigator.returnToCheckpoint(.settings, value: 5)
 }
 ```
@@ -204,7 +204,7 @@ struct RootTabView : View {
     }
 }
 ```
-Sharp eyes may have spotted the `onNavigationReceive` modifier, which--much like `navigationDestination(type)`--is listening for Navigator to broadcast a value of type RootTabs.
+Sharp eyes may have spotted the `onNavigationReceive` modifier, which--much like `navigationDestination(MyType.self)`--is listening for Navigator to broadcast a value of type RootTabs.
 
 When received, Navigator will dismiss any presented screens, set the selected tab, and then return normally.
 
@@ -224,7 +224,7 @@ The `RootTabs` receiver switches to the selected tab, and then a similar `HomeDe
     return .auto
 }
 ```
-This makes deep linking and internal navigation linking simple and easy.
+This mechanism makes deep linking and internal navigation support simple and easy.
 
 ### Advanced Destinations
 
