@@ -14,20 +14,14 @@ enum RootTabs: Int, Identifiable, Codable {
 }
 
 struct RootTabView : View {
-
     @SceneStorage("selectedTab") var selectedTab: RootTabs = .home
-
     var body: some View {
         TabView(selection: $selectedTab) {
             RootHomeView()
-                .tabItem {
-                    Label("Home", systemImage: "house")
-                }
+                .tabItem { Label("Home", systemImage: "house") }
                 .tag(RootTabs.home)
             RootSettingsView()
-                .tabItem {
-                    Label("Settings", systemImage: "gear")
-                }
+                .tabItem { Label("Settings", systemImage: "gear") }
                 .tag(RootTabs.settings)
         }
         .onNavigationReceive { (tab: RootTabs, navigator) in
@@ -40,7 +34,6 @@ struct RootTabView : View {
             SettingsURLHander()
         ])
     }
-
 }
 
 #Preview {

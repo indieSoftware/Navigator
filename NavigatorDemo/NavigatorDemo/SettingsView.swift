@@ -65,7 +65,10 @@ struct SettingsView: View {
                 }
                 .navigationSend($destination)
                 Button("Send Tab Home, Page 2") {
-                    navigator.send(values: [RootTabs.home, HomeDestinations.page2])
+                    navigator.send(values: [
+                        RootTabs.home,
+                        HomeDestinations.page2
+                    ])
                 }
             }
         }

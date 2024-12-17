@@ -134,17 +134,97 @@ Button("Present Home Page 55 Via Sheet") {
 ```
 *Note that destinations dispatched via NavigationLink will always push onto the NavigationStack. That's just how SwiftUI works.*
 
-### Dismissing Presented Views
-
-*Introduction coming soon, in the meantime, see Demo project for examples.*
-
 ### Checkpoints
 
-*Introduction coming soon, in the meantime, see Demo project for examples.*
+While one can programmatically pop and dismiss their way out of a screen, that approach is problematic and fragile. One can pass bindings down the tree, but that can be equally problematic at best, and cumbersome at worst.
+
+Fortunately, Navigator supports checkpoints; named points in the navigation stack to which one can easily return.
+
+Checkpoints are easy to define and use. Let's create one called "home" and then use it.
+```swift
+extension NavigationCheckpoint {
+    public static var home: NavigationCheckpoint = "home"
+}
+
+struct RootHomeView: View {
+    var body: some View {
+        ManagedNavigationStack(scene: "home") {
+            HomeContentView(title: "Home Navigation")
+                .navigationCheckpoint(.home)
+                .navigationDestination(HomeDestinations.self)
+        }
+    }
+}
+```
+Once defined, they're easy to use.
+```swift
+Button("Return To Checkpoint Home") {
+    navigator.returnToCheckpoint(.home)
+}
+.disabled(!navigator.canReturnToCheckpoint(.home))
+```
+When fired, checkpoints will dismiss any presented screens and pop any pushed views to return exactly where desired.
+
+Checkpoints can also be used to return values to a caller.
+```swift
+// Define the checkpoint with a value handler.
+.navigationCheckpoint(.settings) { (result: Int?) in
+    returnValue = result
+}
+
+// Return, passing a value.
+Button("Return to Settings Checkpoint Value 5") {
+    navigator.returnToCheckpoint(.settings, value: 5)
+}
+```
+Checkpoints are a powerful tool. Use them.
 
 ### Deep Linking Support
 
-*Introduction coming soon, in the meantime, see Demo project for examples.*
+Navigator supports external deep linking and internal application navigation via navigation send.
+
+Consider the following fairly standard RootTabView.
+```swift
+struct RootTabView : View {
+    @SceneStorage("selectedTab") var selectedTab: RootTabs = .home
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            RootHomeView()
+                .tabItem { Label("Home", systemImage: "house") }
+                .tag(RootTabs.home)
+            RootSettingsView()
+                .tabItem { Label("Settings", systemImage: "gear") }
+                .tag(RootTabs.settings)
+        }
+        .onNavigationReceive { (tab: RootTabs, navigator) in
+            navigator.dismissAll()
+            selectedTab = tab
+            return .auto
+        }
+    }
+}
+```
+Sharp eyes may have spotted the `onNavigationReceive` modifier, which--much like `navigationDestination(type)`--is listening for Navigator to broadcast a value of type RootTabs.
+
+When received, Navigator will dismiss any presented screens, set the selected tab, and then return normally.
+
+Values are broadcast using `navigationSend()` or `navigationSend(values:)`, as shown below.
+```swift
+Button("Send Tab Home, Page 2") {
+    navigator.send(values: [
+        RootTabs.home,
+        HomeDestinations.page2
+    ])
+}
+```
+The `RootTabs` receiver switches to the selected tab, and then a similar `HomeDestinations` receiver sends the user to page 2.
+```swift
+.onNavigationReceive { (destination: HomeDestinations, navigator) in
+    navigator.navigate(to: destination)
+    return .auto
+}
+```
+This makes deep linking and internal navigation linking simple and easy.
 
 ### Advanced Destinations
 
