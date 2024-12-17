@@ -127,7 +127,7 @@ The current navigation methods are: .push (default), .sheet, .cover, and .send.
 
 Predefined methods can be overridden using Navigator's `navigate(to:method:)` function.
 
-...swift
+```swift
 Button("Present Home Page 55 Via Sheet") {
     navigator.navigate(to: HomeDestinations.pageN(55), method: .sheet)
 }
