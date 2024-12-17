@@ -82,6 +82,7 @@ Button("Modifier Navigate to Page 3!") {
     page = .page3
 }
 .navigate(to: $page)
+
 // Sample using trigger value
 @State var triggerPage3: Bool = false
 ...
@@ -95,14 +96,18 @@ Or imperatively by asking a Navigator to perform the desired action.
 @Environment(\.navigator) var navigator: Navigator
 ...
 Button("Button Push Home Page 55") {
+    navigator.push(HomeDestinations.pageN(55))
+}
+Button("Button Navigate To Home Page 55") {
     navigator.navigate(to: HomeDestinations.pageN(55))
 }
-Button("Present Home Page 55 Via Sheet") {
-    navigator.navigate(to: HomeDestinations.pageN(55), method: .sheet)
-}
 ```
+In case you're wondering, calling `push` pushes the associate view onto the current `NavigationStack`, while `Navigate(to:)` will push
+the view or present the view, based on the `NavigationMethod` specified (coming up next).
+
 ### Navigation Methods
-`NavigationDestination` can also be extended to provide a distinct ``NavigationMethod`` for each enumerated type.
+
+`NavigationDestination` can be extended to provide a distinct ``NavigationMethod`` for each enumerated type.
 ```swift
 extension HomeDestinations: NavigationDestination {
     public var method: NavigationMethod {
@@ -118,8 +123,15 @@ extension HomeDestinations: NavigationDestination {
 In this case, should `navigator.navigate(to: HomeDestinations.page3)` be called, Navigator will automatically present that view in a
 sheet. All other views will be pushed onto the navigation stack.
 
-The current navigation methods are: .push, .sheet, .cover, and .send.
+The current navigation methods are: .push (default), .sheet, .cover, and .send.
 
+Predefined methods can be overridden using Navigator's `navigate(to:method:)` function.
+
+...swift
+Button("Present Home Page 55 Via Sheet") {
+    navigator.navigate(to: HomeDestinations.pageN(55), method: .sheet)
+}
+```
 *Note that destinations dispatched via NavigationLink will always push onto the NavigationStack. That's just how SwiftUI works.*
 
 ### Dismissing Presented Views
@@ -166,7 +178,7 @@ private struct HomeDestinationsView: View {
 In the above code, we obtain a `coreDependencies` resolver from the environment, and then use it to construct our views
 and view models.
 
-Note this technique can be used to construct fully functional views elsewhere in your view code. Consider.
+Note this technique can be used to construct and use fully functional views elsewhere in your view code. Consider.
 ```swift
 struct RootHomeView: View {
     var body: some View {
@@ -177,7 +189,8 @@ struct RootHomeView: View {
     }
 }
 ```
-Calling the destination as a function obtains a fully resolved `HomePageView` from `HomeDestinationsView`, complete and ready to go.
+Calling the destination as a function obtains a fully resolved `HomePageView` and view model from `HomeDestinationsView`, 
+complete and ready to go.
 
 See the 'DemoDependency.swift' file in the NavigatorDemo project for a possible dependency injection mechanism.
 

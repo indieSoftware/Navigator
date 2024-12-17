@@ -22,6 +22,7 @@ public struct ManagedNavigationStack<Content: View>: View {
         self.content = content()
     }
 
+    /// Initializes NavigationStack with scene name needed to enable scene storage.
     public init(scene name: String, @ViewBuilder content: () -> Content) {
         self.name = name
         self.content = content()
