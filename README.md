@@ -183,6 +183,8 @@ Checkpoints are a powerful tool. Use them.
 
 Navigator supports external deep linking and internal application navigation via navigation send.
 
+This comes in handy when navigation means needing to change non-NavigationStack-based values like the selected tab, or perhaps an account number used to trigger the detail view in a `NavigationSplitView`.
+
 Consider the following fairly standard RootTabView.
 ```swift
 struct RootTabView : View {
