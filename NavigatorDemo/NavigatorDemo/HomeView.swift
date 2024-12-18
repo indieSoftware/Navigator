@@ -9,9 +9,9 @@ import Navigator
 import SwiftUI
 
 extension NavigationCheckpoint {
-    public static var home: NavigationCheckpoint = "home"
-    public static var page2: NavigationCheckpoint = "page2"
-    public static var settings: NavigationCheckpoint = "settings"
+    public static let home: NavigationCheckpoint = "home"
+    public static let page2: NavigationCheckpoint = "page2"
+    public static let settings: NavigationCheckpoint = "settings"
 }
 
 struct RootHomeView: View {

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct NavigationCheckpoint: Codable, Hashable, Equatable, ExpressibleByStringLiteral {
+public struct NavigationCheckpoint: Codable, Equatable, ExpressibleByStringLiteral, Hashable, Sendable {
     internal let name: String
     internal let index: Int
     public init(stringLiteral value: String) {
