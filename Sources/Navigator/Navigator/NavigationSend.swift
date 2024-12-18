@@ -182,15 +182,15 @@ internal class SendSanityCheck {
     }
     deinit {
         if !consumed {
-            navigator.log(type: .warning, "Navigator missing handler type: \(type) !!!")
+            navigator.log(type: .warning, "Navigator missing receive handler for type: \(type)!!!")
         }
     }
     func consumable() -> Bool {
         guard !consumed else {
-            navigator.log(type: .warning, "Navigator multiple handlers type: \(type) !!!")
+            navigator.log(type: .warning, "Navigator additional receive handlers ignored for type: \(type)!!!")
             return false
         }
-        consumed = true
+        consumed.toggle()
         return true
     }
 }
