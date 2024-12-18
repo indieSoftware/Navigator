@@ -143,7 +143,7 @@ Fortunately, Navigator supports checkpoints; named points in the navigation stac
 Checkpoints are easy to define and use. Let's create one called "home" and then use it.
 ```swift
 extension NavigationCheckpoint {
-    public static var home: NavigationCheckpoint = "home"
+    public static let home: NavigationCheckpoint = "home"
 }
 
 struct RootHomeView: View {
