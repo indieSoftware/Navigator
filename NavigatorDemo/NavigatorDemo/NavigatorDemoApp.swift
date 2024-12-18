@@ -19,6 +19,6 @@ struct NavigatorDemoApp: App {
     }
 
     var configuration: NavigationConfiguration {
-        .init(restorationKey: "1.0.0", verbosity: .warning)
+        .init(restorationKey: "1.0.0", verbosity: .info)
     }
 }

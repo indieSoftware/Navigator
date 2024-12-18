@@ -133,7 +133,9 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
             .compactMap { received in
                 if let value = received.value as? T {
                     #if DEBUG
-                    received.checker.check()
+                    guard received.checker.consumable() else {
+                        return nil
+                    }
                     #endif
                     return (value, received.values)
                 }
@@ -183,12 +185,13 @@ internal class SendSanityCheck {
             navigator.log(type: .warning, "Navigator missing handler type: \(type) !!!")
         }
     }
-    func check() {
+    func consumable() -> Bool {
         guard !consumed else {
             navigator.log(type: .warning, "Navigator multiple handlers type: \(type) !!!")
-            return
+            return false
         }
         consumed = true
+        return true
     }
 }
 #else
