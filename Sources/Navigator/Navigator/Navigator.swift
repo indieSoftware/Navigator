@@ -107,8 +107,10 @@ extension Navigator {
         case .send:
             send(destination)
         case .sheet:
+            guard sheet?.id != destination.id else { return }
             sheet = AnyNavigationDestination(wrapped: destination)
         case .cover:
+            guard cover?.id != destination.id else { return }
             cover = AnyNavigationDestination(wrapped: destination)
         }
     }
