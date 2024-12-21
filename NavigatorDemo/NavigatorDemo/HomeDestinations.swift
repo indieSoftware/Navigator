@@ -20,19 +20,19 @@ public enum HomeDestinations: Codable {
 extension HomeDestinations: NavigationDestination {
     public var view: some View {
         // Illustrates external mapping of destination type to views. See Settings for simple mapping.
-        HomeDestinationsView(destinations: self)
+        HomeDestinationsView(destination: self)
     }
 }
 
-// External view mapping allows access to environment variables, in this case coreDependencies.
+// External view mapping allows access to environment variables, in this case homeDependencies.
 private struct HomeDestinationsView: View {
     // Destination to display
-    let destinations: HomeDestinations
+    let destination: HomeDestinations
     // Obtain core dependency resolver
-    @Environment(\.coreDependencies) var resolver
+    @Environment(\.homeDependencies) var resolver
     // Standard view body
     var body: some View {
-        switch destinations {
+        switch destination {
         case .home(let title):
             HomeContentView(title: title)
         case .page2:

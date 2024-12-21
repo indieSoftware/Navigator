@@ -30,8 +30,8 @@ struct RootHomeView: View {
 
 class HomeContentViewModel: ObservableObject {
     let title: String
-    init(dependencies: CoreDependencies, title: String) {
-        self.title = title + " " + dependencies.networking().load()
+    init(dependencies: HomeDependencies, title: String) {
+        self.title = title + " " + dependencies.networker().load()
     }
 }
 
@@ -71,8 +71,8 @@ struct HomeContentView: View {
 
 class HomePage2ViewModel: ObservableObject {
     let title: String
-    init(dependencies: CoreDependencies) {
-        title = "Page 2 " + dependencies.networking().load()
+    init(dependencies: HomeDependencies) {
+        title = "Page 2 " + dependencies.networker().load()
     }
 }
 
@@ -147,5 +147,4 @@ struct NestedHomeContentView: View {
 
 #Preview {
     RootHomeView()
-        .environment(\.coreDependencies, MockAppResolver())
 }
