@@ -9,7 +9,7 @@ import SwiftUI
 
 extension Navigator {
 
-    /// Dismisses presented ManagedNavigationStack.
+    /// Dismisses the currently presented ManagedNavigationStack.
     @MainActor
     @discardableResult
     public func dismiss() -> Bool {
@@ -19,6 +19,13 @@ extension Navigator {
             return true
         }
         return false
+    }
+
+    /// Dismisses presented sheet or fullScreenCover views presented by this Navigator.
+    @MainActor
+    public func dismissPresentedViews() {
+        sheet = nil
+        cover = nil
     }
 
     /// Returns to the root Navigator and dismisses *any* presented ManagedNavigationStack.

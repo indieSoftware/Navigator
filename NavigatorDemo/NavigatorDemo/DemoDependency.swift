@@ -12,7 +12,7 @@ import Navigator
 // CORE MODULE DEPENDENCIES
 //
 
-// Convenience type specifies everything available in our core module
+// Convenience type specifies everything visible and available in our core module
 typealias CoreDependencies = NetworkDependencies
     & LoggingDependencies
     & AnalyticsDependencies
@@ -167,10 +167,13 @@ typealias AppDependencies = CoreDependencies
 
 // Make the application's dependency resolver
 class AppResolver: AppDependencies {
+    // need one per app
+    let analyticsService = ThirdPartyAnalyticsService()
     // Missing default dependencies forces app to provide them.
     func analytics() -> any AnalyticsService {
-        ThirdPartyAnalyticsService()
+        analyticsService
     }
+    // Missing default provides proper key
     var settingsKey: String { "actual" }
 }
 
@@ -208,7 +211,7 @@ protocol AnalyticsService {
     func event(_ event: String)
 }
 
-struct ThirdPartyAnalyticsService: AnalyticsService {
+class ThirdPartyAnalyticsService: AnalyticsService {
     func event(_ event: String) {
         print(event)
     }

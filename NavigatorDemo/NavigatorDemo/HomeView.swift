@@ -24,6 +24,10 @@ struct RootHomeView: View {
                     navigator.navigate(to: destination)
                     return .auto
                 }
+//                .onNavigationReceive { (destination: HomeDestinations, navigator) in
+//                    navigator.navigate(to: destination)
+//                    return .auto
+//                }
         }
     }
 }
@@ -138,10 +142,10 @@ struct NestedHomeContentView: View {
     var title: String
     var body: some View {
         ManagedNavigationStack {
-            // Demonstrates using destinations to build views that may have dependencies.
+            // Demonstrates using destinations to build root views that may have dependencies.
             HomeDestinations.home(title).view
                 .navigationDestination(HomeDestinations.self)
-        }
+            }
     }
 }
 
