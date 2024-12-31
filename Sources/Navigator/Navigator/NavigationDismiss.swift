@@ -40,8 +40,11 @@ extension Navigator {
     @discardableResult
     public func dismissAllChildren() -> Bool {
         for child in children.values {
-            if let navigator = child.object, navigator.dismiss() || navigator.dismissAllChildren() {
-                return true
+            if let childNavigator = child.object {
+                var dismissed: Bool
+                dismissed = childNavigator.dismissAllChildren()
+                dismissed = childNavigator.dismiss() || dismissed
+                return dismissed
             }
         }
         return false

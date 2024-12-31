@@ -8,9 +8,9 @@
 import Combine
 import SwiftUI
 
-public class Navigator: ObservableObject {
+public class Navigator: ObservableObject, @unchecked Sendable {
 
-    @Published internal var path: NavigationPath = .init() {
+    @Published var path: NavigationPath = .init() {
         didSet {
             cleanCheckpoints()
         }
@@ -57,6 +57,12 @@ public class Navigator: ObservableObject {
     deinit {
         log("Navigator deinit: \(id)")
         parent?.removeChild(self)
+    }
+
+    internal func changed() {
+        DispatchQueue.main.async {
+            self.objectWillChange.send()
+        }
     }
 
     /// Walks up the parent tree and returns the root Navigator.
