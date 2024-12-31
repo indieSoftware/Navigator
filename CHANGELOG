@@ -1,5 +1,13 @@
 # Navigator Changelog
 
+### 0.8.1
+
+* Update dismiss logic for iOS 16/17
+* Streamline navigation send value logic
+* Update dependency demos
+* update navigation receive handlers and messages for multiple receivers for same type
+* add app icon
+
 ### 0.8.0
 
 * Initial Git Commit
