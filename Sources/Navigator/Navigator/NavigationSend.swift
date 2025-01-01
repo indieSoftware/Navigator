@@ -31,6 +31,29 @@ extension Navigator {
 
 }
 
+extension Navigator {
+
+    /// Resumes sending any values paused by an onNavigationReceive handler.
+    ///
+    /// This allows for actions like authentication sequences to occur as part of a deep linking sequence. The onNavigationReceive
+    /// handler pauses the sequence, and this function resumes them.
+    @MainActor
+    public func resume(condition: Bool = true) {
+        guard condition else {
+            return
+        }
+        let values = Navigator.pausedValues
+        guard let value: any Hashable = values.first else {
+            return
+        }
+        Navigator.pausedValues = []
+        send(value, Array(values.dropFirst()))
+    }
+
+    nonisolated(unsafe) fileprivate static var pausedValues: [any Hashable] = []
+
+}
+
 extension View {
 
     public func navigationSend<T: Hashable & Equatable>(_ item: Binding<T?>) -> some View {
@@ -47,11 +70,19 @@ public typealias NavigationReceiveResumeHandler<T> = (_ value: T, _ navigator: N
 public typealias NavigationReceiveResumeValueOnlyHandler<T> = (_ value: T) -> NavigationReceiveResumeType
 
 public enum NavigationReceiveResumeType {
+    /// Automatically resumes sending remaining values after a brief delay
     case auto
+    /// Resumes sending remaining values immediately, without delay
     case immediately
+    /// Automatically resumes sending remaining values after a specified delay
     case after(TimeInterval)
+    ///  Resumes sending new values after a brief delay
     case with([any Hashable])
+    /// Indicates we should return to a named checkpoint (normally used internally)
     case checkpoint(NavigationCheckpoint)
+    /// Indicates that any remaining deep linking values should be saved for later resumption
+    case pause
+    /// Cancels any remaining values in the send queue
     case cancel
 }
 
@@ -150,6 +181,8 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
             resume(.auto, values: newValues)
         case .checkpoint(let checkpoint):
             navigator.returnToCheckpoint(checkpoint)
+        case .pause:
+            Navigator.pausedValues = values
         case .cancel:
             break
         }

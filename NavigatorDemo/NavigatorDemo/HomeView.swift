@@ -42,6 +42,7 @@ class HomeContentViewModel: ObservableObject {
 struct HomeContentView: View {
     let title: String
     @Environment(\.navigator) var navigator: Navigator
+    @State var authenticated: Bool = false
     var body: some View {
         List {
             Section("Navigation Actions") {
@@ -66,12 +67,34 @@ struct HomeContentView: View {
                     navigator.send(RootTabs.settings)
                 }
             }
+
+            Section("Send Pause/Resume Actions") {
+                Button("Send Authentication, Resume Sequence") {
+                    navigator.send(values: [
+                        AuthenticationRequired(),
+                        HomeDestinations.pageN(77)
+                    ])
+                }
+                Button("Toggle Authentication") {
+                    authenticated.toggle()
+                }
+                Button("Resume Sequence") {
+                    navigator.resume()
+                }
+                .disabled(!authenticated)
+                .onNavigationReceive { (_: AuthenticationRequired) in
+                    // could trigger authentication sheet here
+                    return authenticated ? .auto : .pause
+                }
+            }
             ContentSheetSection()
             ContentPopSection()
         }
         .navigationTitle(title)
     }
 }
+
+struct AuthenticationRequired: Hashable {}
 
 class HomePage2ViewModel: ObservableObject {
     let title: String
