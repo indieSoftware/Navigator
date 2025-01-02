@@ -39,18 +39,14 @@ extension Navigator {
     /// handler pauses the sequence, and this function resumes them.
     @MainActor
     public func resume(condition: Bool = true) {
-        guard condition else {
+        guard condition, let values = Navigator.resumableValues else {
             return
         }
-        let values = Navigator.pausedValues
-        guard let value: any Hashable = values.first else {
-            return
-        }
-        Navigator.pausedValues = []
-        send(value, Array(values.dropFirst()))
+        Navigator.resumableValues = nil
+        send(values: values)
     }
 
-    nonisolated(unsafe) fileprivate static var pausedValues: [any Hashable] = []
+    nonisolated(unsafe) fileprivate static var resumableValues: [any Hashable]? = nil
 
 }
 
@@ -182,7 +178,7 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
         case .checkpoint(let checkpoint):
             navigator.returnToCheckpoint(checkpoint)
         case .pause:
-            Navigator.pausedValues = values
+            Navigator.resumableValues = values
         case .cancel:
             break
         }
