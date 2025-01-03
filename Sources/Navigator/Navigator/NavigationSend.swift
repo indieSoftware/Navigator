@@ -20,6 +20,7 @@ extension Navigator {
         guard let value: any Hashable = values.first else {
             return
         }
+        resetResume() // best place?
         send(value, Array(values.dropFirst()))
     }
 
@@ -42,8 +43,12 @@ extension Navigator {
         guard condition, let values = Navigator.resumableValues else {
             return
         }
-        Navigator.resumableValues = nil
         send(values: values)
+    }
+
+    @MainActor
+    public func resetResume() {
+        Navigator.resumableValues = nil
     }
 
     nonisolated(unsafe) fileprivate static var resumableValues: [any Hashable]? = nil

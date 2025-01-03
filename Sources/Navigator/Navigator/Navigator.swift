@@ -27,6 +27,7 @@ public class Navigator: ObservableObject, @unchecked Sendable {
 
     internal var id: UUID = .init()
     internal var checkpoints: [String: NavigationCheckpoint] = [:]
+    internal var registrations: Set<ObjectIdentifier> = []
     internal var dismissible: Bool
 
     internal let publisher: PassthroughSubject<NavigationSendValues, Never>
@@ -78,6 +79,15 @@ public class Navigator: ObservableObject, @unchecked Sendable {
     /// Removes a child Navigator from a parent Navigator.
     internal func removeChild(_ child: Navigator) {
         children.removeValue(forKey: child.id)
+    }
+
+    /// Ensures multiple navigationDestinations of the same type are not registered on the same Navigator.
+    internal func register(type: Any.Type) -> Bool {
+        if registrations.contains(ObjectIdentifier(type)) {
+            return false
+        }
+        registrations.insert(ObjectIdentifier(type))
+        return true
     }
 
     /// Internal logging function.

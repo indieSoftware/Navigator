@@ -183,18 +183,28 @@ internal struct NavigationDestinationModifier<D: NavigationDestination>: ViewMod
     struct WrappedModifier: ViewModifier {
 
         @ObservedObject var navigator: Navigator
+        @State var registered: Bool
+
+        internal init(navigator: Navigator) {
+            self.navigator = navigator
+            self.registered = navigator.register(type: D.self)
+        }
 
         func body(content: Content) -> some View {
-            content
-                .navigationDestination(for: D.self) { destination in
-                    destination()
-                }
-                .fullScreenCover(item: showCoverBinding) { (destination: D) in
-                    destination()
-                }
-                .sheet(item: showSheetBinding) { (destination: D) in
-                    destination()
-                }
+            if registered {
+                content
+                    .navigationDestination(for: D.self) { destination in
+                        destination()
+                    }
+                    .fullScreenCover(item: showCoverBinding) { (destination: D) in
+                        destination()
+                    }
+                    .sheet(item: showSheetBinding) { (destination: D) in
+                        destination()
+                    }
+            } else {
+                content
+            }
         }
 
         var showCoverBinding: Binding<D?> {

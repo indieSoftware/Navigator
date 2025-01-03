@@ -39,7 +39,8 @@ private struct HomeDestinationsView: View {
             // Demonstrates method of injecting dependencies and building fully constructed view models
             HomePage2View(viewModel: HomePage2ViewModel(dependencies: resolver))
         case .page3:
-            HomePage3View(initialValue: 66)
+            // Simply passing dependent value to view
+            HomePage3View(initialValue: resolver.homeValue)
         case .pageN(let value):
             HomePageNView(number: value)
         case .presented1:

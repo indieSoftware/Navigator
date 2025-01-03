@@ -92,6 +92,7 @@ typealias HomeDependencies = CoreDependencies
 // Specify everything specific to this module
 protocol HomeModuleDependencies {
     func loader() -> any Loading
+    var homeValue: Int { get }
 }
 
 // Construct defaults, including defaults that depend on other modules
@@ -100,6 +101,7 @@ extension HomeModuleDependencies where Self: CoreDependencies {
     func loader() -> any Loading {
         Loader(networker: networker())
     }
+    var homeValue: Int { 66 }
 }
 
 // Define our module's mock protocol

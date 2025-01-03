@@ -14,6 +14,9 @@ struct HomeURLHander: NavigationURLHander {
             return nil
         }
         switch url.pathComponents.last {
+        case "auth":
+            // xcrun simctl openurl booted navigator://app/home/auth
+            return [RootTabs.home, AuthenticationRequired(), HomeDestinations.pageN(77)]
         case "page2":
             // xcrun simctl openurl booted navigator://app/home/page2
             return [RootTabs.home, HomeDestinations.page2]

@@ -29,7 +29,7 @@ struct SendResumeAuthenticatedView: View {
                 }
                 // show authentication dialog
                 authenticate.toggle()
-                // tell Navigator to pause if this was part of a send sequence
+                // tell Navigator to pause sending any further deep linking values while we wait
                 return .pause
             }
             .alert(isPresented: $authenticate) {
@@ -39,7 +39,7 @@ struct SendResumeAuthenticatedView: View {
                     primaryButton: .default(Text("Yes")) {
                         // toggle authenticated flag
                         authenticated.toggle()
-                        // tell Navigator to resume with any values it might have paused
+                        // tell Navigator to resume with any deep linking values it might have paused
                         navigator.resume()
                     },
                     secondaryButton: .cancel()
