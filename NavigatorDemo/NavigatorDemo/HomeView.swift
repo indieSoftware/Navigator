@@ -9,9 +9,9 @@ import Navigator
 import SwiftUI
 
 extension NavigationCheckpoint {
-    public static let home: NavigationCheckpoint = "home"
-    public static let page2: NavigationCheckpoint = "page2"
-    public static let settings: NavigationCheckpoint = "settings"
+    public static let home: NavigationCheckpoint = "myApp.home"
+    public static let page2: NavigationCheckpoint = "myApp.page2"
+    public static let settings: NavigationCheckpoint = "myApp.settings"
 }
 
 struct RootHomeView: View {
@@ -25,10 +25,6 @@ struct RootHomeView: View {
                     navigator.navigate(to: destination)
                     return .auto
                 }
-//                .onNavigationReceive { (destination: HomeDestinations, navigator) in
-//                    navigator.navigate(to: destination)
-//                    return .auto
-//                }
         }
     }
 }
@@ -124,9 +120,21 @@ struct HomePage3View: View {
     }
 }
 
-struct HomePageNView: View {
+class HomePageNViewModel: ObservableObject {
     let number: Int
+    let dependencies: HomeDependencies
+    init(dependencies: HomeDependencies, number: Int) {
+        self.dependencies = dependencies
+        self.number = number
+    }
+}
+
+struct HomePageNView: View {
+    @StateObject private var viewModel: HomePageNViewModel
     @Environment(\.navigator) var navigator: Navigator
+    init(dependencies: HomeDependencies, number: Int) {
+        self._viewModel = .init(wrappedValue: .init(dependencies: dependencies, number: number))
+    }
     var body: some View {
         List {
             Section("Navigation Actions") {
@@ -137,7 +145,7 @@ struct HomePageNView: View {
             ContentSheetSection()
             ContentPopSection()
         }
-        .navigationTitle("Page \(number)")
+        .navigationTitle("Page \(viewModel.number)")
     }
 }
 

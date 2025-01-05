@@ -7,6 +7,40 @@
 
 import SwiftUI
 
+/// NavigationCheckpoints provide named checkpoints in the navigation tree.
+///
+/// Navigators know how to pop and/or dismiss views in order to return a previously defined checkpoint.
+/// ### Setting Checkpoints
+/// Setting a checkpoint is easy.
+/// ```swift
+/// struct RootHomeView: View {
+///     var body: some View {
+///         ManagedNavigationStack {
+///             HomeContentView(title: "Home Navigation")
+///                 .navigationDestination(HomeDestinations.self)
+///                 .navigationCheckpoint(.home)
+///         }
+///     }
+/// }
+/// ```
+/// ### Returning
+/// As is returning to one.
+/// ```swift
+/// Button("Cancel") {
+///     navigator.returnToCheckpoint(.home)
+/// }
+/// ```
+/// This works even if the checkpoint is in a parent Navigator.
+/// ### Defining Checkpoints
+/// While checkpoint names can be simple strings, it's usually better to predefine them as shown below.
+/// ```swift
+/// extension NavigationCheckpoint {
+///     public static let home: NavigationCheckpoint = "myApp.home"
+///     public static let page2: NavigationCheckpoint = "myApp.page2"
+///     public static let settings: NavigationCheckpoint = "myApp.settings"
+/// }
+/// ```
+/// Using the same checkpoint name more than once in the same navigation tree isn't recommended.
 public struct NavigationCheckpoint: Codable, Equatable, ExpressibleByStringLiteral, Hashable, Sendable {
     internal let name: String
     internal let index: Int
@@ -35,6 +69,11 @@ extension Navigator {
     /// Returns to a named checkpoint in the navigation system.
     ///
     /// This function will pop and/or dismiss intervening views as needed.
+    /// ```swift
+    /// Button("Cancel") {
+    ///     navigator.returnToCheckpoint(.home)
+    /// }
+    /// ```
     @MainActor
     @discardableResult
     public func returnToCheckpoint(_ checkpoint: NavigationCheckpoint) -> Bool {
@@ -52,6 +91,7 @@ extension Navigator {
         return true
     }
 
+    /// Allow the code to determine if the checkpoint has been set and is known to the system.
     public nonisolated func canReturnToCheckpoint(_ checkpoint: NavigationCheckpoint) -> Bool {
         guard let found = checkpoints[checkpoint.name] else {
             return parent?.canReturnToCheckpoint(checkpoint) ?? false
@@ -84,14 +124,46 @@ extension View {
     /// Establishes a named checkpoint in the navigation system.
     ///
     /// Navigators know how to pop and/or dismiss views in order to return to this checkpoint when needed.
+    /// ```swift
+    /// struct RootHomeView: View {
+    ///     var body: some View {
+    ///         ManagedNavigationStack {
+    ///             HomeContentView(title: "Home Navigation")
+    ///                 .navigationDestination(HomeDestinations.self)
+    ///                 .navigationCheckpoint(.home)
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    /// Here, returning to the checkpoint named `.home` will return to the root view in this navigation stack.
     public func navigationCheckpoint(_ checkpoint: NavigationCheckpoint) -> some View {
         self.modifier(NavigationCheckpointModifier(checkpoint: checkpoint))
     }
 
+    /// Declarative `returnToCheckpoint` modifier.
+    ///
+    /// Just set the checkpoint value to which you want to return.
+    /// ```swift
+    /// Button("Return To Home") {
+    ///     checkpoint = .home
+    /// }
+    /// .navigationReturnToCheckpoint(trigger: $checkpoint)
+    /// ```
+    /// Note that executing the checkpoint action will reset the bound value back to nil when complete.
     public func navigationReturnToCheckpoint(_ checkpoint: Binding<NavigationCheckpoint?>) -> some View {
         self.modifier(NavigationReturnToCheckpointModifier(checkpoint: checkpoint))
     }
 
+    /// Declarative `returnToCheckpoint` modifier fired by a trigger.
+    ///
+    /// Just set the checkpoint value to which you want to return.
+    /// ```swift
+    /// Button("Return To Home") {
+    ///     triggerReturn.toggle()
+    /// }
+    /// .navigationReturnToCheckpoint(trigger: $triggerReturn, checkpoint: .home)
+    /// ```
+    /// Note that executing the checkpoint action will reset the trigger value back to false when complete.
     public func navigationReturnToCheckpoint(trigger: Binding<Bool>, checkpoint: NavigationCheckpoint) -> some View {
         self.modifier(NavigationReturnToCheckpointTriggerModifier(trigger: trigger, checkpoint: checkpoint))
     }

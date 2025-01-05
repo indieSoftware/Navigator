@@ -1,0 +1,33 @@
+# ``Navigator``
+
+Managed NavigationStacks for SwiftUI.
+
+## Introduction
+
+Navigator provides SwiftUI with a simple yet powerful navigation layer based on NavigationStack. 
+
+It supports...
+
+* Simple and easy navigation linking and presentation of views.
+* Coordination patterns with well-defined separation of concerns. 
+* External deep linking and internal application navigation via navigation send.
+* Easily returning to a specific spot in the navigation tree via navigation checkpoints.
+* Returning callback values via navigation checkpoints.
+* Both Declarative and Imperative navigation and control.
+* Navigation state restoration.
+* Event logging and debugging.
+
+Navigator is written entirely in Swift and SwiftUI, and supports iOS 16 and above.
+
+Ready to get started?
+
+## Topics
+
+### The Basics
+
+- <doc:Destinations>
+- <doc:Checkpoints>
+
+### Advanced Topics
+
+- <doc:AdvancedDestinations>

@@ -8,6 +8,26 @@
 import Combine
 import SwiftUI
 
+/// Every ManagedNavigationStack has a Navigator to manage it.
+///
+/// Navigators enable imperative, programatic control of their associated navigation stacks,
+/// ```swift
+/// Button("Button Navigate to Home Page 55") {
+///     navigator.navigate(to: HomeDestinations.pageN(55))
+/// }
+/// ```
+/// Navigators work with other navigators in the navigation tree to enable global operations like
+/// sending navigation values or returning to a parent's checkpoint.
+/// ```swift
+/// Button("Cancel") {
+///     navigator.returnToCheckpoint(.home)
+/// }
+/// ```
+/// Navigators are accessible from the environment. Just access them from within any view contained by
+/// a ``ManagedNavigationStack``.
+/// ```swift
+/// @Environmnt(\.navigator) var navigator
+/// ```
 public class Navigator: ObservableObject, @unchecked Sendable {
 
     @Published var path: NavigationPath = .init() {
@@ -54,17 +74,17 @@ public class Navigator: ObservableObject, @unchecked Sendable {
         log("Navigator init: \(id), parent: \(parent.id)")
      }
 
-    /// Sentinel code removes child from parent when Navigator is dismissed.
+    /// Sentinel code removes child from parent when Navigator is dismissed or deallocated.
     deinit {
         log("Navigator deinit: \(id)")
         parent?.removeChild(self)
     }
 
-    internal func changed() {
-        DispatchQueue.main.async {
-            self.objectWillChange.send()
-        }
-    }
+//    internal func changed() {
+//        DispatchQueue.main.async {
+//            self.objectWillChange.send()
+//        }
+//    }
 
     /// Walks up the parent tree and returns the root Navigator.
     internal var root: Navigator {
@@ -82,6 +102,8 @@ public class Navigator: ObservableObject, @unchecked Sendable {
     }
 
     /// Ensures multiple navigationDestinations of the same type are not registered on the same Navigator.
+    ///
+    /// Returns true if first registration of this type.
     internal func register(type: Any.Type) -> Bool {
         if registrations.contains(ObjectIdentifier(type)) {
             return false
@@ -109,14 +131,29 @@ public class Navigator: ObservableObject, @unchecked Sendable {
 
 extension Navigator {
 
+    /// Navigates to a specific ``NavigationDestination`` using the destination's ``NavigationMethod``.
+    ///
+    /// This may push an item onto the stacks navigation path, or present a sheet or fullscreen cover view.
+    /// ```swift
+    /// Button("Button Navigate to Home Page 55") {
+    ///     navigator.navigate(to: HomeDestinations.pageN(55))
+    /// }
+    /// ```
     @MainActor
-    public func navigate(to destination: any NavigationDestination) {
+    public func navigate<D: NavigationDestination>(to destination: D) {
         navigate(to: destination, method: destination.method)
     }
 
+    /// Navigates to a specific NavigationDestination overriding the destination's specified navigation method.
+    ///
+    /// This may push an item onto the stacks navigation path, or present a sheet or fullscreen cover view.
     @MainActor
-    public func navigate(to destination: any NavigationDestination, method method: NavigationMethod) {
-        log("Navigator navigating to: \(destination), via: \(method)")
+    public func navigate<D: NavigationDestination>(to destination: D, method method: NavigationMethod) {
+        if !registrations.contains(ObjectIdentifier(D.self)) {
+            log(type: .warning, "Navigator navigating to unregistered destination: \(destination)!!!")
+        } else {
+            log("Navigator navigating to: \(destination), via: \(method)")
+        }
         switch method {
         case .push:
             push(destination)
@@ -135,6 +172,12 @@ extension Navigator {
 
 extension Navigator {
 
+    /// Pushes a new ``NavigationDestination`` onto the stack's navigation path.
+    /// ```swift
+    /// Button("Button Push Home Page 55") {
+    ///     navigator.push(HomeDestinations.pageN(55))
+    /// }
+    /// ```
     @MainActor
     public func push(_ destination: any NavigationDestination) {
         if let destination = destination as? any Hashable & Codable {
@@ -144,6 +187,7 @@ extension Navigator {
         }
     }
 
+    /// Pops to a specific position on stack's navigation path.
     @MainActor
     public func pop(to position: Int) {
         if position <= path.count {
@@ -151,6 +195,14 @@ extension Navigator {
         }
     }
 
+    /// Pops the specified number of the items from the end of a stack's navigation path.
+    ///
+    /// Defaults to one if not specified.
+    /// ```swift
+    /// Button("Go Back") {
+    ///     navigator.pop()
+    /// }
+    /// ```
     @MainActor
     public func pop(last k: Int = 1) {
         if path.count >= k {
@@ -158,15 +210,23 @@ extension Navigator {
         }
     }
 
+    /// Pops all items from the navigation path, returning to the root view.
+    /// ```swift
+    /// Button("Go Back") {
+    ///     navigator.popAll()
+    /// }
+    /// ```
     @MainActor
     public func popAll() {
         path.removeLast(path.count)
     }
 
+    /// Indicates whether or not the navigation path is empty.
     public nonisolated var isEmpty: Bool {
         path.isEmpty
     }
 
+    /// Number of items in the navigation path.
     public nonisolated var count: Int {
         path.count
     }

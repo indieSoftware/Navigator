@@ -7,6 +7,30 @@
 
 import SwiftUI
 
+/// Creates a NavigationStack and its associated Navigator that "manages" the stack.
+///
+/// Using ManagedNavigationStack is easy. Just use it where you'd normally used a `NavigationStack`.
+/// ```swift
+/// struct RootView: View {
+///     var body: some View {
+///         ManagedNavigationStack {
+///             HomeView()
+///                 .navigationDestination(HomeDestinations.self)
+///         }
+///     }
+/// }
+/// ```
+/// ### Dismissible
+/// Presented ManagedNavigationStacks are automatically dimissible.
+/// ### State Restoration
+/// ManagedNavigationStack supports state restoration out of the box. For state restoration to work, however, a
+/// few conditions apply.
+/// 
+/// 1.  The ManagedNavigationStack must have a unique scene name.
+/// 2.  All ``NavigationDestination`` types pushed onto the stack must be Codable.
+/// 3.  A state restoration key was provided in ``NavigationConfiguration``.
+///
+/// See the State Restoration documentation for more.
 @MainActor
 public struct ManagedNavigationStack<Content: View>: View {
 
@@ -32,7 +56,7 @@ public struct ManagedNavigationStack<Content: View>: View {
         WrappedView(name: name, parent: parent, dismissible: isPresented, content: content)
     }
 
-    // Wrapped view allows parent environment variables can be extracted and passed to navigator.
+    // Wrapped view allows parent environment variables to be extracted and passed to navigator.
     private struct WrappedView: View {
 
         @StateObject private var navigator: Navigator

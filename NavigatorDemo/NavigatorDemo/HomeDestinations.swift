@@ -42,7 +42,8 @@ private struct HomeDestinationsView: View {
             // Simply passing dependent value to view
             HomePage3View(initialValue: resolver.homeValue)
         case .pageN(let value):
-            HomePageNView(number: value)
+            // Demonstrates passing resolver to view and letting it do what's needed.
+            HomePageNView(dependencies: resolver, number: value)
         case .presented1:
             NestedHomeContentView(title: "Via Sheet")
         case .presented2:
