@@ -103,18 +103,19 @@ struct ContentPopSection: View {
     }
 }
 
-struct CustomSheetSection: View {
+struct CustomSettingsSheetSection: View {
     @State var showSettings: SettingsDestinations?
     var body: some View {
-        List {
+        Section {
             Button("Present Page 2 via Sheet") {
                 showSettings = .page2
             }
-            Button("Present Page 2 via Sheet") {
+            Button("Present Page 3 via Sheet") {
                 showSettings = .page3
             }
             .sheet(item: $showSettings) { destination in
                 destination()
+                    .navigationDismissible()
             }
         }
     }

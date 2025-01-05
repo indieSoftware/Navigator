@@ -85,6 +85,7 @@ struct Page2SettingsView: View {
                     Text("Link to Test Page 3!")
                 }
             }
+            CustomSettingsSheetSection()
             ContentPopSection()
         }
         .navigationTitle("Page 2")

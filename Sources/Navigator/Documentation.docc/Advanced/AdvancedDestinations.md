@@ -100,19 +100,22 @@ struct CustomSheetView: View {
             Button("Present Page 2 via Sheet") {
                 showSettings = .page2
             }
-            Button("Present Page 2 via Sheet") {
+            Button("Present Page 3 via Sheet") {
                 showSettings = .page3
             }
             .sheet(item: $showSettings) { destination in
                 destination() // obtain view
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
+                    .navigationDismissible()
             }
         }
     }
 }
 ```
 Setting the variable passes the desired destination to the sheet closure via the `$showSettings` binding. Which again, evaluates the value and obtains a fully resolved view complete and ready for presentation.
+
+Have I mentioned how powerful this technique is?
 
 ## See Also
 
