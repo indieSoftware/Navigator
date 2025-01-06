@@ -125,3 +125,13 @@ struct SettingsSheetView: View {
         .navigationTitle("Sheet")
     }
 }
+
+struct SettingsExternalView: View {
+    @Environment(\.navigator) var navigator: Navigator
+    var body: some View {
+        List {
+            Text("External View")
+        }
+        .navigationTitle("External View")
+    }
+}

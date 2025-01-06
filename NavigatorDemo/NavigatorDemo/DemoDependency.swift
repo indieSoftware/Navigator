@@ -89,10 +89,10 @@ extension EnvironmentValues {
 typealias HomeDependencies = CoreDependencies
     & HomeModuleDependencies
 
-// Specify everything specific to this module
+// Specify everything required by this module
 protocol HomeModuleDependencies {
     func loader() -> any Loading
-    var homeValue: Int { get }
+    @MainActor func externalView() -> AnyView
 }
 
 // Construct defaults, including defaults that depend on other modules
@@ -101,11 +101,17 @@ extension HomeModuleDependencies where Self: CoreDependencies {
     func loader() -> any Loading {
         Loader(networker: networker())
     }
-    var homeValue: Int { 66 }
 }
 
 // Define our module's mock protocol
 protocol MockHomeDependencies: HomeDependencies, MockCoreDependencies {}
+
+// Mock a view we need to be provided from elsewhere
+extension MockHomeDependencies {
+    func externalView() -> AnyView {
+        AnyView(Text("Home"))
+    }
+}
 
 // Make our mock resolver
 struct MockHomeResolver: MockHomeDependencies {}
@@ -174,6 +180,10 @@ class AppResolver: AppDependencies {
     // Missing default dependencies forces app to provide them.
     func analytics() -> any AnalyticsService {
         analyticsService
+    }
+    // Home needs an external view from somewhere. Provide it.
+    @MainActor func externalView() -> AnyView {
+        SettingsDestinations.external.asAnyView()
     }
     // Missing default provides proper key
     var settingsKey: String { "actual" }

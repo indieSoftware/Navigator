@@ -13,6 +13,7 @@ public enum HomeDestinations: Codable {
     case page2
     case page3
     case pageN(Int)
+    case external
     case presented1
     case presented2
 }
@@ -39,11 +40,13 @@ private struct HomeDestinationsView: View {
             // Demonstrates method of injecting dependencies and building fully constructed view models
             HomePage2View(viewModel: HomePage2ViewModel(dependencies: resolver))
         case .page3:
-            // Simply passing dependent value to view
-            HomePage3View(initialValue: resolver.homeValue)
+            HomePage3View(initialValue: 66)
         case .pageN(let value):
             // Demonstrates passing resolver to view and letting it do what's needed.
             HomePageNView(dependencies: resolver, number: value)
+        case .external:
+            // Demonstrates getting view from unknown source
+            resolver.externalView()
         case .presented1:
             NestedHomeContentView(title: "Via Sheet")
         case .presented2:
@@ -56,7 +59,7 @@ extension HomeDestinations {
     // not required but shows possibilities in predefining navigation destination types
     public var method: NavigationMethod {
         switch self {
-        case .home, .page2, .page3, .pageN:
+        case .home, .page2, .page3, .pageN, .external:
             .push
         case .presented1:
             .sheet

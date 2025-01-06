@@ -48,6 +48,9 @@ struct HomeContentView: View {
                 NavigationLink(value: HomeDestinations.pageN(44)) {
                     Text("Link to Home Page 44!")
                 }
+                NavigationLink(value: HomeDestinations.external) {
+                    Text("Link to External View!")
+                }
                 Button("Button Navigate to Home Page 55") {
                     navigator.navigate(to: HomeDestinations.pageN(55))
                 }

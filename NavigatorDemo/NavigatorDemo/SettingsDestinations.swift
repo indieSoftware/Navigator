@@ -12,6 +12,7 @@ public enum SettingsDestinations: Int, Codable {
     case page2
     case page3
     case sheet
+    case external
 }
 
 extension SettingsDestinations: NavigationDestination {
@@ -25,6 +26,8 @@ extension SettingsDestinations: NavigationDestination {
         case .sheet:
             SettingsSheetView()
                 .navigationDismissible()
+        case .external:
+            SettingsExternalView()
         }
     }
     public var method: NavigationMethod {

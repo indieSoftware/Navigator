@@ -13,8 +13,7 @@ extension HomeDestinations: NavigationDestination {
             HomePage2View()
         case .page3:
             HomePage3View()
-        case .pageN(let value):
-            HomePageNView(number: value)
+        ...
         }
     }
 }
@@ -33,7 +32,7 @@ extension HomeDestinations: NavigationDestination {
 
 private struct HomeDestinationsView: View {
     let destination: HomeDestinations
-    @Environment(\.coreDependencies) var resolver
+    @Environment(\.homeDependencies) var resolver
     var body: some View {
         switch self {
         case .home:
@@ -44,6 +43,8 @@ private struct HomeDestinationsView: View {
             HomePage3View(viewModel: HomePage3ViewModel(dependencies: resolver))
         case .pageN(let value):
             HomePageNView(dependencies: resolver, number: value)
+        case .external:
+            resolver.externalView()
         }
     }
 }
@@ -114,6 +115,29 @@ struct CustomSheetView: View {
 }
 ```
 Setting the variable passes the desired destination to the sheet closure via the `$showSettings` binding. Which again, evaluates the value and obtains a fully resolved view complete and ready for presentation.
+
+## External View Dependencies
+Another technique that might not be apparent and you might have missed at first glance is how this gives us the ability to pass required views across features.
+
+Take another look at our `HomeDestinationsView`.
+```swift
+private struct HomeDestinationsView: View {
+    let destination: HomeDestinations
+    @Environment(\.homeDependencies) var resolver
+    var body: some View {
+        switch self {
+        case .home:
+            HomePageView(viewModel: HomePageViewModel(dependencies: resolver))
+        ...
+        case .external:
+            resolver.externalView()
+        }
+    }
+}
+```
+Note how our feature get an externally provided view from our dependency resolver. 
+
+The Home feature doesn't know what module or feature provided the view. It just knows that it needs it, that someone may ask for it, and that `HomeDestinations` can provide it.
 
 Have I mentioned how powerful this technique is?
 

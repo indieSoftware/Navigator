@@ -130,9 +130,14 @@ extension NavigationDestination {
         .push
     }
 
-    /// Convenience function returns body.
+    /// Convenience function returns view.
     @MainActor public func callAsFunction() -> some View {
         view
+    }
+
+    /// Convenience function returns AnyView.
+    @MainActor public func asAnyView() -> AnyView {
+        AnyView(view)
     }
 
     /// Equatable conformance.
