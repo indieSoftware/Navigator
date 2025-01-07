@@ -280,7 +280,7 @@ See the 'DemoDependency.swift' file in the NavigatorDemo project for a possible 
 
 A single README file barely scratches the surface. Fortunately, Navigator is throughly documented. 
 
-Current DocC documentation can be found in the project.
+See [Navigator Documentation](https://hmlongco.github.io/Navigator/documentation/navigator).
 
 ## Installation
 
@@ -316,4 +316,5 @@ Michael was also one of Google's [Open Source Peer Reward](https://opensource.go
 
 ## Additional Resources
 
+* [Navigator Documentation](https://hmlongco.github.io/Navigator/documentation/navigator)
 * [Factory](https://hmlongco.github.io/Factory/)
