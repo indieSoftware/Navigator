@@ -148,7 +148,7 @@ extension Navigator {
     ///
     /// This may push an item onto the stacks navigation path, or present a sheet or fullscreen cover view.
     @MainActor
-    public func navigate<D: NavigationDestination>(to destination: D, method method: NavigationMethod) {
+    public func navigate<D: NavigationDestination>(to destination: D, method: NavigationMethod) {
         if !registrations.contains(ObjectIdentifier(D.self)) {
             log(type: .warning, "Navigator navigating to unregistered destination: \(destination)!!!")
         } else {
@@ -157,14 +157,19 @@ extension Navigator {
         switch method {
         case .push:
             push(destination)
+
         case .send:
             send(destination)
+
         case .sheet:
             guard sheet?.id != destination.id else { return }
             sheet = AnyNavigationDestination(wrapped: destination)
+
+        #if os(iOS)
         case .cover:
             guard cover?.id != destination.id else { return }
             cover = AnyNavigationDestination(wrapped: destination)
+        #endif
         }
     }
 
@@ -240,5 +245,5 @@ extension EnvironmentValues {
 
 extension Navigator {
     // Exists since EnvironmentValues loves to recreate default values
-    nonisolated(unsafe) internal static let defaultNavigator: Navigator = Navigator()
+    internal static let defaultNavigator: Navigator = Navigator()
 }

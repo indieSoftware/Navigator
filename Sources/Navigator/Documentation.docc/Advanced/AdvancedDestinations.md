@@ -49,17 +49,29 @@ private struct HomeDestinationsView: View {
     }
 }
 ```
-In the above code, we obtain a `coreDependencies` resolver from the environment and then use it to construct our views
+In the above code, we obtain a `homeDependencies` resolver from the environment and then use it to construct our views
 and view models.
 
 ### Passing Dependencies
 
-Note that some of the examples expose the view model to the caller, and that's something I would generally argue against. The fact that a view has a view model (or not) is an implementation detail, and should be private to the view itself. 
+Note that some of the examples expose the view model to the caller, and that's a practice I would generally argue against. The fact that a view has a view model (or not) is an implementation detail and should be private to the view itself. 
 
-But used in this fashion that external dependency is never exposed to the outside world, and that tends to mitigate the problem in my book. Sites  specify the desired view using its enumerated value, but they never see the view itself.
+Further, exposing the view model and its requirements complicates the call sites and really just kicks the can down the road. Sure, my VM gets its dependencies injected, but how does the *caller* get them to inject?
 
-If that bothers you then one could simply pass the dependency resolver to the view itself, letting the view handle it as needed.
+But creating a *private* destination view means that external dependency is never exposed to the outside world... and that tends to mitigate the problem in my book. 
+
 ```swift
+case .page2:
+    HomePage2View(viewModel: HomePage2ViewModel(dependencies: resolver))
+```
+
+Sites specify the desired view using its enumerated value, but they never see the actual view, nor are they concerned with its requirements.
+
+Alternatively, one could simply pass our environment-based dependency resolver to the view and let the view handle it as needed.
+```swift
+case .pageN(let value):
+    HomePageNView(dependencies: resolver, number: value)
+
 struct HomePageNView: View {
     @StateObject private var viewModel: HomePageNViewModel
     init(dependencies: HomeDependencies, number: Int) {
@@ -70,10 +82,11 @@ struct HomePageNView: View {
     }
 }
 ```
+*See the 'DemoDependency.swift' file in the NavigatorDemo project for a possible dependency injection mechanism.*
 
 ## NavigationDestinations within Views
 
-This technique also allows us to construct and use fully functional views elsewhere in your view code. Consider.
+This technique also allows us to construct and use fully functional views elsewhere in our view code. Consider.
 ```swift
 struct RootHomeView: View {
     var body: some View {
@@ -84,10 +97,8 @@ struct RootHomeView: View {
     }
 }
 ```
-Calling the destination as a function obtains a fully resolved `HomePageView` and view model from `HomeDestinationsView`, 
+Calling the destination enumeration as a factory function obtains a fully resolved `HomePageView` and view model from `HomeDestinationsView`, 
 complete and ready to go.
-
-*See the 'DemoDependency.swift' file in the NavigatorDemo project for a possible dependency injection mechanism.*
 
 ## Custom Sheets using NavigationDestination
 Let's demonstrate that again using a custom presentation mechanism with detents.
@@ -114,9 +125,9 @@ struct CustomSheetView: View {
     }
 }
 ```
-Setting the variable passes the desired destination to the sheet closure via the `$showSettings` binding. Which again, evaluates the value and obtains a fully resolved view complete and ready for presentation.
+Setting the variable passes the desired destination to the sheet closure via the `$showSettings` binding. Which again allows us to directly evaluate the value and obtain a fully resolved view ready for presentation.
 
-## External View Dependencies
+## Cross Module View Dependencies
 Another technique that might not be apparent and you might have missed at first glance is how this gives us the ability to pass required views across features.
 
 Take another look at our `HomeDestinationsView`.
@@ -126,8 +137,6 @@ private struct HomeDestinationsView: View {
     @Environment(\.homeDependencies) var resolver
     var body: some View {
         switch self {
-        case .home:
-            HomePageView(viewModel: HomePageViewModel(dependencies: resolver))
         ...
         case .external:
             resolver.externalView()
@@ -137,8 +146,23 @@ private struct HomeDestinationsView: View {
 ```
 Note how our feature get an externally provided view from our dependency resolver. 
 
-The Home feature doesn't know what module or feature provided the view. It just knows that it needs it, that someone may ask for it, and that `HomeDestinations` can provide it.
+The Home feature doesn't know what module or feature provided the view. Nor should it care. It just knows that it needs it and that its up to `HomeDependencies` to provide it.
 
+The application, however, sees all, knows all, and can provide the missing cross-module dependency.
+```swift
+typealias AppDependencies = CoreDependencies
+    & HomeDependencies
+    & SettingsDependencies
+
+class AppResolver: AppDependencies {
+    ...
+    @MainActor func externalView() -> AnyView {
+        // reach out to the settings module to provide the view needed
+        SettingsDestinations.external.asAnyView()
+    }
+    ...
+}
+```
 Have I mentioned how powerful this technique is?
 
 ## See Also

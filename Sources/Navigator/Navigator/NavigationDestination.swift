@@ -201,26 +201,16 @@ internal struct NavigationDestinationModifier<D: NavigationDestination>: ViewMod
                     .navigationDestination(for: D.self) { destination in
                         destination()
                     }
-                    .fullScreenCover(item: showCoverBinding) { (destination: D) in
-                        destination()
-                    }
                     .sheet(item: showSheetBinding) { (destination: D) in
                         destination()
                     }
+                    #if os(iOS)
+                    .fullScreenCover(item: showCoverBinding) { (destination: D) in
+                        destination()
+                    }
+                    #endif
             } else {
                 content
-            }
-        }
-
-        var showCoverBinding: Binding<D?> {
-            Binding {
-                navigator.cover?.wrapped as? D
-            } set: { newValue in
-                if let newValue {
-                    navigator.cover?.wrapped = newValue
-                } else {
-                    navigator.cover = nil
-                }
             }
         }
 
@@ -235,6 +225,20 @@ internal struct NavigationDestinationModifier<D: NavigationDestination>: ViewMod
                 }
             }
         }
+
+        #if os(iOS)
+        var showCoverBinding: Binding<D?> {
+            Binding {
+                navigator.cover?.wrapped as? D
+            } set: { newValue in
+                if let newValue {
+                    navigator.cover?.wrapped = newValue
+                } else {
+                    navigator.cover = nil
+                }
+            }
+        }
+        #endif
 
     }
 }

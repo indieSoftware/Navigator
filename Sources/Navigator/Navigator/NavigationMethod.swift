@@ -39,9 +39,11 @@ public enum NavigationMethod {
     /// Publishes the destination using `navigator.send()`.
     case send
 
-    /// Displays the destination as a SwiftUI full screen cover.
-    case cover
-
     /// Displays the destination as a SwiftUI sheet.
     case sheet
+
+    #if os(iOS)
+    /// Displays the destination as a SwiftUI full screen cover.
+    case cover
+    #endif
 }

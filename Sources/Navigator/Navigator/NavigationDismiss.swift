@@ -80,7 +80,7 @@ extension Navigator {
 
     /// Returns true if the current ManagedNavigationStack or navigationDismissible is presented.
     public nonisolated var isPresented: Bool {
-        dismissible ?? false
+        dismissible
     }
 
     /// Returns true if the current ManagedNavigationStack or navigationDismissible is presenting.
