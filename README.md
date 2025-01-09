@@ -316,5 +316,7 @@ Michael was also one of Google's [Open Source Peer Reward](https://opensource.go
 
 ## Additional Resources
 
+* [Medium: Advanced Navigation Destinations in SwiftUI](https://michaellong.medium.com/advanced-navigation-destinations-in-swiftui-05c3e659f64f?sk=030440d95749f5adc6d2b43ca26baee1)
+* [Medium: Now Previewing Navigator!](https://michaellong.medium.com/now-previewing-navigator-faebf290a1da?sk=88d3ff52057cf0a948279e6be4a15f75)
 * [Navigator Documentation](https://hmlongco.github.io/Navigator/documentation/navigator)
 * [Factory](https://hmlongco.github.io/Factory/)

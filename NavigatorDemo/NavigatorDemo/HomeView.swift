@@ -20,7 +20,6 @@ struct RootHomeView: View {
             HomeContentView(title: "Home Navigation")
                 .navigationCheckpoint(.home)
                 .navigationDestination(HomeDestinations.self)
-                .navigationDestination(HomeDestinations.self)
                 .onNavigationReceive { (destination: HomeDestinations, navigator) in
                     navigator.navigate(to: destination)
                     return .auto
@@ -32,7 +31,7 @@ struct RootHomeView: View {
 class HomeContentViewModel: ObservableObject {
     let title: String
     init(dependencies: HomeDependencies, title: String) {
-        self.title = title + " " + dependencies.networker().load()
+        self.title = title + " " + dependencies.loader().load()
     }
 }
 
@@ -78,7 +77,7 @@ struct HomeContentView: View {
 class HomePage2ViewModel: ObservableObject {
     let title: String
     init(dependencies: HomeDependencies) {
-        title = "Page 2 " + dependencies.networker().load()
+        title = "Page 2 " + dependencies.loader().load()
     }
 }
 

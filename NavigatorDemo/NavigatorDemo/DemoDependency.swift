@@ -194,18 +194,32 @@ class AppResolver: AppDependencies {
 //
 
 protocol Networking {
-    func load() -> String
+    func load<T>() -> T?
 }
 
 struct Networker: Networking {
-    func load() -> String { "(A)" }
+    func load<T>() -> T? {
+        // demo only returns strings
+        "(A)" as? T
+    }
 }
 
 class MockNetworker: Networking {
-    // Extremely simple way to expose a variable for testing
-    // MockNetworker.value = "test"
-    nonisolated(unsafe) static var value: String = "(M)"
-    func load() -> String { Self.value }
+    // Extremely simple way to expose a single factory for testing
+    nonisolated(unsafe) static var factory: Any = { "(M)" }
+    func load<T>() -> T? {
+        if let factory = Self.factory as? () -> T {
+            return factory()
+        }
+        return nil
+    }
+}
+
+extension MockCoreDependencies {
+    func mock<T>(_ factory: @escaping () -> T) -> Self {
+        MockNetworker.factory = factory
+        return self
+    }
 }
 
 protocol Loading {
@@ -215,7 +229,7 @@ protocol Loading {
 struct Loader: Loading {
     let networker: Networking
     func load() -> String {
-        networker.load()
+        networker.load() ?? "?"
     }
 }
 
