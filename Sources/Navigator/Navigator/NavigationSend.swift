@@ -154,14 +154,9 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
 
     var publisher: AnyPublisher<(T, [any Hashable]), Never> {
         navigator.publisher
-            .compactMap { published in
-                if let value = published.value as? T {
-                    #if DEBUG
-                    guard published.consumable() else {
-                        return nil
-                    }
-                    #endif
-                    return (value, published.values)
+            .compactMap {
+                if let value: T = $0.consume() {
+                    return (value, $0.values)
                 }
                 return nil
             }
@@ -191,37 +186,30 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
 
 }
 
-#if DEBUG
 internal class NavigationSendValues {
     let value: any Hashable
     let values: [any Hashable]
     let sender: Navigator
-    let type: String
     var consumed: Bool = false
     internal init<T: Hashable>(value: T, values: [any Hashable], sender: Navigator) {
         self.value = value
         self.values = values
         self.sender = sender
-        self.type = String(describing: T.self)
     }
     deinit {
         if !consumed {
-            sender.log(type: .warning, "Navigator missing receive handler for type: \(type)!!!")
+            sender.log(type: .warning, "Navigator missing receive handler for type: \(type(of: value))!!!")
         }
     }
-    func consumable() -> Bool {
-        guard !consumed else {
-            sender.log(type: .warning, "Navigator additional receive handlers ignored for type: \(type)!!!")
-            return false
+    func consume<T>() -> T? {
+        if let value = value as? T {
+            if consumed {
+                sender.log(type: .warning, "Navigator additional receive handlers ignored for type: \(type(of: value))!!!")
+                return nil
+            }
+            consumed.toggle()
+            return value
         }
-        consumed.toggle()
-        return true
+        return nil
     }
 }
-#else
-internal struct NavigationSendValues {
-    let value: any Hashable
-    let values: [any Hashable]
-    let sender: Navigator
-}
-#endif
