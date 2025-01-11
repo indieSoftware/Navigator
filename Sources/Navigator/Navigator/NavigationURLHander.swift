@@ -35,7 +35,7 @@ public protocol NavigationURLHander {
     ///
     /// If a given handler doesn't recognize the URL in question, it returns nil. Handlers are processed in order until the URL is recognized
     /// or until recognition fails.
-    func handles(_ url: URL) -> [any Hashable]?
+    @MainActor func handles(_ url: URL) -> [any Hashable]?
 }
 
 extension View {

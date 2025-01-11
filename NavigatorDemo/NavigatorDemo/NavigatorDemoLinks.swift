@@ -9,32 +9,32 @@ import Navigator
 import SwiftUI
 
 struct HomeURLHander: NavigationURLHander {
-    public func handles(_ url: URL) -> [any Hashable]? {
+    @MainActor public func handles(_ url: URL) -> [any Hashable]? {
         guard url.pathComponents.count > 1, url.pathComponents[1] == "home" else {
             return nil
         }
         switch url.pathComponents.last {
         case "auth":
             // xcrun simctl openurl booted navigator://app/home/auth
-            return [RootTabs.home, AuthenticationRequired(), HomeDestinations.pageN(77)]
+            return [NavigationAction.dismissAll, RootTabs.home, NavigationAction.authenticationRequired, HomeDestinations.pageN(77)]
         case "page2":
             // xcrun simctl openurl booted navigator://app/home/page2
-            return [RootTabs.home, HomeDestinations.page2]
+            return [NavigationAction.dismissAll, RootTabs.home, HomeDestinations.page2]
         case "page3":
             // xcrun simctl openurl booted navigator://app/home/page3
-            return [RootTabs.home, HomeDestinations.page3]
+            return [NavigationAction.dismissAll, RootTabs.home, HomeDestinations.page3]
         default:
             // xcrun simctl openurl booted navigator://app/home
-            return [RootTabs.home]
+            return [NavigationAction.dismissAll, RootTabs.home]
         }
     }
 }
 
 struct SettingsURLHander: NavigationURLHander {
-    public func handles(_ url: URL) -> [any Hashable]? {
+    @MainActor public func handles(_ url: URL) -> [any Hashable]? {
         guard url.pathComponents.count > 1, url.pathComponents[1] == "settings" else {
             return nil
         }
-        return [RootTabs.settings]
+        return [NavigationAction.dismissAll, RootTabs.settings]
     }
 }

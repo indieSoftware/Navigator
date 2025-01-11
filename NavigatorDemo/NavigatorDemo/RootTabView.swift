@@ -24,8 +24,10 @@ struct RootTabView : View {
                 .tabItem { Label("Settings", systemImage: "gear") }
                 .tag(RootTabs.settings)
         }
-        .onNavigationReceive { (tab: RootTabs, navigator) in
-            navigator.dismissAll()
+        .onNavigationReceive { (tab: RootTabs) in
+            if tab == selectedTab {
+                return .immediately
+            }
             selectedTab = tab
             return .auto
         }

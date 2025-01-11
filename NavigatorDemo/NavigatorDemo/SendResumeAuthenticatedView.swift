@@ -8,37 +8,57 @@
 import Navigator
 import SwiftUI
 
+// Define a new action placeholder
+extension NavigationAction {
+    @MainActor static var authenticationRequired: NavigationAction?
+}
+
+// Define our "authentication" view model
+@MainActor
+class SendResumeAuthenticatedViewModel: ObservableObject {
+
+    @Published var authenticate: Bool = false
+    @Published var authenticated: Bool = false
+
+    init() {
+        setupAuthenticationRequired()
+    }
+
+    func setupAuthenticationRequired() {
+        // Attach authentication handler for use by navigation actions
+        NavigationAction.authenticationRequired = .init("authorizing") { _ in
+            if self.authenticated {
+                return .immediately
+            }
+            // show authentication dialog
+            self.authenticate.toggle()
+            // tell Navigator to pause sending any further deep linking values while we wait
+            return .pause
+        }
+    }
+
+}
+
 struct SendResumeAuthenticatedView: View {
 
+    @StateObject var viewModel = SendResumeAuthenticatedViewModel()
     @Environment(\.navigator) var navigator: Navigator
-
-    @State var authenticate: Bool = false
-    @State var authenticated: Bool = false
 
     var body: some View {
         Section("Send Pause/Resume Actions") {
             Button("Send Authentication Required, Page 77") {
                 navigator.send(values: [
-                    AuthenticationRequired(),
+                    NavigationAction.authenticationRequired,
                     HomeDestinations.pageN(77)
                 ])
             }
-            .onNavigationReceive { (_: AuthenticationRequired) in
-                if authenticated {
-                    return .immediately
-                }
-                // show authentication dialog
-                authenticate.toggle()
-                // tell Navigator to pause sending any further deep linking values while we wait
-                return .pause
-            }
-            .alert(isPresented: $authenticate) {
+            .alert(isPresented: $viewModel.authenticate) {
                 Alert(
                     title: Text("Authentication Required"),
                     message: Text("Are you who you think you are?"),
                     primaryButton: .default(Text("Yes")) {
                         // toggle authenticated flag
-                        authenticated.toggle()
+                        viewModel.authenticated.toggle()
                         // tell Navigator to resume with any deep linking values it might have paused
                         navigator.resume()
                     },
@@ -46,12 +66,9 @@ struct SendResumeAuthenticatedView: View {
                 )
             }
             Button("Logout") {
-                authenticated = false
+                viewModel.authenticated = false
             }
-            .disabled(!authenticated)
+            .disabled(!viewModel.authenticated)
         }
     }
 }
-
-// Just a distinct type we can send...
-struct AuthenticationRequired: Hashable {}

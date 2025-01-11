@@ -24,10 +24,38 @@ extension Navigator {
         send(value, Array(values.dropFirst()))
     }
 
+    @MainActor
     internal func send(_ value: any Hashable, _ values: [any Hashable]) {
+       if let action = value as? NavigationAction {
+            log("Navigator \(id) executing action \(action.name)")
+            resume(action(self), values: values)
+            return
+        }
         log("Navigator \(id) sending \(value)")
-        let values = NavigationSendValues(value: value, values: values, sender: self)
+        let values = NavigationSendValues(value: value, values: values, log: { self.log(type: .warning, $0) })
         publisher.send(values)
+    }
+
+    @MainActor
+    internal func resume(_ action: NavigationReceiveResumeType, values: [any Hashable], delay: TimeInterval = 0.7) {
+        switch action {
+        case .auto:
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                self.send(values: values)
+            }
+        case .immediately:
+            send(values: values)
+        case .after(let interval):
+            resume(.auto, values: values, delay: interval)
+        case .with(let newValues):
+            resume(.auto, values: newValues)
+        case .checkpoint(let checkpoint):
+            returnToCheckpoint(checkpoint)
+        case .pause:
+            Navigator.resumableValues = values
+        case .cancel:
+            break
+        }
     }
 
 }
@@ -146,42 +174,12 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .onReceive(publisher) { (value, values) in
-                navigator.log("Navigator \(navigator.id) receiving \(value)")
-                resume(handler(value, navigator), values: values)
-            }
-    }
-
-    var publisher: AnyPublisher<(T, [any Hashable]), Never> {
-        navigator.publisher
-            .compactMap {
-                if let value: T = $0.consume() {
-                    return (value, $0.values)
+            .onReceive(navigator.publisher) { item in
+                if let value: T = item.consume() {
+                    navigator.log("Navigator \(navigator.id) receiving \(value)")
+                    navigator.resume(handler(value, navigator), values: item.values)
                 }
-                return nil
             }
-            .eraseToAnyPublisher()
-    }
-
-    func resume(_ action: NavigationReceiveResumeType, values: [any Hashable], delay: TimeInterval = 0.7) {
-        switch action {
-        case .auto:
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                navigator.send(values: values)
-            }
-         case .immediately:
-            navigator.send(values: values)
-        case .after(let interval):
-            resume(.auto, values: values, delay: interval)
-        case .with(let newValues):
-            resume(.auto, values: newValues)
-        case .checkpoint(let checkpoint):
-            navigator.returnToCheckpoint(checkpoint)
-        case .pause:
-            Navigator.resumableValues = values
-        case .cancel:
-            break
-        }
     }
 
 }
@@ -189,22 +187,22 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
 internal class NavigationSendValues {
     let value: any Hashable
     let values: [any Hashable]
-    let sender: Navigator
+    let log: (String) -> Void
     var consumed: Bool = false
-    internal init<T: Hashable>(value: T, values: [any Hashable], sender: Navigator) {
+    internal init<T: Hashable>(value: T, values: [any Hashable], log: @escaping (String) -> Void) {
         self.value = value
         self.values = values
-        self.sender = sender
+        self.log = log
     }
     deinit {
         if !consumed {
-            sender.log(type: .warning, "Navigator missing receive handler for type: \(type(of: value))!!!")
+            log("Navigator missing receive handler for type: \(type(of: value))!!!")
         }
     }
     func consume<T>() -> T? {
         if let value = value as? T {
             if consumed {
-                sender.log(type: .warning, "Navigator additional receive handlers ignored for type: \(type(of: value))!!!")
+                log("Navigator additional receive handlers ignored for type: \(type(of: value))!!!")
                 return nil
             }
             consumed.toggle()

@@ -80,12 +80,6 @@ public class Navigator: ObservableObject, @unchecked Sendable {
         parent?.removeChild(self)
     }
 
-//    internal func changed() {
-//        DispatchQueue.main.async {
-//            self.objectWillChange.send()
-//        }
-//    }
-
     /// Walks up the parent tree and returns the root Navigator.
     internal var root: Navigator {
         parent?.root ?? self

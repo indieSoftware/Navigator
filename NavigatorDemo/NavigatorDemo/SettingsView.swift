@@ -66,6 +66,7 @@ struct SettingsView: View {
                 .navigationSend($destination)
                 Button("Send Tab Home, Page 2") {
                     navigator.send(values: [
+                        NavigationAction.dismissAll,
                         RootTabs.home,
                         HomeDestinations.page2
                     ])
@@ -117,7 +118,11 @@ struct SettingsSheetView: View {
             }
             Section("Send Actions") {
                 Button("Send Tab Home") {
-                    navigator.send(RootTabs.home)
+                    navigator.send(values: [
+                        NavigationAction.dismissAll,
+                        RootTabs.home
+                        ]
+                    )
                 }
             }
             ContentSheetSection()
