@@ -96,10 +96,7 @@ extension Navigator {
         guard let found = checkpoints[checkpoint.name] else {
             return parent?.canReturnToCheckpoint(checkpoint) ?? false
         }
-        if isPresenting {
-            return true
-        }
-        return found.index < path.count
+        return isPresenting || found.index < path.count
     }
 
     internal func addCheckpoint(_ checkpoint: NavigationCheckpoint) {

@@ -24,7 +24,7 @@ struct NavigatorDemoApp: App {
     }
 
     var configuration: NavigationConfiguration {
-        .init(restorationKey: "1.0.0", verbosity: .info)
+        .init(restorationKey: nil /* "1.0.0" */, verbosity: .info)
     }
     
 }
