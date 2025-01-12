@@ -164,4 +164,5 @@ struct NestedHomeContentView: View {
 
 #Preview {
     RootHomeView()
+        .setAuthenticationRoot()
 }

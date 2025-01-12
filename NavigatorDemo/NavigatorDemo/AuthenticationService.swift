@@ -17,7 +17,7 @@ extension NavigationAction {
 @MainActor
 public class AuthenticationService: ObservableObject {
 
-    @Published internal var authenticationNeeded: Bool = false
+    @Published internal var authenticationDialogNeeded: Bool = false
     @Published internal var user: User?
 
     internal init() {
@@ -27,10 +27,11 @@ public class AuthenticationService: ObservableObject {
     public var isAuthenticated: Bool { user != nil }
 
     public func authenticate() {
-        authenticationNeeded.toggle()
+        guard !isAuthenticated else { return }
+        authenticationDialogNeeded = true
     }
 
-    public func authenticated(with user: User) {
+    public func authenticate(with user: User) {
         self.user = user
     }
 
@@ -39,14 +40,15 @@ public class AuthenticationService: ObservableObject {
     }
 
     internal func setupAuthenticationRequired() {
-        // Attach authentication handler for use by navigation action
-        NavigationAction.authenticationRequired = .init("authorizing") { _ in
+        // Setup authentication required handler for use by any deep linking navigation action
+        NavigationAction.authenticationRequired = .init("authenticationRequired") { _ in
+            // if already authenticated then return and allow immediate execution of remaining deep linking values
             if self.isAuthenticated {
                 return .immediately
             }
-            // request authentication
+            // otherwise request authentication
             self.authenticate()
-            // tell Navigator to pause sending any further deep linking values while we wait
+            // and then tell Navigator to pause while we wait for that to occur
             return .pause
         }
     }
@@ -62,22 +64,25 @@ extension View {
 struct AuthenticationRootModifier: ViewModifier {
 
     @StateObject var authentication = AuthenticationService()
-    @Environment(\.navigator) var navigator
+    @Environment(\.navigator) var navigator: Navigator
 
     func body(content: Content) -> some View {
         content
             .environmentObject(authentication)
-            .alert(isPresented: $authentication.authenticationNeeded) {
+            .alert(isPresented: $authentication.authenticationDialogNeeded) {
                 Alert(
                     title: Text("Authentication Required"),
-                    message: Text("Are you who you think you are?"),
+                    message: Text("Are you Michael Long?"),
                     primaryButton: .default(Text("Yes")) {
                         // I am me. Me say so.
-                        authentication.authenticated(with: User(name: "Michael Long"))
+                        authentication.authenticate(with: User(name: "Michael Long"))
                         // tell Navigator to resume with any deep linking values it might have paused
                         navigator.resume()
                     },
-                    secondaryButton: .cancel()
+                    secondaryButton: .cancel {
+                        // clear out any resumable values
+                        navigator.cancelResume()
+                    }
                 )
             }
     }

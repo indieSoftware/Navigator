@@ -20,7 +20,6 @@ extension Navigator {
         guard let value: any Hashable = values.first else {
             return
         }
-        resetResume() // best place?
         send(value, Array(values.dropFirst()))
     }
 
@@ -32,7 +31,9 @@ extension Navigator {
             return
         }
         log("Navigator \(id) sending \(value)")
-        let values = NavigationSendValues(value: value, values: values, log: { self.log(type: .warning, $0) })
+        let values = NavigationSendValues(value: value, values: values, log: {
+            self.log(type: .warning, $0)
+        })
         publisher.send(values)
     }
 
@@ -75,11 +76,11 @@ extension Navigator {
     }
 
     @MainActor
-    public func resetResume() {
+    public func cancelResume() {
         Navigator.resumableValues = nil
     }
 
-    nonisolated(unsafe) fileprivate static var resumableValues: [any Hashable]? = nil
+    @MainActor internal static var resumableValues: [any Hashable]? = nil
 
 }
 
