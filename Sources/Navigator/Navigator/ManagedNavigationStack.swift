@@ -21,7 +21,7 @@ import SwiftUI
 /// }
 /// ```
 /// ### Dismissible
-/// Presented ManagedNavigationStacks are automatically dimissible.
+/// Presented ManagedNavigationStacks are automatically dismissible.
 /// ### State Restoration
 /// ManagedNavigationStack supports state restoration out of the box. For state restoration to work, however, a
 /// few conditions apply.
@@ -53,7 +53,7 @@ public struct ManagedNavigationStack<Content: View>: View {
     }
 
     public var body: some View {
-        WrappedView(name: name, parent: parent, dismissible: isPresented, content: content)
+        WrappedView(name: name, parent: parent, isPresented: isPresented, content: content)
     }
 
     // Wrapped view allows parent environment variables to be extracted and passed to navigator.
@@ -68,10 +68,10 @@ public struct ManagedNavigationStack<Content: View>: View {
         private let name: String?
         private let content: Content
 
-        init(name: String?, parent: Navigator, dismissible: Bool, content: Content) {
+        init(name: String?, parent: Navigator, isPresented: Bool, content: Content) {
             self.name = name
             self._sceneStorage = .init("ManagedNavigationStack.\(name ?? "")")
-            self._navigator = .init(wrappedValue: .init(parent: parent, dismissible: dismissible))
+            self._navigator = .init(wrappedValue: .init(parent: parent, isPresented: isPresented))
             self.content = content
         }
 

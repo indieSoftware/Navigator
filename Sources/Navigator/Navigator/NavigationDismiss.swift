@@ -41,10 +41,19 @@ extension Navigator {
     public func dismissAllChildren() -> Bool {
         for child in children.values {
             if let childNavigator = child.object {
-                var dismissed: Bool
-                dismissed = childNavigator.dismissAllChildren()
-                dismissed = childNavigator.dismiss() || dismissed
-                return dismissed
+                var dismissed: Bool = false
+                if #available (iOS 18.0, *) {
+                    if childNavigator.dismiss() || childNavigator.dismissAllChildren() {
+                        return true
+                    }
+                } else {
+                    var dismissed: Bool
+                    dismissed = childNavigator.dismissAllChildren()
+                    dismissed = childNavigator.dismiss() || dismissed
+                    if dismissed {
+                        return true
+                    }
+                }
             }
         }
         return false
@@ -77,11 +86,6 @@ extension Navigator {
 }
 
 extension Navigator {
-
-    /// Returns true if the current ManagedNavigationStack or navigationDismissible is presented.
-    public nonisolated var isPresented: Bool {
-        dismissible
-    }
 
     /// Returns true if the current ManagedNavigationStack or navigationDismissible is presenting.
     public nonisolated var isPresenting: Bool {

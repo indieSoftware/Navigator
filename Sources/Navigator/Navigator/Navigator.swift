@@ -30,7 +30,7 @@ import SwiftUI
 /// ```
 public class Navigator: ObservableObject, @unchecked Sendable {
 
-    @Published var path: NavigationPath = .init() {
+    @Published internal var path: NavigationPath = .init() {
         didSet {
             cleanCheckpoints()
         }
@@ -40,6 +40,9 @@ public class Navigator: ObservableObject, @unchecked Sendable {
     @Published internal var cover: AnyNavigationDestination? = nil
     @Published internal var triggerDismiss: Bool = false
 
+    /// True if the current ManagedNavigationStack or navigationDismissible is presented.
+    public internal(set) var isPresented: Bool
+
     internal let configuration: NavigationConfiguration?
 
     internal weak var parent: Navigator?
@@ -48,7 +51,6 @@ public class Navigator: ObservableObject, @unchecked Sendable {
     internal var id: UUID = .init()
     internal var checkpoints: [String: NavigationCheckpoint] = [:]
     internal var registrations: Set<ObjectIdentifier> = []
-    internal var dismissible: Bool
 
     internal let publisher: PassthroughSubject<NavigationSendValues, Never>
 
@@ -60,16 +62,16 @@ public class Navigator: ObservableObject, @unchecked Sendable {
         self.configuration = configuration
         self.parent = nil
         self.publisher = .init()
-        self.dismissible = false
+        self.isPresented = false
         log("Navigator root: \(id)")
     }
 
     /// Internal initializer used by ManagedNavigationStack and navigationDismissible modifiers.
-    internal init(parent: Navigator, dismissible: Bool) {
+    internal init(parent: Navigator, isPresented: Bool) {
         self.configuration = parent.configuration
         self.parent = parent
         self.publisher = parent.publisher
-        self.dismissible = dismissible
+        self.isPresented = isPresented
         parent.addChild(self)
         log("Navigator init: \(id), parent: \(parent.id)")
      }

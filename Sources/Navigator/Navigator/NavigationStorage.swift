@@ -51,7 +51,7 @@ extension Navigator {
             restorationKey: restorationKey,
             path: path ?? Data(),
             checkpoints: checkpoints,
-            dismissible: dismissible,
+            dismissible: isPresented,
             sheet: try? encoder.encode(sheet),
             cover: try? encoder.encode(cover)
         )
@@ -71,7 +71,7 @@ extension Navigator {
             path = .init()
         }
         checkpoints = storage.checkpoints
-        dismissible = storage.dismissible
+        isPresented = storage.dismissible
         if let data = storage.sheet {
             sheet = try? decoder.decode(AnyNavigationDestination.self, from: data)
         } else {
