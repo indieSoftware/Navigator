@@ -4,6 +4,7 @@
 
 * Fix dismissible error in dismissAllChildren
 * Update authentication examples with authentication service and authentication action
+* Added Swift Package Index yml file #8
 
 ### 0.8.4
 
