@@ -37,7 +37,8 @@ class HomeContentViewModel: ObservableObject {
 
 struct HomeContentView: View {
     let title: String
-    @Environment(\.navigator) var navigator: Navigator
+    @Environment(\.navigator) var navigator
+    @Environment(\.homeDependencies) var resolver
     var body: some View {
         List {
             Section("Navigation Actions") {
@@ -61,8 +62,8 @@ struct HomeContentView: View {
                         HomeDestinations.pageN(99)
                     ])
                 }
-                Button("Send Tab Settings") {
-                    navigator.send(RootTabs.settings)
+                Button("Route To Settings Page 2") {
+                    resolver.homeExternalRouter().route(to: .settingsPage2)
                 }
             }
 

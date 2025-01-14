@@ -92,7 +92,8 @@ typealias HomeDependencies = CoreDependencies
 // Specify everything required by this module
 protocol HomeModuleDependencies {
     func loader() -> any Loading
-    @MainActor func externalView() -> AnyView
+    @MainActor func homeExternallyProvidedView() -> AnyView
+    @MainActor func homeExternalRouter() -> any ExternalNavigationRouting<HomeExternalRoutes>
 }
 
 // Construct defaults, including defaults that depend on other modules
@@ -106,10 +107,15 @@ extension HomeModuleDependencies where Self: CoreDependencies {
 // Define our module's mock protocol
 protocol MockHomeDependencies: HomeDependencies, MockCoreDependencies {}
 
-// Mock a view we need to be provided from elsewhere
+// Provide missing defaults
 extension MockHomeDependencies {
-    func externalView() -> AnyView {
+    // Mock a view we need to be provided from elsewhere
+    func homeExternallyProvidedView() -> AnyView {
         AnyView(Text("Home"))
+    }
+    // Mock a router
+    @MainActor func homeExternalRouter() -> any ExternalNavigationRouting<HomeExternalRoutes> {
+        MockExternalNavigationRouter()
     }
 }
 
@@ -119,6 +125,12 @@ struct MockHomeResolver: MockHomeDependencies {}
 // Make our environment entry
 extension EnvironmentValues {
     @Entry var homeDependencies: HomeDependencies = MockHomeResolver()
+}
+
+// Demonstration of external routes that the home feature wants to trigger
+enum HomeExternalRoutes: ExternalNavigationRoutes {
+    case settingsPage2
+    case settingsPage3
 }
 
 //
@@ -175,6 +187,12 @@ typealias AppDependencies = CoreDependencies
 
 // Make the application's dependency resolver
 class AppResolver: AppDependencies {
+    // root navigator
+    let navigator: Navigator
+    // initializer
+    init(navigator: Navigator) {
+        self.navigator = navigator
+    }
     // need one per app
     let analyticsService = ThirdPartyAnalyticsService()
     // Missing default dependencies forces app to provide them.
@@ -182,8 +200,19 @@ class AppResolver: AppDependencies {
         analyticsService
     }
     // Home needs an external view from somewhere. Provide it.
-    @MainActor func externalView() -> AnyView {
+    @MainActor func homeExternallyProvidedView() -> AnyView {
         SettingsDestinations.external.asAnyView()
+    }
+    // Home feature wants to be able to route to settings feature, app knows how app is structured, so...
+    @MainActor func homeExternalRouter() -> any ExternalNavigationRouting<HomeExternalRoutes> {
+        ExternalNavigationRouter {
+            switch $0 {
+            case .settingsPage2:
+                self.navigator.send(values: [NavigationAction.dismissAll, RootTabs.settings, SettingsDestinations.page2])
+            case .settingsPage3:
+                self.navigator.send(values: [NavigationAction.dismissAll, RootTabs.settings, SettingsDestinations.page3])
+            }
+        }
     }
     // Missing default provides proper key
     var settingsKey: String { "actual" }

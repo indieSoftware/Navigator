@@ -40,32 +40,35 @@ internal struct NavigationStorage: Codable {
 
 extension Navigator {
 
+    internal static let decoder = JSONDecoder()
+    internal static let encoder = JSONEncoder()
+
     /// Encoding for scene storage
     internal func encoded() -> Data? {
         guard let restorationKey = configuration?.restorationKey else {
             return nil
         }
-        let path = try? path.codable.map(encoder.encode)
+        let path = try? path.codable.map(Navigator.encoder.encode)
         let storage = NavigationStorage(
             id: id,
             restorationKey: restorationKey,
             path: path ?? Data(),
             checkpoints: checkpoints,
             dismissible: isPresented,
-            sheet: try? encoder.encode(sheet),
-            cover: try? encoder.encode(cover)
+            sheet: try? Navigator.encoder.encode(sheet),
+            cover: try? Navigator.encoder.encode(cover)
         )
-        return try? encoder.encode(storage)
+        return try? Navigator.encoder.encode(storage)
     }
 
     /// Decoding from scene storage
     internal func restore(from data: Data) {
-        guard let storage = try? decoder.decode(NavigationStorage.self, from: data),
+        guard let storage = try? Navigator.decoder.decode(NavigationStorage.self, from: data),
               storage.restorationKey == configuration?.restorationKey else {
             return
         }
         id = storage.id
-        if let data = storage.path, let representation = try? decoder.decode(NavigationPath.CodableRepresentation.self, from: data) {
+        if let data = storage.path, let representation = try? Navigator.decoder.decode(NavigationPath.CodableRepresentation.self, from: data) {
             path = NavigationPath(representation)
         } else {
             path = .init()
@@ -73,12 +76,12 @@ extension Navigator {
         checkpoints = storage.checkpoints
         isPresented = storage.dismissible
         if let data = storage.sheet {
-            sheet = try? decoder.decode(AnyNavigationDestination.self, from: data)
+            sheet = try? Navigator.decoder.decode(AnyNavigationDestination.self, from: data)
         } else {
             sheet = nil
         }
         if let data = storage.cover {
-            cover = try? decoder.decode(AnyNavigationDestination.self, from: data)
+            cover = try? Navigator.decoder.decode(AnyNavigationDestination.self, from: data)
         } else {
             cover = nil
         }

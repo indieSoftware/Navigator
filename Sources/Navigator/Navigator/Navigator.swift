@@ -54,9 +54,6 @@ public class Navigator: ObservableObject, @unchecked Sendable {
 
     internal let publisher: PassthroughSubject<NavigationSendValues, Never>
 
-    internal let decoder = JSONDecoder()
-    internal let encoder = JSONEncoder()
-
     /// Allows public initialization of root Navigators.
     public init(configuration: NavigationConfiguration? = nil) {
         self.configuration = configuration
