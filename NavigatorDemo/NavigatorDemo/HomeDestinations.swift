@@ -46,7 +46,7 @@ private struct HomeDestinationsView: View {
             HomePageNView(dependencies: resolver, number: value)
         case .external:
             // Demonstrates getting view from unknown source
-            resolver.homeExternallyProvidedView()
+            resolver.homeExternalViewProvider().view(for: .external)
         case .presented1:
             NestedHomeContentView(title: "Via Sheet")
         case .presented2:

@@ -1,5 +1,9 @@
 # Navigator Changelog
 
+### 0.8.6
+
+* Add navigation view routing and navigation view providing protocols and examples
+
 ### 0.8.5
 
 * Fix dismissible error in dismissAllChildren

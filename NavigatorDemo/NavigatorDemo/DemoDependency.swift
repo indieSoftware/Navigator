@@ -92,7 +92,7 @@ typealias HomeDependencies = CoreDependencies
 // Specify everything required by this module
 protocol HomeModuleDependencies {
     func loader() -> any Loading
-    @MainActor func homeExternallyProvidedView() -> AnyView
+    @MainActor func homeExternalViewProvider() -> any ExternalNavigationViewProviding<HomeExternalViews>
     @MainActor func homeExternalRouter() -> any ExternalNavigationRouting<HomeExternalRoutes>
 }
 
@@ -110,8 +110,8 @@ protocol MockHomeDependencies: HomeDependencies, MockCoreDependencies {}
 // Provide missing defaults
 extension MockHomeDependencies {
     // Mock a view we need to be provided from elsewhere
-    func homeExternallyProvidedView() -> AnyView {
-        AnyView(Text("Home"))
+    @MainActor func homeExternalViewProvider() -> any ExternalNavigationViewProviding<HomeExternalViews> {
+        MockExternalNavigationViewProvider()
     }
     // Mock a router
     @MainActor func homeExternalRouter() -> any ExternalNavigationRouting<HomeExternalRoutes> {
@@ -131,6 +131,11 @@ extension EnvironmentValues {
 enum HomeExternalRoutes: ExternalNavigationRoutes {
     case settingsPage2
     case settingsPage3
+}
+
+// Demonstration of external views that the home feature needs from somewhere
+enum HomeExternalViews: ExternalNavigationViews {
+    case external
 }
 
 //
@@ -200,8 +205,10 @@ class AppResolver: AppDependencies {
         analyticsService
     }
     // Home needs an external view from somewhere. Provide it.
-    @MainActor func homeExternallyProvidedView() -> AnyView {
-        SettingsDestinations.external.asAnyView()
+    @MainActor func homeExternalViewProvider() -> any ExternalNavigationViewProviding<HomeExternalViews> {
+        ExternalNavigationViewProvider { _ in
+            SettingsDestinations.external()
+        }
     }
     // Home feature wants to be able to route to settings feature, app knows how app is structured, so...
     @MainActor func homeExternalRouter() -> any ExternalNavigationRouting<HomeExternalRoutes> {
