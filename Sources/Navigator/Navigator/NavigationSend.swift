@@ -28,13 +28,12 @@ extension Navigator {
        if let action = value as? NavigationAction {
             log("Navigator \(id) executing action \(action.name)")
             resume(action(self), values: values)
-            return
-        }
-        log("Navigator \(id) sending \(value)")
-        let values = NavigationSendValues(value: value, values: values, log: {
-            self.log(type: .warning, $0)
-        })
-        publisher.send(values)
+       } else {
+           log("Navigator \(id) sending \(value)")
+           publisher.send(NavigationSendValues(value: value, values: values, log: { [weak self] in
+               self?.log(type: .warning, $0)
+           }))
+       }
     }
 
     @MainActor

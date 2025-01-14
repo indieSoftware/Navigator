@@ -133,7 +133,28 @@ Button("Present Home Page 55 Via Sheet") {
     navigator.navigate(to: HomeDestinations.pageN(55), method: .sheet)
 }
 ```
-> Important: NavigationDestinations dispatched via NavigationLink will *always* push onto the NavigationStack. That's just how SwiftUI works.
+Note that NavigationDestinations dispatched via NavigationLink will *always* push onto the NavigationStack. That's just how SwiftUI works.
+
+## Values, Not Destinations
+
+Navigator is designed to work with ``NavigationDestination`` types and SwiftUI's `NavigationLink(value:label:)`; not `NavigationLink(destination:label:)`.
+
+Mixing the two on the same `NavigationStack` can lead to unexpected behavior, and using `NavigationLink(destination:label:)` at all can affect programatic navigation using Navigators. 
+
+```swift
+// DO
+NavigationLink(value: HomeDestinations.page3) {
+    Text("Link to Home Page 3!")
+}
+
+// DON'T DO
+NavigationLink(destination: HomePage3View()) {
+    Text("Link to Home Page 3!")
+}
+```
+If you start seeing odd behavior returning to previous views, check to make sure a `NavigationLink(destination:label:)` link hasn't worked its way into your code.
+
+> IMPORTANT: Use NavigationDestination values. Avoid using `NavigationLink(destination:label:)`.
 
 ## See Also
 

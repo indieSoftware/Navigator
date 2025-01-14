@@ -41,13 +41,13 @@ extension Navigator {
     public func dismissAllChildren() -> Bool {
         for child in children.values {
             if let childNavigator = child.object {
-                var dismissed: Bool = false
                 if #available (iOS 18.0, *) {
                     if childNavigator.dismiss() || childNavigator.dismissAllChildren() {
                         return true
                     }
                 } else {
                     var dismissed: Bool
+                    // both functions need to execute, || would short-circuit
                     dismissed = childNavigator.dismissAllChildren()
                     dismissed = childNavigator.dismiss() || dismissed
                     if dismissed {
