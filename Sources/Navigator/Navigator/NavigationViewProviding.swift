@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Navigator
 
 public protocol ExternalNavigationViews: Hashable {}
 

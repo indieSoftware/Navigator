@@ -50,7 +50,6 @@ public class Navigator: ObservableObject, @unchecked Sendable {
 
     internal var id: UUID = .init()
     internal var checkpoints: [String: NavigationCheckpoint] = [:]
-    internal var registrations: Set<ObjectIdentifier> = []
 
     internal let publisher: PassthroughSubject<NavigationSendValues, Never>
 
@@ -94,17 +93,6 @@ public class Navigator: ObservableObject, @unchecked Sendable {
         children.removeValue(forKey: child.id)
     }
 
-    /// Ensures multiple navigationDestinations of the same type are not registered on the same Navigator.
-    ///
-    /// Returns true if first registration of this type.
-    internal func register(type: Any.Type) -> Bool {
-        if registrations.contains(ObjectIdentifier(type)) {
-            return false
-        }
-        registrations.insert(ObjectIdentifier(type))
-        return true
-    }
-
     /// Internal logging function.
     internal func log(type: NavigationConfiguration.Verbosity = .info, _ message: @autoclosure () -> String) {
         #if DEBUG
@@ -142,11 +130,7 @@ extension Navigator {
     /// This may push an item onto the stacks navigation path, or present a sheet or fullscreen cover view.
     @MainActor
     public func navigate<D: NavigationDestination>(to destination: D, method: NavigationMethod) {
-        if !registrations.contains(ObjectIdentifier(D.self)) {
-            log(type: .warning, "Navigator navigating to unregistered destination: \(destination)!!!")
-        } else {
-            log("Navigator navigating to: \(destination), via: \(method)")
-        }
+        log("Navigator navigating to: \(destination), via: \(method)")
         switch method {
         case .push:
             push(destination)
@@ -158,11 +142,13 @@ extension Navigator {
             guard sheet?.id != destination.id else { return }
             sheet = AnyNavigationDestination(wrapped: destination)
 
-        #if os(iOS)
         case .cover:
             guard cover?.id != destination.id else { return }
+            #if os(iOS)
             cover = AnyNavigationDestination(wrapped: destination)
-        #endif
+            #else
+            sheet = AnyNavigationDestination(wrapped: destination)
+            #endif
         }
     }
 

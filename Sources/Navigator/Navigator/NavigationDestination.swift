@@ -154,8 +154,8 @@ public struct AnyNavigationDestination {
 
 extension AnyNavigationDestination: Identifiable {
     public var id: Int { wrapped.id }
-    @MainActor public func asAnyView() -> AnyView {
-        AnyView(wrapped.view)
+    @MainActor public func callAsFunction() -> AnyView {
+        wrapped.asAnyView()
     }
 }
 
@@ -171,74 +171,8 @@ extension View {
     ///
     /// Important: NavigationDestination must be registered using this function!
     public func navigationDestination<D: NavigationDestination>(_ destinations: D.Type) -> some View {
-        self.modifier(NavigationDestinationModifier(destinations: destinations))
-    }
-}
-
-internal struct NavigationDestinationModifier<D: NavigationDestination>: ViewModifier {
-
-    let destinations: D.Type
-
-    @Environment(\.navigator) var navigator
-
-    func body(content: Content) -> some View {
-        content.modifier(WrappedModifier(navigator: navigator))
-    }
-
-    struct WrappedModifier: ViewModifier {
-
-        @ObservedObject var navigator: Navigator
-        @State var registered: Bool
-
-        internal init(navigator: Navigator) {
-            self.navigator = navigator
-            self.registered = navigator.register(type: D.self)
+        self.navigationDestination(for: D.self) { destination in
+            destination()
         }
-
-        func body(content: Content) -> some View {
-            if registered {
-                content
-                    .navigationDestination(for: D.self) { destination in
-                        destination()
-                    }
-                    .sheet(item: showSheetBinding) { (destination: D) in
-                        destination()
-                    }
-                    #if os(iOS)
-                    .fullScreenCover(item: showCoverBinding) { (destination: D) in
-                        destination()
-                    }
-                    #endif
-            } else {
-                content
-            }
-        }
-
-        var showSheetBinding: Binding<D?> {
-            Binding {
-                navigator.sheet?.wrapped as? D
-            } set: { newValue in
-                if let newValue {
-                    navigator.sheet?.wrapped = newValue
-                } else {
-                    navigator.sheet = nil
-                }
-            }
-        }
-
-        #if os(iOS)
-        var showCoverBinding: Binding<D?> {
-            Binding {
-                navigator.cover?.wrapped as? D
-            } set: { newValue in
-                if let newValue {
-                    navigator.cover?.wrapped = newValue
-                } else {
-                    navigator.cover = nil
-                }
-            }
-        }
-        #endif
-
     }
 }

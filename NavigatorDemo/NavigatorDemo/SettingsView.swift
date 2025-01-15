@@ -89,6 +89,7 @@ struct Page2SettingsView: View {
             CustomSettingsSheetSection()
             ContentPopSection()
         }
+        .navigationCheckpoint(.page2)
         .navigationTitle("Page 2")
     }
 }
@@ -121,8 +122,7 @@ struct SettingsSheetView: View {
                     navigator.send(values: [
                         NavigationAction.dismissAll,
                         RootTabs.home
-                        ]
-                    )
+                    ])
                 }
             }
             ContentSheetSection()

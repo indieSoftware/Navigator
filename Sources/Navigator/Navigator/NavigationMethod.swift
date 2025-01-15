@@ -42,8 +42,6 @@ public enum NavigationMethod {
     /// Displays the destination as a SwiftUI sheet.
     case sheet
 
-    #if os(iOS)
-    /// Displays the destination as a SwiftUI full screen cover.
+    /// Displays the destination as a SwiftUI full screen cover on iOS.
     case cover
-    #endif
 }
