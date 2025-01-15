@@ -16,7 +16,7 @@ extension NavigationCheckpoint {
 
 struct RootHomeView: View {
     var body: some View {
-        ManagedNavigationStack(scene: "home") {
+        ManagedNavigationStack(scene: RootTabs.home.id) {
             HomeContentView(title: "Home Navigation")
                 .navigationCheckpoint(.home)
                 .navigationDestination(HomeDestinations.self)
@@ -93,6 +93,16 @@ struct HomePage2View: View {
                 }
                 NavigationLink(value: HomeDestinations.pageN(55)) {
                     Text("Link to Home Page 55!")
+                }
+            }
+            Section("Find") {
+                Button("Clear Home Via Find") {
+                    navigator.named("home")?.popAll()
+                }
+                Button("Clear Settings With Action") {
+                    navigator.perform(.with(RootTabs.settings.id) {
+                        $0.popAll()
+                    })
                 }
             }
             ContentSheetSection()

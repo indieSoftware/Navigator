@@ -7,6 +7,23 @@
 
 import SwiftUI
 
+extension Navigator {
+
+    @MainActor
+    public func perform(_ action: NavigationAction) {
+        send(action, [])
+    }
+
+    @MainActor
+    public func perform(actions: [NavigationAction]) {
+        guard let value: any Hashable = actions.first else {
+            return
+        }
+        send(value, Array(actions.dropFirst()))
+    }
+
+}
+
 public struct NavigationAction: Hashable {
 
     public let name: String
@@ -40,6 +57,36 @@ extension NavigationAction {
 
     @MainActor public static var dismissAll: NavigationAction {
         .init { $0.dismissAll() ? .auto : .immediately }
+    }
+
+    @MainActor public static var empty: NavigationAction {
+        .init { _ in .immediately }
+    }
+
+    @MainActor public static func popAll(in name: String) -> NavigationAction {
+        .init { navigtor in
+            if let found = navigtor.named(name) {
+                return found.popAll() ? .auto : .immediately
+            }
+            return .cancel
+        }
+    }
+
+    @MainActor public static func send(_ value: any Hashable) -> NavigationAction {
+        .init {
+            $0.send(value)
+            return .immediately
+        }
+    }
+
+    @MainActor public static func with(_ name: String, perform: @escaping (Navigator) -> Void) -> NavigationAction {
+        .init { navigtor in
+            if let found = navigtor.named(name) {
+                perform(found)
+                return .auto
+            }
+            return .cancel
+        }
     }
 
 }

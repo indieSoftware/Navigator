@@ -35,7 +35,7 @@ public protocol NavigationURLHander {
     ///
     /// If a given handler doesn't recognize the URL in question, it returns nil. Handlers are processed in order until the URL is recognized
     /// or until recognition fails.
-    @MainActor func handles(_ url: URL) -> [any Hashable]?
+    @MainActor func handles(_ url: URL) -> [NavigationAction]?
 }
 
 extension View {
@@ -68,8 +68,8 @@ private struct OnNavigationOpenURLModifier: ViewModifier {
         content
             .onOpenURL { url in
                 for handler in handlers {
-                    if let destinations = handler.handles(url) {
-                        return navigator.send(values: destinations)
+                    if let actions = handler.handles(url) {
+                        return navigator.perform(actions: actions)
                     }
                 }
             }

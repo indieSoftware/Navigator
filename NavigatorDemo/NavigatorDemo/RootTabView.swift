@@ -10,7 +10,7 @@ import SwiftUI
 enum RootTabs: Int, Identifiable, Codable {
     case home
     case settings
-    var id: Self { self }
+    var id: String { "\(self)" }
 }
 
 struct RootTabView : View {

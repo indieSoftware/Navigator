@@ -10,7 +10,7 @@ import SwiftUI
 
 struct RootSettingsView: View {
     var body: some View {
-        ManagedNavigationStack(scene: "settings") {
+        ManagedNavigationStack(scene: RootTabs.settings.id) {
             SettingsView(name: "Root Settings")
                 .navigationCheckpoint(.home)
                 .navigationDestination(SettingsDestinations.self)

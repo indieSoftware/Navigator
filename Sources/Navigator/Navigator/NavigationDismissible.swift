@@ -32,7 +32,7 @@ struct NavigationDismissibleModifier: ViewModifier {
         @Environment(\.dismiss) var dismiss: DismissAction
 
         init(parent: Navigator) {
-            self._navigator = .init(wrappedValue: .init(parent: parent, isPresented: true))
+            self._navigator = .init(wrappedValue: .init(name: nil, parent: parent, isPresented: true))
         }
 
         func body(content: Content) -> some View {

@@ -206,8 +206,11 @@ class AppResolver: AppDependencies {
     }
     // Home needs an external view from somewhere. Provide it.
     @MainActor func homeExternalViewProvider() -> any ExternalNavigationViewProviding<HomeExternalViews> {
-        ExternalNavigationViewProvider { _ in
-            SettingsDestinations.external()
+        ExternalNavigationViewProvider {
+            switch $0 {
+            case .external:
+                SettingsDestinations.external()
+            }
         }
     }
     // Home feature wants to be able to route to settings feature, app knows how app is structured, so...
@@ -215,9 +218,25 @@ class AppResolver: AppDependencies {
         ExternalNavigationRouter {
             switch $0 {
             case .settingsPage2:
-                self.navigator.send(values: [NavigationAction.dismissAll, RootTabs.settings, SettingsDestinations.page2])
+                // Demonstrate routing with navigation actions
+                self.navigator.perform(actions: [
+                    .dismissAll,
+                    .send(RootTabs.settings),
+                    .with(RootTabs.settings.id) {
+                        $0.popAll()
+                        $0.push(SettingsDestinations.page2)
+                    },
+                ])
             case .settingsPage3:
-                self.navigator.send(values: [NavigationAction.dismissAll, RootTabs.settings, SettingsDestinations.page3])
+                // Demonstrate routing sending raw navigation values
+                self.navigator.send(values: [
+                    NavigationAction.dismissAll,
+                    RootTabs.settings,
+                    NavigationAction.with(RootTabs.settings.id) {
+                        $0.popAll()
+                        $0.push(SettingsDestinations.page3)
+                    },
+                ])
             }
         }
     }

@@ -1,5 +1,14 @@
 # Navigator Changelog
 
+### 0.9.0
+
+* ManagedNavigationStacks can be named without allowing scene storage
+* Can now find navigators for named ManagedNavigationStacks
+* NavigationURLHandlers now return NavigationActions and not values
+* Added additional NavigationAction support and actions
+* Navigator "pop" functions now return discardable results
+* Updates demo app and sample code
+
 ### 0.8.7
 
 * Simplify navigation destination code to allow for use of current navigation destination modifiers

@@ -37,7 +37,7 @@ public struct ManagedNavigationStack<Content: View>: View {
     @Environment(\.navigator) private var parent: Navigator
     @Environment(\.isPresented) private var isPresented
 
-    private var name: String?
+    private var name: StackName?
     private var content: Content
 
     /// Initializes NavigationStack
@@ -46,9 +46,15 @@ public struct ManagedNavigationStack<Content: View>: View {
         self.content = content()
     }
 
-    /// Initializes NavigationStack with scene name needed to enable scene storage.
+    /// Initializes named NavigationStack
+    public init(name name: String, @ViewBuilder content: () -> Content) {
+        self.name = .name(name)
+        self.content = content()
+    }
+
+    /// Initializes NavigationStack with name needed to enable scene storage.
     public init(scene name: String, @ViewBuilder content: () -> Content) {
-        self.name = name
+        self.name = .scene(name)
         self.content = content()
     }
 
@@ -65,13 +71,13 @@ public struct ManagedNavigationStack<Content: View>: View {
         @Environment(\.dismiss) private var dismiss: DismissAction
         @Environment(\.scenePhase) private var scenePhase
 
-        private let name: String?
+        private let name: StackName?
         private let content: Content
 
-        init(name: String?, parent: Navigator, isPresented: Bool, content: Content) {
+        init(name: StackName?, parent: Navigator, isPresented: Bool, content: Content) {
             self.name = name
-            self._sceneStorage = .init("ManagedNavigationStack.\(name ?? "")")
-            self._navigator = .init(wrappedValue: .init(parent: parent, isPresented: isPresented))
+            self._sceneStorage = .init("ManagedNavigationStack.\(name?.string ?? "*")")
+            self._navigator = .init(wrappedValue: .init(name: name?.string, parent: parent, isPresented: isPresented))
             self.content = content
         }
 
@@ -90,7 +96,7 @@ public struct ManagedNavigationStack<Content: View>: View {
                         dismiss()
                     }
                     .onChange(of: scenePhase) { phase in
-                        guard name != nil else {
+                        guard case .scene(let name) = name else {
                             return
                         }
                         if phase == .active, let data = sceneStorage {
@@ -103,6 +109,17 @@ public struct ManagedNavigationStack<Content: View>: View {
             .environment(\.navigator, navigator)
         }
 
+    }
+
+    private enum StackName {
+        case name(String)
+        case scene(String)
+        var string: String {
+            switch self {
+            case .name(let name): name
+            case .scene(let name): name
+            }
+        }
     }
 
 }

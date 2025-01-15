@@ -42,7 +42,7 @@ import SwiftUI
 /// ```
 /// Using the same checkpoint name more than once in the same navigation tree isn't recommended.
 public struct NavigationCheckpoint: Codable, Equatable, ExpressibleByStringLiteral, Hashable, Sendable {
-    internal let name: String
+    public let name: String
     internal let index: Int
     public init(stringLiteral value: String) {
         self.name = value

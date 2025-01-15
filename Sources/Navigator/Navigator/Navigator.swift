@@ -42,19 +42,20 @@ public class Navigator: ObservableObject, @unchecked Sendable {
 
     /// True if the current ManagedNavigationStack or navigationDismissible is presented.
     public internal(set) var isPresented: Bool
+    public internal(set) var id: UUID = .init()
+    public internal(set) var name: String?
 
     internal let configuration: NavigationConfiguration?
 
     internal weak var parent: Navigator?
     internal var children: [UUID : WeakObject<Navigator>] = [:]
-
-    internal var id: UUID = .init()
     internal var checkpoints: [String: NavigationCheckpoint] = [:]
 
     internal let publisher: PassthroughSubject<NavigationSendValues, Never>
 
     /// Allows public initialization of root Navigators.
     public init(configuration: NavigationConfiguration? = nil) {
+        self.name = "root"
         self.configuration = configuration
         self.parent = nil
         self.publisher = .init()
@@ -63,7 +64,8 @@ public class Navigator: ObservableObject, @unchecked Sendable {
     }
 
     /// Internal initializer used by ManagedNavigationStack and navigationDismissible modifiers.
-    internal init(parent: Navigator, isPresented: Bool) {
+    internal init(name: String?, parent: Navigator, isPresented: Bool) {
+        self.name = name
         self.configuration = parent.configuration
         self.parent = parent
         self.publisher = parent.publisher
@@ -172,11 +174,14 @@ extension Navigator {
     }
 
     /// Pops to a specific position on stack's navigation path.
+    @discardableResult
     @MainActor
-    public func pop(to position: Int) {
+    public func pop(to position: Int)  -> Bool {
         if position <= path.count {
             path.removeLast(path.count - position)
+            return true
         }
+        return false
     }
 
     /// Pops the specified number of the items from the end of a stack's navigation path.
@@ -187,11 +192,13 @@ extension Navigator {
     ///     navigator.pop()
     /// }
     /// ```
+    @discardableResult
     @MainActor
-    public func pop(last k: Int = 1) {
+    public func pop(last k: Int = 1) -> Bool {
         if path.count >= k {
             path.removeLast(k)
         }
+        return false
     }
 
     /// Pops all items from the navigation path, returning to the root view.
@@ -200,9 +207,14 @@ extension Navigator {
     ///     navigator.popAll()
     /// }
     /// ```
+    @discardableResult
     @MainActor
-    public func popAll() {
-        path.removeLast(path.count)
+    public func popAll() -> Bool {
+        if !path.isEmpty {
+            path.removeLast(path.count)
+            return true
+        }
+        return false
     }
 
     /// Indicates whether or not the navigation path is empty.
@@ -213,6 +225,27 @@ extension Navigator {
     /// Number of items in the navigation path.
     public nonisolated var count: Int {
         path.count
+    }
+
+}
+
+extension Navigator {
+
+    /// Returns first navigator found with given name
+    public func named(_ name: String) -> Navigator? {
+        root.recursiveFind(name: name)
+    }
+
+    internal func recursiveFind(name: String) -> Navigator? {
+        if self.name == name {
+            return self
+        }
+        for child in children.values {
+            if let navigator = child.object, let found = navigator.recursiveFind(name: name) {
+                return found
+            }
+        }
+        return nil
     }
 
 }

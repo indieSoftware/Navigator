@@ -10,7 +10,7 @@ import SwiftUI
 
 // Define a new action placeholder
 extension NavigationAction {
-    @MainActor static var authenticationRequired: NavigationAction?
+    @MainActor static var authenticationRequired: NavigationAction = .empty
 }
 
 // Define our "authentication" view model
