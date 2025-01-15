@@ -48,9 +48,12 @@ private struct HomeDestinationsView: View {
             // Demonstrates getting view from unknown source
             resolver.homeExternalViewProvider().view(for: .external)
         case .presented1:
+            // Demonstrates internally presented view via method
             NestedHomeContentView(title: "Via Sheet")
         case .presented2:
+            // This presented view can not be globally dismissed via navigation action, deep links, etc.
             NestedHomeContentView(title: "Via Cover")
+                .navigationLockDismissAll()
         }
     }
 }

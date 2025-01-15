@@ -11,26 +11,32 @@ import SwiftUI
 internal struct NavigationStorage: Codable {
 
     let id: UUID
+    let name: String?
     let restorationKey: String
     let path: Data?
     let checkpoints: [String: NavigationCheckpoint]
+    let dismissAllLocks: Set<UUID>
     let dismissible: Bool
     let sheet: Data?
     let cover: Data?
 
     internal init(
         id: UUID = UUID(),
+        name: String?,
         restorationKey: String,
         path: Data?,
         checkpoints: [String : NavigationCheckpoint] = [:],
+        dismissAllLocks: Set<UUID> = [],
         dismissible: Bool = false,
         sheet: Data?,
         cover: Data?
     ) {
         self.id = id
+        self.name = name
         self.restorationKey = restorationKey
         self.path = path
         self.checkpoints = checkpoints
+        self.dismissAllLocks = dismissAllLocks
         self.dismissible = dismissible
         self.sheet = sheet
         self.cover = cover
@@ -51,9 +57,11 @@ extension Navigator {
         let path = try? path.codable.map(Navigator.encoder.encode)
         let storage = NavigationStorage(
             id: id,
+            name: name,
             restorationKey: restorationKey,
             path: path ?? Data(),
             checkpoints: checkpoints,
+            dismissAllLocks: dismissAllLocks,
             dismissible: isPresented,
             sheet: try? Navigator.encoder.encode(sheet),
             cover: try? Navigator.encoder.encode(cover)
@@ -74,6 +82,7 @@ extension Navigator {
             path = .init()
         }
         checkpoints = storage.checkpoints
+        dismissAllLocks = storage.dismissAllLocks
         isPresented = storage.dismissible
         if let data = storage.sheet {
             sheet = try? Navigator.decoder.decode(AnyNavigationDestination.self, from: data)

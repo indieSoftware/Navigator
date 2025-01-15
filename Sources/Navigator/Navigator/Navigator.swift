@@ -50,6 +50,7 @@ public class Navigator: ObservableObject, @unchecked Sendable {
     internal weak var parent: Navigator?
     internal var children: [UUID : WeakObject<Navigator>] = [:]
     internal var checkpoints: [String: NavigationCheckpoint] = [:]
+    internal var dismissAllLocks: Set<UUID> = []
 
     internal let publisher: PassthroughSubject<NavigationSendValues, Never>
 
@@ -108,6 +109,10 @@ public class Navigator: ObservableObject, @unchecked Sendable {
     /// Allows weak storage of reference types in arrays, dictionaries, and other collection types.
     internal struct WeakObject<T: AnyObject> {
         weak var object: T?
+    }
+
+    public enum NavigatorError: Error {
+        case dismissAllLocked
     }
 
 }

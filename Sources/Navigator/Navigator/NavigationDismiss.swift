@@ -31,8 +31,12 @@ extension Navigator {
     /// Returns to the root Navigator and dismisses *any* presented ManagedNavigationStack.
     @MainActor
     @discardableResult
-    public func dismissAll() -> Bool {
-        root.dismissAllChildren()
+    public func dismissAll() throws -> Bool {
+        guard root.dismissAllLocks.isEmpty else {
+            log(type: .warning, "Navigator \(id) error dismissAllLocked")
+            throw NavigatorError.dismissAllLocked
+        }
+        return root.dismissAllChildren()
     }
 
     /// Dismisses *any* ManagedNavigationStack or navigationDismissible presented by any child of this Navigator.
@@ -59,28 +63,12 @@ extension Navigator {
         return false
     }
 
-    /// Returns to the root Navigator, dismisses *any* presented ManagedNavigationStacks, and resets navigation paths.
-    @MainActor
-    @discardableResult
-    public func resetAll() -> Bool {
-        let dismissed = root.dismissAllChildren()
-        let popped = root.popAllChildren()
-        return dismissed || popped
+    internal func lockDismissAll(id: UUID) {
+        root.dismissAllLocks.insert(id)
     }
 
-    @MainActor
-    internal func popAllChildren() -> Bool {
-        var popped = false
-        if !path.isEmpty {
-            popAll()
-            popped = true
-        }
-        for child in children.values {
-            if let navigator = child.object, navigator.popAllChildren() {
-                popped = true
-            }
-        }
-        return popped
+    internal func unlockDismissAll(id: UUID) {
+        root.dismissAllLocks.remove(id)
     }
 
 }
@@ -123,8 +111,9 @@ private struct NavigationDismissModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .onChange(of: trigger) { trigger in
-                if trigger && navigator.dismiss() {
+                if trigger {
                     self.trigger = false
+                    navigator.dismiss()
                 }
             }
     }
@@ -136,9 +125,42 @@ private struct NavigationDismissModifierAll: ViewModifier {
     func body(content: Content) -> some View {
         content
             .onChange(of: trigger) { trigger in
-                if trigger && navigator.dismissAll() {
+                if trigger {
                     self.trigger = false
-                }
+                    try? navigator.dismissAll()
+               }
+            }
+    }
+}
+
+extension View {
+
+    /// Apply to a presented view on which you want to prevent global dismissal.
+    public func navigationLockDismissAll() -> some View {
+        self.modifier(NavigationLockDismissAllModifier())
+    }
+
+}
+
+private class NavigationLockDismissAllSentinal: ObservableObject {
+    private let id: UUID = UUID()
+    private var navigator: Navigator?
+    deinit {
+        navigator?.unlockDismissAll(id: id)
+    }
+    func lock(_ navigator: Navigator) {
+        self.navigator = navigator.root
+        self.navigator?.lockDismissAll(id: id)
+    }
+}
+
+private struct NavigationLockDismissAllModifier: ViewModifier {
+    @StateObject private var sentinel: NavigationLockDismissAllSentinal = .init()
+    @Environment(\.navigator) private var navigator: Navigator
+    func body(content: Content) -> some View {
+        content
+            .onAppear {
+                sentinel.lock(navigator)
             }
     }
 }

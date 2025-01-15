@@ -1,5 +1,9 @@
 # Navigator Changelog
 
+### 0.9.1
+
+* Add dismissAll locking mechanism to protect login screens, transaction screens, etc.
+
 ### 0.9.0
 
 * ManagedNavigationStacks can be named without allowing scene storage

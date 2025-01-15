@@ -56,7 +56,13 @@ extension NavigationAction {
     }
 
     @MainActor public static var dismissAll: NavigationAction {
-        .init { $0.dismissAll() ? .auto : .immediately }
+        .init {
+            do {
+                return try $0.dismissAll() ? .auto : .immediately
+            } catch {
+                return .cancel
+            }
+        }
     }
 
     @MainActor public static var empty: NavigationAction {

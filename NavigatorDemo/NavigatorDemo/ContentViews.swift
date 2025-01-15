@@ -28,7 +28,7 @@ struct ContentSheetSection: View {
                 navigator.navigate(to: HomeDestinations.presented1)
             }
 
-            Button("Present Navigation View via Cover") {
+            Button("Present Locked Navigation View via Cover") {
                 navigator.navigate(to: HomeDestinations.presented2)
             }
 
