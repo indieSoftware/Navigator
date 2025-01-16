@@ -37,7 +37,7 @@ extension Navigator {
     }
 
     @MainActor
-    internal func resume(_ action: NavigationReceiveResumeType, values: [any Hashable], delay: TimeInterval = 0.7) {
+    internal func resume(_ action: NavigationReceiveResumeType, values: [any Hashable] = [], delay: TimeInterval = 0.7) {
         switch action {
         case .auto:
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
@@ -187,11 +187,19 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
 internal class NavigationSendValues {
     let value: any Hashable
     let values: [any Hashable]
+    let identifier: String?
     let log: (String) -> Void
     var consumed: Bool = false
     internal init<T: Hashable>(value: T, values: [any Hashable], log: @escaping (String) -> Void) {
         self.value = value
         self.values = values
+        self.identifier = nil
+        self.log = log
+    }
+    internal init<T: Hashable>(value: T, identifier: String, log: @escaping (String) -> Void) {
+        self.value = value
+        self.values = []
+        self.identifier = identifier
         self.log = log
     }
     deinit {
@@ -199,8 +207,8 @@ internal class NavigationSendValues {
             log("Navigator missing receive handler for type: \(type(of: value))!!!")
         }
     }
-    func consume<T>() -> T? {
-        if let value = value as? T {
+    func consume<T>(_ identifier: String? = nil) -> T? {
+        if let value = value as? T, self.identifier == identifier {
             if consumed {
                 log("Navigator additional receive handlers ignored for type: \(type(of: value))!!!")
                 return nil

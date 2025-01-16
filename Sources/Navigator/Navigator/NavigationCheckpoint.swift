@@ -81,7 +81,7 @@ extension Navigator {
             if let parent {
                 return parent.returnToCheckpoint(checkpoint)
             } else {
-                log("Navigator checkpoint not found on this navigation path: \(checkpoint.name)")
+                log(type:.warning, "Navigator checkpoint not found in current navigation tree: \(checkpoint.name)")
                 return false
             }
         }
@@ -174,12 +174,11 @@ extension Navigator {
     /// This function will pop and/or dismiss intervening views as needed.
     @MainActor
     @discardableResult
-    public func returnToCheckpoint<T>(_ checkpoint: NavigationCheckpoint, value: T?) -> Bool {
-        guard canReturnToCheckpoint(checkpoint) else {
-            return false
-        }
-        send(CheckpointResult(name: checkpoint.name, value: value))
-        return true
+    public func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, value: T?) {
+        log("Navigator \(id) sending checkpoint: \(checkpoint.name) value: \(value)")
+        publisher.send(NavigationSendValues(value: value, identifier: checkpoint.name, log: { [weak self] in
+            self?.log(type: .warning, $0)
+        }))
     }
 
 }
@@ -187,50 +186,28 @@ extension Navigator {
 extension View {
 
     /// Establishes a navigation checkpoint with a completion handler.
-    public func navigationCheckpoint<T>(_ checkpoint: NavigationCheckpoint, completion: @escaping (T) -> Void) -> some View {
+    public func navigationCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, completion: @escaping (T) -> Void) -> some View {
         self.modifier(NavigationCheckpointValueModifier(checkpoint: checkpoint, completion: completion))
     }
 
 }
 
-private struct NavigationCheckpointValueModifier<T>: ViewModifier {
+private struct NavigationCheckpointValueModifier<T: Hashable>: ViewModifier {
     internal let checkpoint: NavigationCheckpoint
     internal let completion: (T) -> Void
     @Environment(\.navigator) var navigator: Navigator
     func body(content: Content) -> some View {
         content
             .onReceive(navigator.publisher) { item in
-                // need to check type and name before consuming value
-                guard let result = item.value as? CheckpointResult<T>, result.name == checkpoint.name else {
-                    return
-                }
-                if let item: CheckpointResult<T> = item.consume() {
-                    navigator.log("Navigator \(navigator.id) receiving checkpoint: \(checkpoint.name) value: \(item.value)")
-                    completion(item.value)
-                    navigator.resume(.checkpoint(checkpoint), values: [])
+                 if let value: T = item.consume(checkpoint.name) {
+                    navigator.log("Navigator \(navigator.id) receiving checkpoint: \(checkpoint.name) value: \(value)")
+                    completion(value)
+                    navigator.resume(.checkpoint(checkpoint))
                 }
             }
             .navigationCheckpoint(checkpoint)
     }
 
-}
-
-internal class CheckpointResult<T>: Hashable, CustomStringConvertible {
-    internal let name: String
-    internal let value: T
-    internal init(name: String, value: T) {
-        self.name = name
-        self.value = value
-    }
-    var description: String {
-        "checkpoint value: \(value)"
-    }
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
-    }
-    static func == (lhs: CheckpointResult<T>, rhs: CheckpointResult<T>) -> Bool {
-        lhs.name == rhs.name
-    }
 }
 
 private struct NavigationCheckpointModifier: ViewModifier {

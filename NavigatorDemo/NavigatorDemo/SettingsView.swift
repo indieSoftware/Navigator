@@ -18,10 +18,6 @@ struct RootSettingsView: View {
     }
 }
 
-struct SettingsCompletion: Hashable {
-    let value: Int
-}
-
 struct SettingsView: View {
     let name: String
     @Environment(\.navigator) var navigator: Navigator

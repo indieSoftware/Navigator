@@ -112,7 +112,7 @@ public class Navigator: ObservableObject, @unchecked Sendable {
     }
 
     public enum NavigatorError: Error {
-        case dismissAllLocked
+        case navigationLocked
     }
 
 }

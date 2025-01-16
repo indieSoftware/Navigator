@@ -84,27 +84,27 @@ public struct ManagedNavigationStack<Content: View>: View {
         public var body: some View {
             NavigationStack(path: $navigator.path) {
                 content
-                    .sheet(item: $navigator.sheet) { (destination) in
-                        destination()
-                    }
-                    #if os(iOS)
-                    .fullScreenCover(item: $navigator.cover) { (destination) in
-                        destination()
-                    }
-                    #endif
-                    .onChange(of: navigator.triggerDismiss) { _ in
-                        dismiss()
-                    }
-                    .onChange(of: scenePhase) { phase in
-                        guard case .scene(let name) = name else {
-                            return
-                        }
-                        if phase == .active, let data = sceneStorage {
-                            navigator.restore(from: data)
-                        } else {
-                            sceneStorage = navigator.encoded()
-                        }
-                    }
+             }
+            .sheet(item: $navigator.sheet) { (destination) in
+                destination()
+            }
+            #if os(iOS)
+            .fullScreenCover(item: $navigator.cover) { (destination) in
+                destination()
+            }
+            #endif
+            .onChange(of: navigator.triggerDismiss) { _ in
+                dismiss()
+            }
+            .onChange(of: scenePhase) { phase in
+                guard case .scene(let name) = name else {
+                    return
+                }
+                if phase == .active, let data = sceneStorage {
+                    navigator.restore(from: data)
+                } else {
+                    sceneStorage = navigator.encoded()
+                }
             }
             .environment(\.navigator, navigator)
         }

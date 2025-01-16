@@ -2,7 +2,9 @@
 
 ### 0.9.1
 
-* Add dismissAll locking mechanism to protect login screens, transaction screens, etc.
+* Add navigation locking mechanism to protect login screens, transaction screens, etc.
+* Cleanup checkpoint return value code
+* Fix reported issue presenting views on iOS 17
 
 ### 0.9.0
 

@@ -34,7 +34,7 @@ extension Navigator {
     public func dismissAll() throws -> Bool {
         guard root.navigationLocks.isEmpty else {
             log(type: .warning, "Navigator \(id) error dismissAllLocked")
-            throw NavigatorError.dismissAllLocked
+            throw NavigatorError.navigationLocked
         }
         return root.dismissAllChildren()
     }
@@ -61,14 +61,6 @@ extension Navigator {
             }
         }
         return false
-    }
-
-    internal func lockNavigation(id: UUID) {
-        root.navigationLocks.insert(id)
-    }
-
-    internal func unlockNavigation(id: UUID) {
-        root.navigationLocks.remove(id)
     }
 
 }
@@ -133,6 +125,18 @@ private struct NavigationDismissModifierAll: ViewModifier {
     }
 }
 
+extension Navigator {
+
+    internal func addNavigationLock(id: UUID) {
+        root.navigationLocks.insert(id)
+    }
+
+    internal func removeNavigationLock(id: UUID) {
+        root.navigationLocks.remove(id)
+    }
+
+}
+
 extension View {
 
     /// Apply to a presented view on which you want to prevent global dismissal.
@@ -146,11 +150,11 @@ private class NavigationLockedSentinal: ObservableObject {
     private let id: UUID = UUID()
     private var navigator: Navigator?
     deinit {
-        navigator?.unlockNavigation(id: id)
+        navigator?.removeNavigationLock(id: id)
     }
     func lock(_ navigator: Navigator) {
         self.navigator = navigator.root
-        self.navigator?.lockNavigation(id: id)
+        self.navigator?.addNavigationLock(id: id)
     }
 }
 
