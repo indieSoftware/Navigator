@@ -32,7 +32,7 @@ extension Navigator {
     @MainActor
     @discardableResult
     public func dismissAll() throws -> Bool {
-        guard root.dismissAllLocks.isEmpty else {
+        guard root.navigationLocks.isEmpty else {
             log(type: .warning, "Navigator \(id) error dismissAllLocked")
             throw NavigatorError.dismissAllLocked
         }
@@ -63,12 +63,12 @@ extension Navigator {
         return false
     }
 
-    internal func lockDismissAll(id: UUID) {
-        root.dismissAllLocks.insert(id)
+    internal func lockNavigation(id: UUID) {
+        root.navigationLocks.insert(id)
     }
 
-    internal func unlockDismissAll(id: UUID) {
-        root.dismissAllLocks.remove(id)
+    internal func unlockNavigation(id: UUID) {
+        root.navigationLocks.remove(id)
     }
 
 }
@@ -136,26 +136,26 @@ private struct NavigationDismissModifierAll: ViewModifier {
 extension View {
 
     /// Apply to a presented view on which you want to prevent global dismissal.
-    public func navigationLockDismissAll() -> some View {
-        self.modifier(NavigationLockDismissAllModifier())
+    public func navigationLocked() -> some View {
+        self.modifier(NavigationLockedModifier())
     }
 
 }
 
-private class NavigationLockDismissAllSentinal: ObservableObject {
+private class NavigationLockedSentinal: ObservableObject {
     private let id: UUID = UUID()
     private var navigator: Navigator?
     deinit {
-        navigator?.unlockDismissAll(id: id)
+        navigator?.unlockNavigation(id: id)
     }
     func lock(_ navigator: Navigator) {
         self.navigator = navigator.root
-        self.navigator?.lockDismissAll(id: id)
+        self.navigator?.lockNavigation(id: id)
     }
 }
 
-private struct NavigationLockDismissAllModifier: ViewModifier {
-    @StateObject private var sentinel: NavigationLockDismissAllSentinal = .init()
+private struct NavigationLockedModifier: ViewModifier {
+    @StateObject private var sentinel: NavigationLockedSentinal = .init()
     @Environment(\.navigator) private var navigator: Navigator
     func body(content: Content) -> some View {
         content

@@ -81,7 +81,7 @@ extension Navigator {
             if let parent {
                 return parent.returnToCheckpoint(checkpoint)
             } else {
-                log("Navigator checkpoint not found: \(checkpoint.name)")
+                log("Navigator checkpoint not found on this navigation path: \(checkpoint.name)")
                 return false
             }
         }
@@ -187,14 +187,28 @@ extension Navigator {
 extension View {
 
     /// Establishes a navigation checkpoint with a completion handler.
-    public func navigationCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, completion: @escaping (T?) -> Void) -> some View {
-        self
-            .onNavigationReceive { (result: CheckpointResult<T>) in
-                guard result.name == checkpoint.name else {
-                    return .cancel
+    public func navigationCheckpoint<T>(_ checkpoint: NavigationCheckpoint, completion: @escaping (T) -> Void) -> some View {
+        self.modifier(NavigationCheckpointValueModifier(checkpoint: checkpoint, completion: completion))
+    }
+
+}
+
+private struct NavigationCheckpointValueModifier<T>: ViewModifier {
+    internal let checkpoint: NavigationCheckpoint
+    internal let completion: (T) -> Void
+    @Environment(\.navigator) var navigator: Navigator
+    func body(content: Content) -> some View {
+        content
+            .onReceive(navigator.publisher) { item in
+                // need to check type and name before consuming value
+                guard let result = item.value as? CheckpointResult<T>, result.name == checkpoint.name else {
+                    return
                 }
-                completion(result.value)
-                return .checkpoint(checkpoint)
+                if let item: CheckpointResult<T> = item.consume() {
+                    navigator.log("Navigator \(navigator.id) receiving checkpoint: \(checkpoint.name) value: \(item.value)")
+                    completion(item.value)
+                    navigator.resume(.checkpoint(checkpoint), values: [])
+                }
             }
             .navigationCheckpoint(checkpoint)
     }
@@ -203,40 +217,19 @@ extension View {
 
 internal class CheckpointResult<T>: Hashable, CustomStringConvertible {
     internal let name: String
-    internal let value: T?
-    internal init(name: String, value: T? = nil) {
+    internal let value: T
+    internal init(name: String, value: T) {
         self.name = name
         self.value = value
     }
     var description: String {
-        if let value {
-            "checkpoint value: \(value)"
-        } else {
-            "checkpoint value: nil"
-        }
+        "checkpoint value: \(value)"
     }
     func hash(into hasher: inout Hasher) {
         hasher.combine(name)
     }
     static func == (lhs: CheckpointResult<T>, rhs: CheckpointResult<T>) -> Bool {
         lhs.name == rhs.name
-    }
-}
-
-private struct NavigationCheckpointValueModifier<T>: ViewModifier {
-    @Environment(\.navigator) var navigator: Navigator
-    internal let checkpoint: NavigationCheckpoint
-    internal let completion: (T?) -> Void
-    func body(content: Content) -> some View {
-        content
-            .onNavigationReceive { (result: CheckpointResult<T>) in
-                guard result.name == checkpoint.name else {
-                    return .cancel
-                }
-                completion(result.value)
-                return .checkpoint(checkpoint)
-            }
-            .navigationCheckpoint(checkpoint)
     }
 }
 

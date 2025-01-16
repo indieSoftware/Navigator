@@ -53,7 +53,7 @@ private struct HomeDestinationsView: View {
         case .presented2:
             // This presented view can not be globally dismissed via navigation action, deep links, etc.
             NestedHomeContentView(title: "Via Cover")
-                .navigationLockDismissAll()
+                .navigationLocked()
         }
     }
 }

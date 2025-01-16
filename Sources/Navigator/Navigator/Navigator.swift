@@ -50,7 +50,7 @@ public class Navigator: ObservableObject, @unchecked Sendable {
     internal weak var parent: Navigator?
     internal var children: [UUID : WeakObject<Navigator>] = [:]
     internal var checkpoints: [String: NavigationCheckpoint] = [:]
-    internal var dismissAllLocks: Set<UUID> = []
+    internal var navigationLocks: Set<UUID> = []
 
     internal let publisher: PassthroughSubject<NavigationSendValues, Never>
 

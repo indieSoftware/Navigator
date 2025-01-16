@@ -64,13 +64,15 @@ struct ContentPopSection: View {
             Button("Return To Checkpoint Home") {
                 navigator.returnToCheckpoint(.home)
             }
-//            .disabled(!navigator.canReturnToCheckpoint(.home))
 
             Button("Return To Checkpoint Page 2") {
                 returnToCheckpoint = true
             }
             .navigationReturnToCheckpoint(trigger: $returnToCheckpoint, checkpoint: .page2)
-//            .disabled(!navigator.canReturnToCheckpoint(.page2))
+
+            Button("Return To Checkpoint Settings") {
+                navigator.returnToCheckpoint(.settings)
+            }
 
             Button("Return To Unknown Checkpoint") {
                 navigator.returnToCheckpoint("unknown")

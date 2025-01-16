@@ -51,10 +51,6 @@ public struct NavigationAction: Hashable {
 
 extension NavigationAction {
 
-    @MainActor public static var cancel: NavigationAction {
-        .init { _ in .cancel }
-    }
-
     @MainActor public static var dismissAll: NavigationAction {
         .init {
             do {
@@ -67,6 +63,12 @@ extension NavigationAction {
 
     @MainActor public static var empty: NavigationAction {
         .init { _ in .immediately }
+    }
+
+    @MainActor public static var locked: NavigationAction {
+        .init { navigtor in
+            navigtor.root.navigationLocks.isEmpty ? .immediately : .cancel
+        }
     }
 
     @MainActor public static func popAll(in name: String) -> NavigationAction {

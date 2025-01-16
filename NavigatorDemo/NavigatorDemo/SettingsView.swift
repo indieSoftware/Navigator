@@ -12,7 +12,6 @@ struct RootSettingsView: View {
     var body: some View {
         ManagedNavigationStack(scene: RootTabs.settings.id) {
             SettingsView(name: "Root Settings")
-                .navigationCheckpoint(.home)
                 .navigationDestination(SettingsDestinations.self)
                 .onNavigationReceive(SettingsDestinations.self)
         }
@@ -34,10 +33,6 @@ struct SettingsView: View {
             Section("Sheet Actions") {
                 Button("Settings Sheet With Return Value") {
                     navigator.navigate(to: SettingsDestinations.sheet)
-                }
-                // establishes a checkpoint with a return value handler
-                .navigationCheckpoint(.settings) { (result: Int?) in
-                    returnValue = result
                 }
                 Text("Return Value: \(String(describing: returnValue))")
                     .foregroundStyle(.secondary)
@@ -74,6 +69,10 @@ struct SettingsView: View {
             }
         }
         .navigationTitle(name)
+        // establishes a checkpoint with a return value handler
+        .navigationCheckpoint(.settings) { (result: Int?) in
+            returnValue = result
+        }
     }
 }
 

@@ -15,7 +15,7 @@ internal struct NavigationStorage: Codable {
     let restorationKey: String
     let path: Data?
     let checkpoints: [String: NavigationCheckpoint]
-    let dismissAllLocks: Set<UUID>
+    let navigationLocks: Set<UUID>
     let dismissible: Bool
     let sheet: Data?
     let cover: Data?
@@ -26,7 +26,7 @@ internal struct NavigationStorage: Codable {
         restorationKey: String,
         path: Data?,
         checkpoints: [String : NavigationCheckpoint] = [:],
-        dismissAllLocks: Set<UUID> = [],
+        navigationLocks: Set<UUID> = [],
         dismissible: Bool = false,
         sheet: Data?,
         cover: Data?
@@ -36,7 +36,7 @@ internal struct NavigationStorage: Codable {
         self.restorationKey = restorationKey
         self.path = path
         self.checkpoints = checkpoints
-        self.dismissAllLocks = dismissAllLocks
+        self.navigationLocks = navigationLocks
         self.dismissible = dismissible
         self.sheet = sheet
         self.cover = cover
@@ -61,7 +61,7 @@ extension Navigator {
             restorationKey: restorationKey,
             path: path ?? Data(),
             checkpoints: checkpoints,
-            dismissAllLocks: dismissAllLocks,
+            navigationLocks: navigationLocks,
             dismissible: isPresented,
             sheet: try? Navigator.encoder.encode(sheet),
             cover: try? Navigator.encoder.encode(cover)
@@ -82,7 +82,7 @@ extension Navigator {
             path = .init()
         }
         checkpoints = storage.checkpoints
-        dismissAllLocks = storage.dismissAllLocks
+        navigationLocks = storage.navigationLocks
         isPresented = storage.dismissible
         if let data = storage.sheet {
             sheet = try? Navigator.decoder.decode(AnyNavigationDestination.self, from: data)
