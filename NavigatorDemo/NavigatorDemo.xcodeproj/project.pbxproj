@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4C93AC042CED23C00037903D /* Navigator in Frameworks */ = {isa = PBXBuildFile; productRef = 4C93AC032CED23C00037903D /* Navigator */; };
+		C883D49F2D3AE7E1005F99CE /* Navigator in Frameworks */ = {isa = PBXBuildFile; productRef = C883D49E2D3AE7E1005F99CE /* Navigator */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +41,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C883D49F2D3AE7E1005F99CE /* Navigator in Frameworks */,
 				4C93AC042CED23C00037903D /* Navigator in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -84,6 +86,7 @@
 			name = NavigatorDemo;
 			packageProductDependencies = (
 				4C93AC032CED23C00037903D /* Navigator */,
+				C883D49E2D3AE7E1005F99CE /* Navigator */,
 			);
 			productName = NavigatorDemo;
 			productReference = 4C93ABDD2CED04340037903D /* NavigatorDemo.app */;
@@ -114,7 +117,7 @@
 			mainGroup = 4C93ABD42CED04340037903D;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				4C93AC022CED23C00037903D /* XCLocalSwiftPackageReference "../Navigator" */,
+				C883D49D2D3AE7E1005F99CE /* XCLocalSwiftPackageReference "../../Navigator" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4C93ABDE2CED04340037903D /* Products */;
@@ -352,14 +355,18 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		4C93AC022CED23C00037903D /* XCLocalSwiftPackageReference "../Navigator" */ = {
+		C883D49D2D3AE7E1005F99CE /* XCLocalSwiftPackageReference "../../Navigator" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../Navigator;
+			relativePath = ../../Navigator;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		4C93AC032CED23C00037903D /* Navigator */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Navigator;
+		};
+		C883D49E2D3AE7E1005F99CE /* Navigator */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Navigator;
 		};
