@@ -26,9 +26,7 @@ extension Navigator {
             resume(action(self), values: remainingValues)
         } else {
             log("Navigator \(id) sending \(value)")
-            state.publisher.send(NavigationSendValues(value: value, values: remainingValues, log: {
-                log(type: .warning, $0)
-           }))
+            state.publisher.send(NavigationSendValues(value: value, values: remainingValues, navigator: self))
         }
     }
 
@@ -177,33 +175,37 @@ internal class NavigationSendValues {
     let value: any Hashable
     let values: [any Hashable]
     let identifier: String?
-    let log: (String) -> Void
+    let navigator: Navigator
     var consumed: Bool = false
 
-    internal init<T: Hashable>(value: T, values: [any Hashable], log: @escaping (String) -> Void) {
+    internal init<T: Hashable>(value: T, values: [any Hashable], navigator: Navigator) {
         self.value = value
         self.values = values
         self.identifier = nil
-        self.log = log
+        self.navigator = navigator
     }
 
-    internal init<T: Hashable>(value: T, identifier: String, log: @escaping (String) -> Void) {
+    internal init<T: Hashable>(value: T, identifier: String, navigator: Navigator) {
         self.value = value
         self.values = []
         self.identifier = identifier
-        self.log = log
+        self.navigator = navigator
     }
 
     deinit {
         if !consumed {
-            log("Navigator missing receive handler for type: \(type(of: value))!!!")
+            if let identifier {
+                navigator.log("Navigator missing checkpoint handler: \(identifier) for type: \(type(of: value))!!!")
+            } else {
+                navigator.log("Navigator missing receive handler for type: \(type(of: value))!!!")
+            }
         }
     }
 
     func consume<T>(_ identifier: String? = nil) -> T? {
         if let value = value as? T, self.identifier == identifier {
             if consumed {
-                log("Navigator additional receive handlers ignored for type: \(type(of: value))!!!")
+                navigator.log("Navigator additional receive handlers ignored for type: \(type(of: value))!!!")
                 return nil
             }
             consumed.toggle()

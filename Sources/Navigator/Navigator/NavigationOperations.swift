@@ -123,8 +123,7 @@ extension Navigator {
 extension NavigationState {
 
     /// Pops to a specific position on stack's navigation path.
-    @MainActor
-    public func pop(to position: Int)  -> Bool {
+    internal func pop(to position: Int)  -> Bool {
         if position <= path.count {
             path.removeLast(path.count - position)
             return true

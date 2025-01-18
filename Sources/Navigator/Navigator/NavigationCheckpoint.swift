@@ -93,9 +93,7 @@ extension Navigator {
     @MainActor
     public func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, value: T?) {
         log("Navigator \(id) sending checkpoint: \(checkpoint.name) value: \(value)")
-        state.publisher.send(NavigationSendValues(value: value, identifier: checkpoint.name, log: {
-            log(type: .warning, $0)
-        }))
+        state.publisher.send(NavigationSendValues(value: value, identifier: checkpoint.name, navigator: self))
     }
 
     /// Allow the code to determine if the checkpoint has been set and is known to the system.
@@ -113,7 +111,6 @@ extension NavigationState {
 
     // Most of the following code does recursive data manipulation best performed on the state object itself.
 
-    @MainActor
     internal func returnToCheckpoint(_ checkpoint: NavigationCheckpoint) -> Bool {
         guard let found = checkpoints[checkpoint.name] else {
             if let parent {

@@ -107,9 +107,11 @@ struct SettingsSheetView: View {
                 Button("Return to Settings Checkpoint Value 5") {
                     navigator.returnToCheckpoint(.settings, value: 5)
                 }
-                Button("Return to Settings Checkpoint Value NIL") {
-                    let value: Int? = nil
-                    navigator.returnToCheckpoint(.settings, value: value)
+                Button("Return to Settings Checkpoint Value 0") {
+                    navigator.returnToCheckpoint(.settings, value: 0)
+                }
+                Button("Return to Missing Settings Handler 0.0") {
+                    navigator.returnToCheckpoint(.settings, value: 0.0)
                 }
             }
             Section("Send Actions") {

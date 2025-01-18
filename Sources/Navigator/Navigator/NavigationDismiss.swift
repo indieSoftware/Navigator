@@ -74,7 +74,6 @@ extension View {
 
 extension NavigationState {
 
-    @MainActor
     internal func dismiss() -> Bool {
         if isPresented {
             triggerDismiss = true
@@ -85,8 +84,7 @@ extension NavigationState {
     }
 
     /// Returns to the root Navigator and dismisses *any* presented ManagedNavigationStack.
-    @MainActor
-    public func dismissAll() throws -> Bool {
+    internal func dismissAll() throws -> Bool {
         guard !isNavigationLocked else {
             log(type: .warning, "Navigator \(id) error navigation locked")
             throw NavigationError.navigationLocked
@@ -94,7 +92,6 @@ extension NavigationState {
         return root.dismissAllChildren()
     }
 
-    @MainActor
     internal func dismissAllChildren() -> Bool {
         for child in children.values {
             if let childNavigator = child.object {
