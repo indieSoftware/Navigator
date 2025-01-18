@@ -11,8 +11,8 @@ import SwiftUI
 extension Navigator {
 
     @MainActor
-    public func send(_ value: any Hashable) {
-        send(value, [])
+    @inlinable public func send(value: any Hashable) {
+        send(values: [value])
     }
 
     @MainActor
@@ -20,20 +20,16 @@ extension Navigator {
         guard let value: any Hashable = values.first else {
             return
         }
-        send(value, Array(values.dropFirst()))
-    }
-
-    @MainActor
-    internal func send(_ value: any Hashable, _ values: [any Hashable]) {
-       if let action = value as? NavigationAction {
+        let remainingValues = Array(values.dropFirst())
+        if let action = value as? NavigationAction {
             log("Navigator \(id) executing action \(action.name)")
-            resume(action(self), values: values)
-       } else {
-           log("Navigator \(id) sending \(value)")
-           publisher.send(NavigationSendValues(value: value, values: values, log: { [weak self] in
-               self?.log(type: .warning, $0)
+            resume(action(self), values: remainingValues)
+        } else {
+            log("Navigator \(id) sending \(value)")
+            publisher.send(NavigationSendValues(value: value, values: remainingValues, log: { [weak self] in
+                self?.log(type: .warning, $0)
            }))
-       }
+        }
     }
 
     @MainActor
@@ -141,7 +137,7 @@ private struct NavigationSendValueModifier<T: Hashable & Equatable>: ViewModifie
         content
             .onChange(of: item) { item in
                 if let item {
-                    navigator.send(item)
+                    navigator.send(value: item)
                     self.item = nil
                 }
             }

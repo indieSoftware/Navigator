@@ -49,7 +49,7 @@ struct SettingsView: View {
 
             Section("Send Actions") {
                 Button("Send Page 2 via Navigator") {
-                    navigator.send(SettingsDestinations.page2)
+                    navigator.send(value: SettingsDestinations.page2)
                 }
                 Button("Send Page 3 via Modifier") {
                     destination = SettingsDestinations.page3

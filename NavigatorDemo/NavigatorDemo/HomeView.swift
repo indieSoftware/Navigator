@@ -100,7 +100,7 @@ struct HomePage2View: View {
                     navigator.named("home")?.popAll()
                 }
                 Button("Clear Settings With Action") {
-                    navigator.perform(.with(RootTabs.settings.id) {
+                    navigator.perform(action: .with(RootTabs.settings.id) {
                         $0.popAll()
                     })
                 }

@@ -30,26 +30,37 @@ import SwiftUI
 /// ```
 public class Navigator: ObservableObject, @unchecked Sendable {
 
-    @Published internal var path: NavigationPath = .init() {
+    /// Navigation path for the current ManagedNavigationStack
+    @Published public var path: NavigationPath = .init() {
         didSet {
             cleanCheckpoints()
         }
     }
 
-    @Published internal var sheet: AnyNavigationDestination? = nil
-    @Published internal var cover: AnyNavigationDestination? = nil
-    @Published internal var triggerDismiss: Bool = false
-
     /// True if the current ManagedNavigationStack or navigationDismissible is presented.
     public internal(set) var isPresented: Bool
+    /// Persistent id of this navigator
     public internal(set) var id: UUID = .init()
+    /// Name of the current ManagedNavigationStack, if any
     public internal(set) var name: String?
 
+    /// Presentation trigger for .sheet navigation methods
+    @Published internal var sheet: AnyNavigationDestination? = nil
+    /// Presentation trigger for .cover navigation methods
+    @Published internal var cover: AnyNavigationDestination? = nil
+    /// Dismiss trigger for ManagedNavigationStack or navigationDismissible views
+    @Published internal var triggerDismiss: Bool = false
+
+    /// Copy of the navigation configuration from the root view
     internal let configuration: NavigationConfiguration?
 
+    /// Parent navigator, if any
     internal weak var parent: Navigator?
+    /// Presented children, if any
     internal var children: [UUID : WeakObject<Navigator>] = [:]
+    /// Checkpoints managed by this navigation stack
     internal var checkpoints: [String: NavigationCheckpoint] = [:]
+    /// Navigation locks, if any
     internal var navigationLocks: Set<UUID> = []
 
     internal let publisher: PassthroughSubject<NavigationSendValues, Never>
@@ -111,6 +122,7 @@ public class Navigator: ObservableObject, @unchecked Sendable {
         weak var object: T?
     }
 
+    /// Errors that Navigator can throw
     public enum NavigatorError: Error {
         case navigationLocked
     }
@@ -143,7 +155,7 @@ extension Navigator {
             push(destination)
 
         case .send:
-            send(destination)
+            send(value: destination)
 
         case .sheet:
             guard sheet?.id != destination.id else { return }
@@ -256,11 +268,11 @@ extension Navigator {
 }
 
 extension EnvironmentValues {
-    /// Reference to the Navigator managing the current ManagedNavigationStack.
+    /// Create environment entry for the Navigator managing the current ManagedNavigationStack.
     @Entry public var navigator: Navigator = Navigator.defaultNavigator
 }
 
 extension Navigator {
-    // Exists since EnvironmentValues loves to recreate default values
+    // Exists since the Environment Entry process loves to recreate default values
     internal static let defaultNavigator: Navigator = Navigator()
 }

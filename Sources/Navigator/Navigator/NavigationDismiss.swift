@@ -33,7 +33,7 @@ extension Navigator {
     @discardableResult
     public func dismissAll() throws -> Bool {
         guard root.navigationLocks.isEmpty else {
-            log(type: .warning, "Navigator \(id) error dismissAllLocked")
+            log(type: .warning, "Navigator \(id) error navigation locked")
             throw NavigatorError.navigationLocked
         }
         return root.dismissAllChildren()

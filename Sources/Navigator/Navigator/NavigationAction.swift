@@ -10,16 +10,13 @@ import SwiftUI
 extension Navigator {
 
     @MainActor
-    public func perform(_ action: NavigationAction) {
-        send(action, [])
+    @inlinable public func perform(action: NavigationAction) {
+        send(values: [action])
     }
 
     @MainActor
-    public func perform(actions: [NavigationAction]) {
-        guard let value: any Hashable = actions.first else {
-            return
-        }
-        send(value, Array(actions.dropFirst()))
+    @inlinable public func perform(actions: [NavigationAction]) {
+        send(values: actions)
     }
 
 }
@@ -82,7 +79,7 @@ extension NavigationAction {
 
     @MainActor public static func send(_ value: any Hashable) -> NavigationAction {
         .init {
-            $0.send(value)
+            $0.send(value: value)
             return .immediately
         }
     }
