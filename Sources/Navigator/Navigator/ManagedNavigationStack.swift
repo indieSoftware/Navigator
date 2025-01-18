@@ -35,91 +35,72 @@ import SwiftUI
 public struct ManagedNavigationStack<Content: View>: View {
 
     @Environment(\.navigator) private var parent: Navigator
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @Environment(\.isPresented) private var isPresented
+    @Environment(\.scenePhase) private var scenePhase
 
-    private var name: StackName?
-    private var content: Content
+    @StateObject private var state: NavigationState
+    @SceneStorage private var sceneStorage: Data?
+
+    private let name: String?
+    private let content: Content
+    private let isScene: Bool
 
     /// Initializes NavigationStack
     public init(@ViewBuilder content: () -> Content) {
         self.name = nil
         self.content = content()
+        self._sceneStorage = .init("ManagedNavigationStack.*")
+        self._state = .init(wrappedValue: .init(name: nil))
+        self.isScene = false
     }
 
     /// Initializes named NavigationStack
-    public init(name name: String, @ViewBuilder content: () -> Content) {
-        self.name = .name(name)
+    public init(name: String, @ViewBuilder content: () -> Content) {
+        self.name = name
         self.content = content()
+        self._sceneStorage = .init("ManagedNavigationStack.\(name)")
+        self._state = .init(wrappedValue: .init(name: name))
+        self.isScene = false
     }
 
     /// Initializes NavigationStack with name needed to enable scene storage.
     public init(scene name: String, @ViewBuilder content: () -> Content) {
-        self.name = .scene(name)
+        self.name = name
         self.content = content()
+        self._sceneStorage = .init("ManagedNavigationStack.\(name)")
+        self._state = .init(wrappedValue: .init(name: name))
+        self.isScene = true
     }
 
     public var body: some View {
-        WrappedView(name: name, parent: parent, isPresented: isPresented, content: content)
-    }
-
-    // Wrapped view allows parent environment variables to be extracted and passed to navigator.
-    private struct WrappedView: View {
-
-        @StateObject private var navigator: Navigator
-        @SceneStorage private var sceneStorage: Data?
-        
-        @Environment(\.dismiss) private var dismiss: DismissAction
-        @Environment(\.scenePhase) private var scenePhase
-
-        private let name: StackName?
-        private let content: Content
-
-        init(name: StackName?, parent: Navigator, isPresented: Bool, content: Content) {
-            self.name = name
-            self._sceneStorage = .init("ManagedNavigationStack.\(name?.string ?? "*")")
-            self._navigator = .init(wrappedValue: .init(name: name?.string, parent: parent, isPresented: isPresented))
-            self.content = content
+        NavigationStack(path: $state.path) {
+            content
         }
-
-        public var body: some View {
-            NavigationStack(path: $navigator.path) {
-                content
-             }
-            .sheet(item: $navigator.sheet) { (destination) in
-                destination()
-            }
-            #if os(iOS)
-            .fullScreenCover(item: $navigator.cover) { (destination) in
-                destination()
-            }
-            #endif
-            .onChange(of: navigator.triggerDismiss) { _ in
+        .sheet(item: $state.sheet) { (destination) in
+            destination()
+        }
+        #if os(iOS)
+        .fullScreenCover(item: $state.cover) { (destination) in
+            destination()
+        }
+        #endif
+        .onChange(of: state.triggerDismiss) { trigger in
+            if trigger {
                 dismiss()
             }
-            .onChange(of: scenePhase) { phase in
-                guard case .scene(let name) = name else {
-                    return
-                }
-                if phase == .active, let data = sceneStorage {
-                    navigator.restore(from: data)
-                } else {
-                    sceneStorage = navigator.encoded()
-                }
-            }
-            .environment(\.navigator, navigator)
         }
-
-    }
-
-    private enum StackName {
-        case name(String)
-        case scene(String)
-        var string: String {
-            switch self {
-            case .name(let name): name
-            case .scene(let name): name
+        .onChange(of: scenePhase) { phase in
+            guard isScene else {
+                return
+            }
+            if phase == .active, let data = sceneStorage {
+                state.restore(from: data)
+            } else {
+                sceneStorage = state.encoded()
             }
         }
+        .environment(\.navigator, Navigator(state: state, parent: parent, isPresented: isPresented))
     }
 
 }

@@ -16,33 +16,21 @@ extension View {
 
 }
 
-struct NavigationDismissibleModifier: ViewModifier {
+private struct NavigationDismissibleModifier: ViewModifier {
 
+    @Environment(\.dismiss) var dismiss: DismissAction
     @Environment(\.navigator) var parent: Navigator
+
+    @StateObject private var state: NavigationState = .init()
 
     func body(content: Content) -> some View {
         content
-            .modifier(WrappedModifier(parent: parent))
-    }
-    
-    // Wrapped modifier allows parent environment variables can be extracted and passed to navigator.
-    struct WrappedModifier:  ViewModifier {
-
-        @StateObject private var navigator: Navigator
-        @Environment(\.dismiss) var dismiss: DismissAction
-
-        init(parent: Navigator) {
-            self._navigator = .init(wrappedValue: .init(name: nil, parent: parent, isPresented: true))
-        }
-
-        func body(content: Content) -> some View {
-            content
-                .onChange(of: navigator.triggerDismiss) { _ in
+            .onChange(of: state.triggerDismiss) { trigger in
+                if trigger {
                     dismiss()
                 }
-                .environment(\.navigator, navigator)
-        }
-
+            }
+            .environment(\.navigator, Navigator(state: state, parent: parent, isPresented: true))
     }
 
 }

@@ -147,18 +147,6 @@ extension NavigationDestination {
 
 }
 
-/// Wrapper boxes a specific NavigationDestination.
-public struct AnyNavigationDestination {
-    public var wrapped: any NavigationDestination
-}
-
-extension AnyNavigationDestination: Identifiable {
-    public var id: Int { wrapped.id }
-    @MainActor public func callAsFunction() -> AnyView {
-        wrapped.asAnyView()
-    }
-}
-
 extension View {
     /// Registers ``NavigationDestination`` types in order to enable `navigate(to:)` and `NavigationLink(value:label)` behaviors.
     /// ```swift

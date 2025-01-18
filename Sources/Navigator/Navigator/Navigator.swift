@@ -28,241 +28,57 @@ import SwiftUI
 /// ```swift
 /// @Environmnt(\.navigator) var navigator
 /// ```
-public class Navigator: ObservableObject, @unchecked Sendable {
+public struct Navigator: @unchecked Sendable {
 
-    /// Navigation path for the current ManagedNavigationStack
-    @Published public var path: NavigationPath = .init() {
-        didSet {
-            cleanCheckpoints()
-        }
+    internal let environmentID: Int
+    internal let state: NavigationState
+
+    public init(configuration: NavigationConfiguration) {
+        let state = NavigationState(configuration: configuration)
+        self.environmentID = state.hashValue
+        self.state = state
     }
 
-    /// True if the current ManagedNavigationStack or navigationDismissible is presented.
-    public internal(set) var isPresented: Bool
-    /// Persistent id of this navigator
-    public internal(set) var id: UUID = .init()
-    /// Name of the current ManagedNavigationStack, if any
-    public internal(set) var name: String?
-
-    /// Presentation trigger for .sheet navigation methods
-    @Published internal var sheet: AnyNavigationDestination? = nil
-    /// Presentation trigger for .cover navigation methods
-    @Published internal var cover: AnyNavigationDestination? = nil
-    /// Dismiss trigger for ManagedNavigationStack or navigationDismissible views
-    @Published internal var triggerDismiss: Bool = false
-
-    /// Copy of the navigation configuration from the root view
-    internal let configuration: NavigationConfiguration?
-
-    /// Parent navigator, if any
-    internal weak var parent: Navigator?
-    /// Presented children, if any
-    internal var children: [UUID : WeakObject<Navigator>] = [:]
-    /// Checkpoints managed by this navigation stack
-    internal var checkpoints: [String: NavigationCheckpoint] = [:]
-    /// Navigation locks, if any
-    internal var navigationLocks: Set<UUID> = []
-
-    internal let publisher: PassthroughSubject<NavigationSendValues, Never>
-
-    /// Allows public initialization of root Navigators.
-    public init(configuration: NavigationConfiguration? = nil) {
-        self.name = "root"
-        self.configuration = configuration
-        self.parent = nil
-        self.publisher = .init()
-        self.isPresented = false
-        log("Navigator root: \(id)")
+    internal init() {
+        self.state = NavigationState()
+        self.environmentID = state.hashValue
     }
 
-    /// Internal initializer used by ManagedNavigationStack and navigationDismissible modifiers.
-    internal init(name: String?, parent: Navigator, isPresented: Bool) {
-        self.name = name
-        self.configuration = parent.configuration
-        self.parent = parent
-        self.publisher = parent.publisher
-        self.isPresented = isPresented
-        parent.addChild(self)
-        log("Navigator init: \(id), parent: \(parent.id)")
-     }
-
-    /// Sentinel code removes child from parent when Navigator is dismissed or deallocated.
-    deinit {
-        log("Navigator deinit: \(id)")
-        parent?.removeChild(self)
+    internal init(state: NavigationState) {
+        self.environmentID = state.hashValue
+        self.state = state
     }
 
-    /// Walks up the parent tree and returns the root Navigator.
-    internal var root: Navigator {
-        parent?.root ?? self
+    internal init(state: NavigationState, parent: Navigator, isPresented: Bool) {
+        self.environmentID = state.hashValue
+        self.state = state
+        parent.state.addChild(state, isPresented: isPresented)
     }
 
-    /// Adds a child Navigator to a parent Navigator.
-    internal func addChild(_ child: Navigator) {
-        children[child.id] = WeakObject(object: child)
+    internal var id: UUID {
+        state.id
     }
 
-    /// Removes a child Navigator from a parent Navigator.
-    internal func removeChild(_ child: Navigator) {
-        children.removeValue(forKey: child.id)
+    internal var root: NavigationState {
+        state.root
     }
 
-    /// Internal logging function.
     internal func log(type: NavigationConfiguration.Verbosity = .info, _ message: @autoclosure () -> String) {
         #if DEBUG
-        guard let configuration, type.rawValue >= configuration.verbosity.rawValue else {
-            return
-        }
-        root.configuration?.logger?(message())
+        state.log(type: type, message())
         #endif
     }
 
-    /// Allows weak storage of reference types in arrays, dictionaries, and other collection types.
-    internal struct WeakObject<T: AnyObject> {
-        weak var object: T?
-    }
-
-    /// Errors that Navigator can throw
-    public enum NavigatorError: Error {
-        case navigationLocked
-    }
-
 }
 
-extension Navigator {
+extension Navigator: Hashable {
 
-    /// Navigates to a specific ``NavigationDestination`` using the destination's ``NavigationMethod``.
-    ///
-    /// This may push an item onto the stacks navigation path, or present a sheet or fullscreen cover view.
-    /// ```swift
-    /// Button("Button Navigate to Home Page 55") {
-    ///     navigator.navigate(to: HomeDestinations.pageN(55))
-    /// }
-    /// ```
-    @MainActor
-    public func navigate<D: NavigationDestination>(to destination: D) {
-        navigate(to: destination, method: destination.method)
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(state.hashValue)
     }
 
-    /// Navigates to a specific NavigationDestination overriding the destination's specified navigation method.
-    ///
-    /// This may push an item onto the stacks navigation path, or present a sheet or fullscreen cover view.
-    @MainActor
-    public func navigate<D: NavigationDestination>(to destination: D, method: NavigationMethod) {
-        log("Navigator navigating to: \(destination), via: \(method)")
-        switch method {
-        case .push:
-            push(destination)
-
-        case .send:
-            send(value: destination)
-
-        case .sheet:
-            guard sheet?.id != destination.id else { return }
-            sheet = AnyNavigationDestination(wrapped: destination)
-
-        case .cover:
-            guard cover?.id != destination.id else { return }
-            #if os(iOS)
-            cover = AnyNavigationDestination(wrapped: destination)
-            #else
-            sheet = AnyNavigationDestination(wrapped: destination)
-            #endif
-        }
-    }
-
-}
-
-extension Navigator {
-
-    /// Pushes a new ``NavigationDestination`` onto the stack's navigation path.
-    /// ```swift
-    /// Button("Button Push Home Page 55") {
-    ///     navigator.push(HomeDestinations.pageN(55))
-    /// }
-    /// ```
-    @MainActor
-    public func push(_ destination: any NavigationDestination) {
-        if let destination = destination as? any Hashable & Codable {
-            path.append(destination) // ensures NavigationPath knows type is Codable
-        } else {
-            path.append(destination)
-        }
-    }
-
-    /// Pops to a specific position on stack's navigation path.
-    @discardableResult
-    @MainActor
-    public func pop(to position: Int)  -> Bool {
-        if position <= path.count {
-            path.removeLast(path.count - position)
-            return true
-        }
-        return false
-    }
-
-    /// Pops the specified number of the items from the end of a stack's navigation path.
-    ///
-    /// Defaults to one if not specified.
-    /// ```swift
-    /// Button("Go Back") {
-    ///     navigator.pop()
-    /// }
-    /// ```
-    @discardableResult
-    @MainActor
-    public func pop(last k: Int = 1) -> Bool {
-        if path.count >= k {
-            path.removeLast(k)
-        }
-        return false
-    }
-
-    /// Pops all items from the navigation path, returning to the root view.
-    /// ```swift
-    /// Button("Go Back") {
-    ///     navigator.popAll()
-    /// }
-    /// ```
-    @discardableResult
-    @MainActor
-    public func popAll() -> Bool {
-        if !path.isEmpty {
-            path.removeLast(path.count)
-            return true
-        }
-        return false
-    }
-
-    /// Indicates whether or not the navigation path is empty.
-    public nonisolated var isEmpty: Bool {
-        path.isEmpty
-    }
-
-    /// Number of items in the navigation path.
-    public nonisolated var count: Int {
-        path.count
-    }
-
-}
-
-extension Navigator {
-
-    /// Returns first navigator found with given name
-    public func named(_ name: String) -> Navigator? {
-        root.recursiveFind(name: name)
-    }
-
-    internal func recursiveFind(name: String) -> Navigator? {
-        if self.name == name {
-            return self
-        }
-        for child in children.values {
-            if let navigator = child.object, let found = navigator.recursiveFind(name: name) {
-                return found
-            }
-        }
-        return nil
+    public static func == (lhs: Navigator, rhs: Navigator) -> Bool {
+        lhs.id == rhs.id
     }
 
 }

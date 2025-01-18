@@ -42,26 +42,33 @@ import SwiftUI
 /// ```
 /// Using the same checkpoint name more than once in the same navigation tree isn't recommended.
 public struct NavigationCheckpoint: Codable, Equatable, ExpressibleByStringLiteral, Hashable, Sendable {
+
     public let name: String
     internal let index: Int
+
     public init(stringLiteral value: String) {
         self.name = value
         self.index = 0
     }
+
     public init(name: String) {
         self.name = name
         self.index = 0
     }
+
     internal init(name: String, index: Int) {
         self.name = name
         self.index = index
     }
+
     internal func setting(index: Int) -> NavigationCheckpoint {
         .init(name: name, index: index)
     }
+
     public static func == (lhs: NavigationCheckpoint, rhs: NavigationCheckpoint) -> Bool {
         lhs.name == rhs.name
     }
+
 }
 
 extension Navigator {
@@ -77,6 +84,37 @@ extension Navigator {
     @MainActor
     @discardableResult
     public func returnToCheckpoint(_ checkpoint: NavigationCheckpoint) -> Bool {
+        state.returnToCheckpoint(checkpoint)
+    }
+
+    /// Returns to a named checkpoint in the navigation system, passing value to that checkpoint's completion handler.
+    ///
+    /// This function will pop and/or dismiss intervening views as needed.
+    @MainActor
+    public func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, value: T?) {
+        log("Navigator \(id) sending checkpoint: \(checkpoint.name) value: \(value)")
+        state.publisher.send(NavigationSendValues(value: value, identifier: checkpoint.name, log: {
+            log(type: .warning, $0)
+        }))
+    }
+
+    /// Allow the code to determine if the checkpoint has been set and is known to the system.
+    public nonisolated func canReturnToCheckpoint(_ checkpoint: NavigationCheckpoint) -> Bool {
+        state.canReturnToCheckpoint(checkpoint)
+    }
+
+    internal func addCheckpoint(_ checkpoint: NavigationCheckpoint) {
+        state.addCheckpoint(checkpoint)
+    }
+
+}
+
+extension NavigationState {
+
+    // Most of the following code does recursive data manipulation best performed on the state object itself.
+
+    @MainActor
+    internal func returnToCheckpoint(_ checkpoint: NavigationCheckpoint) -> Bool {
         guard let found = checkpoints[checkpoint.name] else {
             if let parent {
                 return parent.returnToCheckpoint(checkpoint)
@@ -86,13 +124,12 @@ extension Navigator {
             }
         }
         log("Navigator returning to checkpoint: \(checkpoint.name)")
-        dismissAllChildren()
-        pop(to: found.index)
+        _ = dismissAllChildren()
+        _ = pop(to: found.index)
         return true
     }
 
-    /// Allow the code to determine if the checkpoint has been set and is known to the system.
-    public nonisolated func canReturnToCheckpoint(_ checkpoint: NavigationCheckpoint) -> Bool {
+    internal nonisolated func canReturnToCheckpoint(_ checkpoint: NavigationCheckpoint) -> Bool {
         guard let found = checkpoints[checkpoint.name] else {
             return parent?.canReturnToCheckpoint(checkpoint) ?? false
         }
@@ -114,6 +151,7 @@ extension Navigator {
             return true
         }
     }
+
 }
 
 extension View {
@@ -135,6 +173,11 @@ extension View {
     /// Here, returning to the checkpoint named `.home` will return to the root view in this navigation stack.
     public func navigationCheckpoint(_ checkpoint: NavigationCheckpoint) -> some View {
         self.modifier(NavigationCheckpointModifier(checkpoint: checkpoint))
+    }
+
+    /// Establishes a navigation checkpoint with a completion handler.
+    public func navigationCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, completion: @escaping (T) -> Void) -> some View {
+        self.modifier(NavigationCheckpointValueModifier(checkpoint: checkpoint, completion: completion))
     }
 
     /// Declarative `returnToCheckpoint` modifier.
@@ -167,49 +210,6 @@ extension View {
 
 }
 
-extension Navigator {
-
-    /// Returns to a named checkpoint in the navigation system, passing value to that checkpoint's completion handler.
-    ///
-    /// This function will pop and/or dismiss intervening views as needed.
-    @MainActor
-    @discardableResult
-    public func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, value: T?) {
-        log("Navigator \(id) sending checkpoint: \(checkpoint.name) value: \(value)")
-        publisher.send(NavigationSendValues(value: value, identifier: checkpoint.name, log: { [weak self] in
-            self?.log(type: .warning, $0)
-        }))
-    }
-
-}
-
-extension View {
-
-    /// Establishes a navigation checkpoint with a completion handler.
-    public func navigationCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, completion: @escaping (T) -> Void) -> some View {
-        self.modifier(NavigationCheckpointValueModifier(checkpoint: checkpoint, completion: completion))
-    }
-
-}
-
-private struct NavigationCheckpointValueModifier<T: Hashable>: ViewModifier {
-    internal let checkpoint: NavigationCheckpoint
-    internal let completion: (T) -> Void
-    @Environment(\.navigator) var navigator: Navigator
-    func body(content: Content) -> some View {
-        content
-            .onReceive(navigator.publisher) { item in
-                 if let value: T = item.consume(checkpoint.name) {
-                    navigator.log("Navigator \(navigator.id) receiving checkpoint: \(checkpoint.name) value: \(value)")
-                    completion(value)
-                    navigator.resume(.checkpoint(checkpoint))
-                }
-            }
-            .navigationCheckpoint(checkpoint)
-    }
-
-}
-
 private struct NavigationCheckpointModifier: ViewModifier {
     @Environment(\.navigator) var navigator: Navigator
     internal let checkpoint: NavigationCheckpoint
@@ -225,6 +225,23 @@ private struct NavigationCheckpointModifier: ViewModifier {
         func body(content: Content) -> some View {
             content
         }
+    }
+}
+
+private struct NavigationCheckpointValueModifier<T: Hashable>: ViewModifier {
+    internal let checkpoint: NavigationCheckpoint
+    internal let completion: (T) -> Void
+    @Environment(\.navigator) var navigator: Navigator
+    func body(content: Content) -> some View {
+        content
+            .onReceive(navigator.state.publisher) { item in
+                if let value: T = item.consume(checkpoint.name) {
+                    navigator.log("Navigator \(navigator.id) receiving checkpoint: \(checkpoint.name) value: \(value)")
+                    completion(value)
+                    navigator.resume(.checkpoint(checkpoint))
+                }
+            }
+            .navigationCheckpoint(checkpoint)
     }
 }
 

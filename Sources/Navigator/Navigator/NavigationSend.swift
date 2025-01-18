@@ -26,8 +26,8 @@ extension Navigator {
             resume(action(self), values: remainingValues)
         } else {
             log("Navigator \(id) sending \(value)")
-            publisher.send(NavigationSendValues(value: value, values: remainingValues, log: { [weak self] in
-                self?.log(type: .warning, $0)
+            state.publisher.send(NavigationSendValues(value: value, values: remainingValues, log: {
+                log(type: .warning, $0)
            }))
         }
     }
@@ -53,10 +53,6 @@ extension Navigator {
             break
         }
     }
-
-}
-
-extension Navigator {
 
     /// Resumes sending any values paused by an onNavigationReceive handler.
     ///
@@ -89,6 +85,21 @@ extension View {
         self.modifier(NavigationSendValuesModifier<T>(values: values))
     }
 
+    public func onNavigationReceive<T: Hashable>(handler: @escaping NavigationReceiveResumeHandler<T>) -> some View {
+        self.modifier(OnNavigationReceiveModifier(handler: handler))
+    }
+
+    public func onNavigationReceive<T: Hashable>(handler: @escaping NavigationReceiveResumeValueOnlyHandler<T>) -> some View {
+        self.modifier(OnNavigationReceiveModifier(handler: { (value, _) in handler(value) }))
+    }
+
+    public func onNavigationReceive<T: NavigationDestination>(_ type: T.Type) -> some View {
+        self.modifier(OnNavigationReceiveModifier<T> { (value, navigator) in
+            navigator.navigate(to: value)
+            return .auto
+        })
+    }
+
 }
 
 public typealias NavigationReceiveResumeHandler<T> = (_ value: T, _ navigator: Navigator) -> NavigationReceiveResumeType
@@ -109,25 +120,6 @@ public enum NavigationReceiveResumeType {
     case pause
     /// Cancels any remaining values in the send queue
     case cancel
-}
-
-extension View {
-
-    public func onNavigationReceive<T: Hashable>(handler: @escaping NavigationReceiveResumeHandler<T>) -> some View {
-        self.modifier(OnNavigationReceiveModifier(handler: handler))
-    }
-
-    public func onNavigationReceive<T: Hashable>(handler: @escaping NavigationReceiveResumeValueOnlyHandler<T>) -> some View {
-        self.modifier(OnNavigationReceiveModifier(handler: { (value, _) in handler(value) }))
-    }
-
-    public func onNavigationReceive<T: NavigationDestination>(_ type: T.Type) -> some View {
-        self.modifier(OnNavigationReceiveModifier<T> { (value, navigator) in
-            navigator.navigate(to: value)
-            return .auto
-        })
-    }
-
 }
 
 private struct NavigationSendValueModifier<T: Hashable & Equatable>: ViewModifier {
@@ -170,7 +162,7 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .onReceive(navigator.publisher) { item in
+            .onReceive(navigator.state.publisher) { item in
                 if let value: T = item.consume() {
                     navigator.log("Navigator \(navigator.id) receiving \(value)")
                     navigator.resume(handler(value, navigator), values: item.values)
@@ -181,28 +173,33 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
 }
 
 internal class NavigationSendValues {
+
     let value: any Hashable
     let values: [any Hashable]
     let identifier: String?
     let log: (String) -> Void
     var consumed: Bool = false
+
     internal init<T: Hashable>(value: T, values: [any Hashable], log: @escaping (String) -> Void) {
         self.value = value
         self.values = values
         self.identifier = nil
         self.log = log
     }
+
     internal init<T: Hashable>(value: T, identifier: String, log: @escaping (String) -> Void) {
         self.value = value
         self.values = []
         self.identifier = identifier
         self.log = log
     }
+
     deinit {
         if !consumed {
             log("Navigator missing receive handler for type: \(type(of: value))!!!")
         }
     }
+
     func consume<T>(_ identifier: String? = nil) -> T? {
         if let value = value as? T, self.identifier == identifier {
             if consumed {
@@ -214,4 +211,5 @@ internal class NavigationSendValues {
         }
         return nil
     }
+    
 }

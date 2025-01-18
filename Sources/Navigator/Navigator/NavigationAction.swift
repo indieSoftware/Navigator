@@ -63,14 +63,14 @@ extension NavigationAction {
     }
 
     @MainActor public static var locked: NavigationAction {
-        .init { navigtor in
-            navigtor.root.navigationLocks.isEmpty ? .immediately : .cancel
+        .init { navigator in
+            navigator.root.navigationLocks.isEmpty ? .immediately : .cancel
         }
     }
 
     @MainActor public static func popAll(in name: String) -> NavigationAction {
-        .init { navigtor in
-            if let found = navigtor.named(name) {
+        .init { navigator in
+            if let found = navigator.named(name) {
                 return found.popAll() ? .auto : .immediately
             }
             return .cancel
@@ -85,8 +85,8 @@ extension NavigationAction {
     }
 
     @MainActor public static func with(_ name: String, perform: @escaping (Navigator) -> Void) -> NavigationAction {
-        .init { navigtor in
-            if let found = navigtor.named(name) {
+        .init { navigator in
+            if let found = navigator.named(name) {
                 perform(found)
                 return .auto
             }
