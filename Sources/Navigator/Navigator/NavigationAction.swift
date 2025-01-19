@@ -48,6 +48,11 @@ public struct NavigationAction: Hashable {
 
 extension NavigationAction {
 
+    /// Action allows user to construct actions on the fly
+    @MainActor public static func action(handler: @escaping (Navigator) -> NavigationReceiveResumeType) -> NavigationAction {
+        .init(action: handler)
+    }
+
     /// Dismisses all presented views.
     ///
     /// If navigation dismissal is locked, this action will cancel and no further actions in this sequence will be executed.
@@ -87,7 +92,7 @@ extension NavigationAction {
     ///
     ///  Inserts value into the queue for next send in order to correctly handle that values resume type.
     @MainActor public static func send(_ value: any Hashable) -> NavigationAction {
-        .init { _ in .prefixing([value]) }
+        .init { _ in .inserting([value]) }
     }
 
     /// Finds named navigator and passes it to closure for imperative action.

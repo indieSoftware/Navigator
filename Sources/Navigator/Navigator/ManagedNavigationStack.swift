@@ -73,6 +73,18 @@ public struct ManagedNavigationStack<Content: View>: View {
         self.isScene = true
     }
 
+// Researching needs and ramifications of the following.
+//
+//    /// Initializes NavigationStack with externally provided navigator.
+//    public init(navigator: Navigator, isScene: Bool = false, @ViewBuilder content: () -> Content) {
+//        self.name = navigator.name
+//        self.content = content()
+//        self._sceneStorage = .init("ManagedNavigationStack.\(navigator.name ?? "*")")
+//        self._state = .init(wrappedValue: navigator.state)
+//        self.isScene = isScene && navigator.name != nil
+//    }
+//
+
     public var body: some View {
         NavigationStack(path: $state.path) {
             content

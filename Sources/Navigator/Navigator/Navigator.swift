@@ -39,8 +39,8 @@ public struct Navigator: @unchecked Sendable {
         self.state = state
     }
 
-    internal init() {
-        self.state = NavigationState()
+    internal init(name: String? = nil) {
+        self.state = NavigationState(name: name)
         self.environmentID = state.hashValue
     }
 
@@ -55,8 +55,12 @@ public struct Navigator: @unchecked Sendable {
         parent.state.addChild(state, isPresented: isPresented)
     }
 
-    internal var id: UUID {
+    public var id: UUID {
         state.id
+    }
+
+    public var name: String? {
+        state.name
     }
 
     internal var root: Navigator {

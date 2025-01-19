@@ -55,11 +55,13 @@ struct SettingsView: View {
                     destination = SettingsDestinations.page3
                 }
                 .navigationSend($destination)
-                Button("Send Tab Home, Page 2") {
+                Button("Send Tab Home, Page 2, 88, Present") {
                     navigator.send(values: [
                         NavigationAction.dismissAll,
                         RootTabs.home,
-                        HomeDestinations.page2
+                        HomeDestinations.page2,
+                        HomeDestinations.pageN(88),
+                        HomeDestinations.presented1
                     ])
                 }
             }

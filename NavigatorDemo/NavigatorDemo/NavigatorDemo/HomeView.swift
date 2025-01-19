@@ -8,12 +8,6 @@
 import Navigator
 import SwiftUI
 
-extension NavigationCheckpoint {
-    public static let home: NavigationCheckpoint = "myApp.home"
-    public static let page2: NavigationCheckpoint = "myApp.page2"
-    public static let settings: NavigationCheckpoint = "myApp.settings"
-}
-
 struct RootHomeView: View {
     var body: some View {
         ManagedNavigationStack(scene: RootTabs.home.id) {
@@ -56,8 +50,10 @@ struct HomeContentView: View {
                 }
             }
             Section("Send Actions") {
-                Button("Send Home Page 88, 99") {
+                Button("Send Home Page 2, 88, 99") {
                     navigator.send(values: [
+                        NavigationAction.popAll(in: RootTabs.home.id),
+                        HomeDestinations.page2,
                         HomeDestinations.pageN(88),
                         HomeDestinations.pageN(99)
                     ])
@@ -146,14 +142,25 @@ class HomePageNViewModel: ObservableObject {
 struct HomePageNView: View {
     @StateObject private var viewModel: HomePageNViewModel
     @Environment(\.navigator) var navigator: Navigator
+    @Environment(\.homeDependencies) var resolver
     init(dependencies: HomeDependencies, number: Int) {
         self._viewModel = .init(wrappedValue: .init(dependencies: dependencies, number: number))
     }
     var body: some View {
         List {
             Section("Navigation Actions") {
-                Button("Button Push to Home Page 88") {
-                    navigator.push(HomeDestinations.pageN(88))
+                Section("Send Actions") {
+                    Button("Send Home Page 2, 88, 99") {
+                        navigator.send(values: [
+                            NavigationAction.popAll(in: RootTabs.home.id),
+                            HomeDestinations.page2,
+                            HomeDestinations.pageN(88),
+                            HomeDestinations.pageN(99)
+                        ])
+                    }
+                    Button("Route To Settings Page 2") {
+                        resolver.homeExternalRouter().route(to: .settingsPage2)
+                    }
                 }
             }
             ContentSheetSection()

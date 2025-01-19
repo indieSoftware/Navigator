@@ -34,10 +34,9 @@ struct HomeURLHander: NavigationURLHander {
             return [
                 .dismissAll,
                 .send(RootTabs.home),
-                .with(navigator: RootTabs.home.id) {
-                    $0.popAll()
-                    $0.push(HomeDestinations.page3)
-                }
+                .popAll(in: RootTabs.home.id),
+                .send(HomeDestinations.page2),
+                .send(HomeDestinations.page3)
             ]
         default:
             // xcrun simctl openurl booted navigator://app/home

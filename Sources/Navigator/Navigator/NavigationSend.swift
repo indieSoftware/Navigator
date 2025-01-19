@@ -31,7 +31,7 @@ extension Navigator {
     }
 
     @MainActor
-    internal func resume(_ action: NavigationReceiveResumeType, values: [any Hashable] = [], delay: TimeInterval = 0.7) {
+    internal func resume(_ action: NavigationReceiveResumeType, values: [any Hashable] = [], delay: TimeInterval = Self.defaultDelay) {
         switch action {
         case .auto:
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
@@ -43,7 +43,7 @@ extension Navigator {
             resume(.auto, values: values, delay: interval)
         case .with(let newValues):
             resume(.immediately, values: newValues)
-        case .prefixing(let newValues):
+        case .inserting(let newValues):
             resume(.immediately, values: newValues + values)
         case .appending(let newValues):
             resume(.immediately, values: values + newValues)
@@ -74,6 +74,14 @@ extension Navigator {
     }
 
     @MainActor internal static var resumableValues: [any Hashable]? = nil
+
+    @MainActor internal static let defaultDelay: TimeInterval = {
+        if #available(iOS 18.0, *) {
+            0.4
+        } else {
+            0.7
+        }
+    }()
 
 }
 
@@ -117,7 +125,7 @@ public enum NavigationReceiveResumeType {
     ///  Resumes sending new values after a brief delay
     case with([any Hashable])
     ///  Inserts new values into the queue
-    case prefixing([any Hashable])
+    case inserting([any Hashable])
     ///  Appends new values onto the queue
     case appending([any Hashable])
     /// Indicates we should return to a named checkpoint (normally used internally)
@@ -178,7 +186,7 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
 
 }
 
-public class NavigationSendValues {
+internal class NavigationSendValues {
 
     internal let navigator: Navigator
     internal let value: any Hashable
@@ -187,24 +195,17 @@ public class NavigationSendValues {
 
     internal var consumed: Bool = false
 
-    internal init(navigator: Navigator, value: any Hashable, values: [any Hashable]) {
+    internal init(navigator: Navigator, value: any Hashable, values: [any Hashable], identifier: String? = nil) {
         self.navigator = navigator
         self.value = value
         self.values = values
-        self.identifier = nil
-    }
-
-    internal init<T: Hashable>(navigator: Navigator, value: T, identifier: String) {
-        self.navigator = navigator
-        self.value = value
-        self.values = []
         self.identifier = identifier
     }
 
     deinit {
         if consumed == false {
             if let identifier {
-                navigator.log("Navigator missing checkpoint handler: \(identifier) for type: \(type(of: value))!!!")
+                navigator.log("Navigator missing receive handler: \(identifier) for type: \(type(of: value))!!!")
             } else {
                 navigator.log("Navigator missing receive handler for type: \(type(of: value))!!!")
             }
@@ -227,6 +228,14 @@ public class NavigationSendValues {
     @MainActor
     internal func resume(_ resume: NavigationReceiveResumeType) {
         navigator.resume(resume, values: values)
+    }
+
+}
+
+extension NavigationSendValues {
+
+    convenience init<T: Hashable>(navigator: Navigator, checkpoint: NavigationCheckpoint, value: T) {
+        self.init(navigator: navigator, value: value, values: [], identifier: checkpoint.name)
     }
 
 }

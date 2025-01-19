@@ -93,7 +93,7 @@ extension Navigator {
     @MainActor
     public func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, value: T?) {
         log("Navigator \(id) sending checkpoint: \(checkpoint.name) value: \(value)")
-        state.publisher.send(NavigationSendValues(navigator: self, value: value, identifier: checkpoint.name))
+        state.publisher.send(NavigationSendValues(navigator: self, checkpoint: checkpoint, value: value))
     }
 
     /// Allow the code to determine if the checkpoint has been set and is known to the system.
