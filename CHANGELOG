@@ -6,6 +6,7 @@
 * Name change navigation action with() to with(navigator:)
 * Revised NavigationSendValues to better handle actions and checkpoints
 * Added new return states for navigation action send
+* Compatibility badges & Documentation link #13
 
 ### 0.9.2
 
