@@ -59,8 +59,8 @@ public struct Navigator: @unchecked Sendable {
         state.id
     }
 
-    internal var root: NavigationState {
-        state.root
+    internal var root: Navigator {
+        Navigator(state: state.root)
     }
 
     internal func log(type: NavigationConfiguration.Verbosity = .info, _ message: @autoclosure () -> String) {

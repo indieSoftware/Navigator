@@ -48,6 +48,9 @@ public struct NavigationAction: Hashable {
 
 extension NavigationAction {
 
+    /// Dismisses all presented views.
+    ///
+    /// If navigation dismissal is locked, this action will cancel and no further actions in this sequence will be executed.
     @MainActor public static var dismissAll: NavigationAction {
         .init {
             do {
@@ -58,16 +61,19 @@ extension NavigationAction {
         }
     }
 
+    /// Empty action, usually used as a placeholder for a definition to be provided later.
     @MainActor public static var empty: NavigationAction {
         .init { _ in .immediately }
     }
 
+    /// Cancels if navigation is locked.
     @MainActor public static var locked: NavigationAction {
         .init { navigator in
-            navigator.root.navigationLocks.isEmpty ? .immediately : .cancel
+            navigator.state.isNavigationLocked ? .cancel : .immediately
         }
     }
 
+    /// Finds named navigator and pops it back to the root.
     @MainActor public static func popAll(in name: String) -> NavigationAction {
         .init { navigator in
             if let found = navigator.named(name) {
@@ -77,14 +83,17 @@ extension NavigationAction {
         }
     }
 
+    /// Sends value via navigation send.
+    ///
+    ///  Inserts value into the queue for next send in order to correctly handle that values resume type.
     @MainActor public static func send(_ value: any Hashable) -> NavigationAction {
-        .init {
-            $0.send(value: value)
-            return .immediately
-        }
+        .init { _ in .prefixing([value]) }
     }
 
-    @MainActor public static func with(_ name: String, perform: @escaping (Navigator) -> Void) -> NavigationAction {
+    /// Finds named navigator and passes it to closure for imperative action.
+    ///
+    /// If not found the closure will not be called and this action will cancel.
+    @MainActor public static func with(navigator name: String, perform: @escaping (Navigator) -> Void) -> NavigationAction {
         .init { navigator in
             if let found = navigator.named(name) {
                 perform(found)

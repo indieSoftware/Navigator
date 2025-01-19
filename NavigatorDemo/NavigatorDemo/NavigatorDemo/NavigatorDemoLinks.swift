@@ -34,7 +34,7 @@ struct HomeURLHander: NavigationURLHander {
             return [
                 .dismissAll,
                 .send(RootTabs.home),
-                .with(RootTabs.home.id) {
+                .with(navigator: RootTabs.home.id) {
                     $0.popAll()
                     $0.push(HomeDestinations.page3)
                 }

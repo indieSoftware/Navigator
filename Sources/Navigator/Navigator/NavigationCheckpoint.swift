@@ -93,7 +93,7 @@ extension Navigator {
     @MainActor
     public func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, value: T?) {
         log("Navigator \(id) sending checkpoint: \(checkpoint.name) value: \(value)")
-        state.publisher.send(NavigationSendValues(value: value, identifier: checkpoint.name, navigator: self))
+        state.publisher.send(NavigationSendValues(navigator: self, value: value, identifier: checkpoint.name))
     }
 
     /// Allow the code to determine if the checkpoint has been set and is known to the system.
@@ -231,11 +231,11 @@ private struct NavigationCheckpointValueModifier<T: Hashable>: ViewModifier {
     @Environment(\.navigator) var navigator: Navigator
     func body(content: Content) -> some View {
         content
-            .onReceive(navigator.state.publisher) { item in
-                if let value: T = item.consume(checkpoint.name) {
+            .onReceive(navigator.state.publisher) { values in
+                if let value: T = values.consume(checkpoint.name) {
                     navigator.log("Navigator \(navigator.id) receiving checkpoint: \(checkpoint.name) value: \(value)")
                     completion(value)
-                    navigator.resume(.checkpoint(checkpoint))
+                    values.resume(.checkpoint(checkpoint))
                 }
             }
             .navigationCheckpoint(checkpoint)

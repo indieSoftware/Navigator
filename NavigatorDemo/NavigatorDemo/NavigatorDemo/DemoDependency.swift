@@ -222,7 +222,7 @@ class AppResolver: AppDependencies {
                 self.navigator.perform(actions: [
                     .dismissAll,
                     .send(RootTabs.settings),
-                    .with(RootTabs.settings.id) {
+                    .with(navigator: RootTabs.settings.id) {
                         $0.popAll()
                         $0.push(SettingsDestinations.page2)
                     },
@@ -232,7 +232,7 @@ class AppResolver: AppDependencies {
                 self.navigator.send(values: [
                     NavigationAction.dismissAll,
                     RootTabs.settings,
-                    NavigationAction.with(RootTabs.settings.id) {
+                    NavigationAction.with(navigator: RootTabs.settings.id) {
                         $0.popAll()
                         $0.push(SettingsDestinations.page3)
                     },

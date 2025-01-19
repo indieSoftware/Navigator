@@ -26,7 +26,7 @@ extension Navigator {
             resume(action(self), values: remainingValues)
         } else {
             log("Navigator \(id) sending \(value)")
-            state.publisher.send(NavigationSendValues(value: value, values: remainingValues, navigator: self))
+            state.publisher.send(NavigationSendValues(navigator: root, value: value, values: remainingValues))
         }
     }
 
@@ -42,7 +42,11 @@ extension Navigator {
         case .after(let interval):
             resume(.auto, values: values, delay: interval)
         case .with(let newValues):
-            resume(.auto, values: newValues)
+            resume(.immediately, values: newValues)
+        case .prefixing(let newValues):
+            resume(.immediately, values: newValues + values)
+        case .appending(let newValues):
+            resume(.immediately, values: values + newValues)
         case .checkpoint(let checkpoint):
             returnToCheckpoint(checkpoint)
         case .pause:
@@ -112,6 +116,10 @@ public enum NavigationReceiveResumeType {
     case after(TimeInterval)
     ///  Resumes sending new values after a brief delay
     case with([any Hashable])
+    ///  Inserts new values into the queue
+    case prefixing([any Hashable])
+    ///  Appends new values onto the queue
+    case appending([any Hashable])
     /// Indicates we should return to a named checkpoint (normally used internally)
     case checkpoint(NavigationCheckpoint)
     /// Indicates that any remaining deep linking values should be saved for later resumption
@@ -160,40 +168,41 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .onReceive(navigator.state.publisher) { item in
-                if let value: T = item.consume() {
+            .onReceive(navigator.state.publisher) { values in
+                if let value: T = values.consume() {
                     navigator.log("Navigator \(navigator.id) receiving \(value)")
-                    navigator.resume(handler(value, navigator), values: item.values)
+                    values.resume(handler(value, navigator))
                 }
             }
     }
 
 }
 
-internal class NavigationSendValues {
+public class NavigationSendValues {
 
-    let value: any Hashable
-    let values: [any Hashable]
-    let identifier: String?
-    let navigator: Navigator
-    var consumed: Bool = false
+    internal let navigator: Navigator
+    internal let value: any Hashable
+    internal let values: [any Hashable]
+    internal let identifier: String?
 
-    internal init<T: Hashable>(value: T, values: [any Hashable], navigator: Navigator) {
+    internal var consumed: Bool = false
+
+    internal init(navigator: Navigator, value: any Hashable, values: [any Hashable]) {
+        self.navigator = navigator
         self.value = value
         self.values = values
         self.identifier = nil
-        self.navigator = navigator
     }
 
-    internal init<T: Hashable>(value: T, identifier: String, navigator: Navigator) {
+    internal init<T: Hashable>(navigator: Navigator, value: T, identifier: String) {
+        self.navigator = navigator
         self.value = value
         self.values = []
         self.identifier = identifier
-        self.navigator = navigator
     }
 
     deinit {
-        if !consumed {
+        if consumed == false {
             if let identifier {
                 navigator.log("Navigator missing checkpoint handler: \(identifier) for type: \(type(of: value))!!!")
             } else {
@@ -202,7 +211,8 @@ internal class NavigationSendValues {
         }
     }
 
-    func consume<T>(_ identifier: String? = nil) -> T? {
+    @MainActor
+    internal func consume<T>(_ identifier: String? = nil) -> T? {
         if let value = value as? T, self.identifier == identifier {
             if consumed {
                 navigator.log("Navigator additional receive handlers ignored for type: \(type(of: value))!!!")
@@ -213,5 +223,10 @@ internal class NavigationSendValues {
         }
         return nil
     }
-    
+
+    @MainActor
+    internal func resume(_ resume: NavigationReceiveResumeType) {
+        navigator.resume(resume, values: values)
+    }
+
 }
