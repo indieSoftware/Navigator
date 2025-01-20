@@ -19,7 +19,11 @@ struct NavigatorDemoApp: App {
     }
 
     func applicationResolver() -> AppResolver {
-        let configuration = NavigationConfiguration(restorationKey: nil /* "1.0.0" */, verbosity: .info)
+        let configuration: NavigationConfiguration = .init(
+            animationSpeed: 0.1,
+            restorationKey: nil /* "1.0.0" */,
+            verbosity: .info
+        )
         let navigator = Navigator(configuration: configuration)
         return AppResolver(navigator: navigator)
     }

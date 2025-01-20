@@ -92,7 +92,7 @@ extension Navigator {
     /// This function will pop and/or dismiss intervening views as needed.
     @MainActor
     public func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, value: T?) {
-        log("Navigator \(id) sending checkpoint: \(checkpoint.name) value: \(value)")
+        log("Navigator \(id) sending checkpoint: \(checkpoint.name) value: \(String(describing: value))")
         state.publisher.send(NavigationSendValues(navigator: self, checkpoint: checkpoint, value: value))
     }
 

@@ -27,13 +27,18 @@ import SwiftUI
 /// ```
 public struct NavigationConfiguration {
 
+    /// Determines whether or not users should see animation steps when deep linking.
+    ///
+    /// Set value to 0.0 for maximum animation speed. Longer (0.5) to let the user see the distinct "steps" involved in navigating
+    /// to a new destination. Default is 0.1.
+    public let animationSpeed: TimeInterval
+
     /// Provide a restorationKey to enable state restoration in named ManagedNavigationControllers.
     ///
     /// Increment or change the key when adding/removing checkpoints or changing destination types.
     ///
     /// If no restorationKey is provided then navigation state restoration is disabled.
     public let restorationKey: String?
-
 
     /// Allows the developer to log navigation messages to the console or to their own logging system.
     ///
@@ -44,10 +49,12 @@ public struct NavigationConfiguration {
     public let verbosity: Verbosity
 
     public init(
+        animationSpeed: TimeInterval = 0.1,
         restorationKey: String? = nil,
         logger: ((String) -> Void)? = { print($0) },
         verbosity: Verbosity = .warning
     ) {
+        self.animationSpeed = animationSpeed
         self.restorationKey = restorationKey
         self.logger = logger
         self.verbosity = verbosity

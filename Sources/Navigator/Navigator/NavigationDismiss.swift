@@ -153,7 +153,7 @@ private struct NavigationDismissModifierAll: ViewModifier {
             .onChange(of: trigger) { trigger in
                 if trigger {
                     self.trigger = false
-                    try? navigator.dismissAll()
+                    _ = try? navigator.dismissAll()
                }
             }
     }
@@ -177,7 +177,7 @@ private class NavigationLockedSentinal: ObservableObject {
         state?.removeNavigationLock(id: id)
     }
     func lock(_ navigator: Navigator) {
-        self.state = navigator.state
+        self.state = navigator.root.state
         self.state?.addNavigationLock(id: id)
     }
 }

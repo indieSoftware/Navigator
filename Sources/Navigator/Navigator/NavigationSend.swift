@@ -31,9 +31,10 @@ extension Navigator {
     }
 
     @MainActor
-    internal func resume(_ action: NavigationReceiveResumeType, values: [any Hashable] = [], delay: TimeInterval = Self.defaultDelay) {
+    internal func resume(_ action: NavigationReceiveResumeType, values: [any Hashable] = [], delay: TimeInterval? = nil) {
         switch action {
         case .auto:
+            let delay: TimeInterval = delay ?? state.animationSpeed
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                 self.send(values: values)
             }
@@ -74,14 +75,6 @@ extension Navigator {
     }
 
     @MainActor internal static var resumableValues: [any Hashable]? = nil
-
-    @MainActor internal static let defaultDelay: TimeInterval = {
-        if #available(iOS 18.0, *) {
-            0.4
-        } else {
-            0.7
-        }
-    }()
 
 }
 

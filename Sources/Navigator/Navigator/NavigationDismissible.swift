@@ -9,7 +9,7 @@ import SwiftUI
 
 extension View {
 
-    /// Allows presented views to be dismissed using a Navigator.
+    /// Allows presented views not in a navigation stack to be dismissed using a Navigator.
     public func navigationDismissible() -> some View {
         self.modifier(NavigationDismissibleModifier())
     }

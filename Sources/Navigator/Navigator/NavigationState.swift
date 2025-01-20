@@ -36,6 +36,11 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
    /// Copy of the navigation configuration from the root view.
     internal var configuration: NavigationConfiguration?
 
+    /// Determines whether or not users should see animation steps when deep linking.
+    public var animationSpeed: TimeInterval {
+        configuration?.animationSpeed ?? 0.1
+    }
+
     /// Parent navigator, if any.
     internal weak var parent: NavigationState? = nil
 
@@ -44,17 +49,18 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
         didSet { changed() }
     }
 
-    /// True if the current ManagedNavigationStack or navigationDismissible is presented.
-    internal var isPresented: Bool = false
-
     /// Checkpoints managed by this navigation stack
     internal var checkpoints: [String: NavigationCheckpoint] = [:] {
         didSet { changed() }
     }
 
+    /// True if the current ManagedNavigationStack or navigationDismissible is presented.
+    internal var isPresented: Bool = false
+
     /// Navigation locks, if any
     internal var navigationLocks: Set<UUID> = []
 
+    /// Navigation send publisher
     internal var publisher: PassthroughSubject<NavigationSendValues, Never> = .init()
 
     /// Allows public initialization of root Navigators.

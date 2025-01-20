@@ -1,5 +1,11 @@
 # Navigator Changelog
 
+### 0.9.4
+
+* Fixed animation delay issue that required onAppear handlers to fire
+* Added animationSpeed option to configuration
+* Added package support for Swift v5 #14
+
 ### 0.9.3
 
 * Moved Demo's xcodeproj to fix swiftpackageindex builds #12

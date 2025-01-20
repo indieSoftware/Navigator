@@ -48,6 +48,10 @@ struct HomeContentView: View {
                 Button("Button Navigate to Home Page 55") {
                     navigator.navigate(to: HomeDestinations.pageN(55))
                 }
+                Button("Button Push 2, 3") {
+                    navigator.push(HomeDestinations.page2)
+                    navigator.push(HomeDestinations.page3)
+                }
             }
             Section("Send Actions") {
                 Button("Send Home Page 2, 88, 99") {
@@ -148,19 +152,17 @@ struct HomePageNView: View {
     }
     var body: some View {
         List {
-            Section("Navigation Actions") {
-                Section("Send Actions") {
-                    Button("Send Home Page 2, 88, 99") {
-                        navigator.send(values: [
-                            NavigationAction.popAll(in: RootTabs.home.id),
-                            HomeDestinations.page2,
-                            HomeDestinations.pageN(88),
-                            HomeDestinations.pageN(99)
-                        ])
-                    }
-                    Button("Route To Settings Page 2") {
-                        resolver.homeExternalRouter().route(to: .settingsPage2)
-                    }
+            Section("Send Actions") {
+                Button("Send Home Page 2, 88, 99") {
+                    navigator.send(values: [
+                        NavigationAction.popAll(in: RootTabs.home.id),
+                        HomeDestinations.page2,
+                        HomeDestinations.pageN(88),
+                        HomeDestinations.pageN(99)
+                    ])
+                }
+                Button("Route To Settings Page 2") {
+                    resolver.homeExternalRouter().route(to: .settingsPage2)
                 }
             }
             ContentSheetSection()
@@ -177,7 +179,7 @@ struct NestedHomeContentView: View {
             // Demonstrates using destinations to build root views that may have dependencies.
             HomeDestinations.home(title).view
                 .navigationDestination(HomeDestinations.self)
-            }
+        }
     }
 }
 
