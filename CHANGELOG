@@ -1,5 +1,9 @@
 # Navigator Changelog
 
+### 0.9.6
+
+* Replace missing code in navigationDismissible that enables nested sheets and covers
+
 ### 0.9.5
 
 * Additional support for pausing send actions in navigation destinations
