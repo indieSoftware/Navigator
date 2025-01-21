@@ -1,9 +1,17 @@
 # Navigator Changelog
 
+### 0.9.5
+
+* Additional support for pausing send actions in navigation destinations
+* Fix issue where resume did not clear resumable values
+* Add convenience navigationDestinationAutoReceive
+* Add convenience navigationResume
+* Application and Library folder restructuring
+
 ### 0.9.4
 
-* Fixed animation delay issue that required onAppear handlers to fire
-* Added animationSpeed option to configuration
+* Fixed delay issue that previously required onAppear handlers to fire
+* Added executionDelay option to configuration
 * Added package support for Swift v5 #14
 
 ### 0.9.3
