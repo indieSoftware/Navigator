@@ -3,6 +3,7 @@
 ### 0.9.5
 
 * Additional support for pausing send actions in navigation destinations
+* Fix warning on using non-Codable destinations
 * Fix issue where resume did not clear resumable values
 * Add convenience navigationDestinationAutoReceive
 * Add convenience navigationResume

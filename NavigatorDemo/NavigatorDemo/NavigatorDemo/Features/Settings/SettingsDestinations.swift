@@ -8,7 +8,7 @@
 import Navigator
 import SwiftUI
 
-public enum SettingsDestinations: Int, Codable {
+public enum SettingsDestinations: Codable {
     case page2
     case page3
     case sheet
@@ -30,9 +30,7 @@ extension SettingsDestinations: NavigationDestination {
         case .external:
             SettingsExternalView()
         case .presentLoading:
-            ManagedNavigationStack {
-                PresentLoadingView()
-            }
+            PresentLoadingView()
         }
     }
     public var method: NavigationMethod {

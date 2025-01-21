@@ -15,6 +15,7 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
     @Published internal var path: NavigationPath = .init() {
         didSet {
             cleanCheckpoints()
+            pathChangedCounter += 1
         }
     }
 
@@ -40,6 +41,9 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
     public var executionDelay: TimeInterval {
         configuration?.executionDelay ?? 0.1
     }
+
+    /// Update counter for navigation path.
+    internal var pathChangedCounter: Int = 0
 
     /// Parent navigator, if any.
     internal weak var parent: NavigationState? = nil
@@ -128,7 +132,7 @@ extension NavigationState: Hashable, Equatable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(self.id)
         hasher.combine(self.name)
-        hasher.combine(self.path.codable.debugDescription)
+        hasher.combine(self.pathChangedCounter)
         hasher.combine(self.checkpoints)
         hasher.combine(self.sheet)
         hasher.combine(self.cover)
