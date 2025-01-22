@@ -2,9 +2,10 @@
 
 ### 0.9.7
 
-* Added ManagedPresentationView wrapper and managedPresentationView modifier to better support presented views #17
+* Added ManagedPresentationView wrapper and managedPresentationView modifier to better support presented views #18
 * Restructured ManagedNavigationStack to work correctly within ManagedPresentationView wrappers
 * Added NavigationPresentations.swift and NavigationLocked.swift files and shifted code into each
+* Deprecated navigationDismissible
 
 ### 0.9.6
 
