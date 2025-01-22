@@ -34,13 +34,8 @@ import SwiftUI
 @MainActor
 public struct ManagedNavigationStack<Content: View>: View {
 
-    @Environment(\.navigator) private var parent: Navigator
-    @Environment(\.dismiss) private var dismiss: DismissAction
+    @Environment(\.navigator) private var navigator: Navigator
     @Environment(\.isPresented) private var isPresented
-    @Environment(\.scenePhase) private var scenePhase
-
-    @StateObject private var state: NavigationState
-    @SceneStorage private var sceneStorage: Data?
 
     private let name: String?
     private let content: Content
@@ -50,8 +45,6 @@ public struct ManagedNavigationStack<Content: View>: View {
     public init(@ViewBuilder content: () -> Content) {
         self.name = nil
         self.content = content()
-        self._sceneStorage = .init("ManagedNavigationStack.*")
-        self._state = .init(wrappedValue: .init(name: nil))
         self.isScene = false
     }
 
@@ -59,8 +52,6 @@ public struct ManagedNavigationStack<Content: View>: View {
     public init(name: String, @ViewBuilder content: () -> Content) {
         self.name = name
         self.content = content()
-        self._sceneStorage = .init("ManagedNavigationStack.\(name)")
-        self._state = .init(wrappedValue: .init(name: name))
         self.isScene = false
     }
 
@@ -68,51 +59,102 @@ public struct ManagedNavigationStack<Content: View>: View {
     public init(scene name: String, @ViewBuilder content: () -> Content) {
         self.name = name
         self.content = content()
-        self._sceneStorage = .init("ManagedNavigationStack.\(name)")
-        self._state = .init(wrappedValue: .init(name: name))
         self.isScene = true
     }
 
-// Researching needs and ramifications of the following.
-//
-//    /// Initializes NavigationStack with externally provided navigator.
-//    public init(navigator: Navigator, isScene: Bool = false, @ViewBuilder content: () -> Content) {
-//        self.name = navigator.name
-//        self.content = content()
-//        self._sceneStorage = .init("ManagedNavigationStack.\(navigator.name ?? "*")")
-//        self._state = .init(wrappedValue: navigator.state)
-//        self.isScene = isScene && navigator.name != nil
-//    }
-//
-
     public var body: some View {
-        NavigationStack(path: $state.path) {
-            content
+        if isWrappedInPresentationView {
+            WrappedNavigationStack(state: navigator.state.setting(name), name: sceneName, content: content)
+        } else {
+            NewNavigationStack(state: .init(owner: .stack, name: name), name: sceneName, content: content)
         }
-        .sheet(item: $state.sheet) { (destination) in
-            destination()
-        }
-        #if os(iOS)
-        .fullScreenCover(item: $state.cover) { (destination) in
-            destination()
-        }
-        #endif
-        .onChange(of: state.triggerDismiss) { trigger in
-            if trigger {
-                dismiss()
+    }
+
+    internal var isWrappedInPresentationView: Bool {
+        isPresented && navigator.state.owner == .presenter
+    }
+
+    internal var sceneName: String? {
+        isScene ? name : nil
+    }
+
+    // Allows NavigationStack to use NavigationState provided by ManagedPresentationView
+    internal struct WrappedNavigationStack: View {
+
+        @ObservedObject internal var state: NavigationState
+        internal let name: String?
+        internal let content: Content
+
+        var body: some View {
+            NavigationStack(path: $state.path) {
+                content
             }
+            .modifier(NavigationSceneStorageModifier(state: state, name: name))
         }
-        .onChange(of: scenePhase) { phase in
-            guard isScene else {
-                return
+
+    }
+
+    // Allow NavigationStack to create and manage its own NavigationState
+    internal struct NewNavigationStack: View {
+
+        @StateObject internal var state: NavigationState
+        internal let name: String?
+        internal let content: Content
+
+        @Environment(\.navigator) private var parent
+        @Environment(\.isPresented) private var isPresented
+
+        var body: some View {
+            NavigationStack(path: $state.path) {
+                content
             }
-            if phase == .active, let data = sceneStorage {
-                state.restore(from: data)
-            } else {
-                sceneStorage = state.encoded()
-            }
-        }
-        .environment(\.navigator, Navigator(state: state, parent: parent, isPresented: isPresented))
+            .modifier(NavigationPresentationModifiers(state: state))
+            .modifier(NavigationSceneStorageModifier(state: state, name: name))
+            .environment(\.navigator, Navigator(state: state, parent: parent, isPresented: isPresented))
+         }
+
     }
 
 }
+
+// RootNavigator
+// - isPresented == false
+//
+// ManagedNavigationStack
+// - isPresented == false
+// - Needs New Navigator
+// - Provides sheets
+//
+// -----------------------------
+//
+// PresentedView
+// - isPresented == true
+// - Provides New Navigator
+// - Provides sheets
+//
+//   ManagedNavigationStack
+//   - Uses Existing Navigator if PresentedView
+//   - Uses Existing Sheets
+//
+// -----------------------------
+//
+// PresentedView
+// - isPresented == true
+// - Provides New Navigator
+// - Provides sheets
+//
+//   ManagedNavigationStack
+//   - Uses Existing Navigator
+//   - Uses Existing Sheets
+//
+// -----------------------------
+//
+// PresentedView
+// - isPresented == true
+// - Provides New Navigator
+// - Provides sheets
+//
+//   SomeView
+//   - Uses Existing Navigator
+//   - Uses Existing Sheets
+//

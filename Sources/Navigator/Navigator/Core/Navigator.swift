@@ -40,7 +40,7 @@ public struct Navigator: @unchecked Sendable {
     }
 
     internal init(name: String? = nil) {
-        self.state = NavigationState(name: name)
+        self.state = NavigationState(owner: .root, name: name)
         self.environmentID = state.hashValue
     }
 

@@ -11,6 +11,12 @@ import SwiftUI
 /// Persistent storage for Navigators.
 public class NavigationState: ObservableObject, @unchecked Sendable {
 
+    public enum Owner: Int {
+        case root
+        case stack
+        case presenter
+    }
+
     /// Navigation path for the current ManagedNavigationStack
     @Published internal var path: NavigationPath = .init() {
         didSet {
@@ -33,6 +39,9 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
 
     /// Name of the current ManagedNavigationStack, if any.
     internal var name: String? = nil
+
+    /// Owner of this particular state object.
+    internal var owner: Owner = .root
 
    /// Copy of the navigation configuration from the root view.
     internal var configuration: NavigationConfiguration?
@@ -75,7 +84,8 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
     }
 
     /// Internal initializer used by ManagedNavigationStack and navigationDismissible modifiers.
-    internal init(name: String?) {
+    internal init(owner: Owner, name: String?) {
+        self.owner = owner
         self.name = name
     }
 
@@ -113,6 +123,12 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
     /// Removes a child state from a parent.
     internal func removeChild(_ child: NavigationState) {
         children.removeValue(forKey: child.id)
+    }
+
+    /// Renames state for wrapped navigation stacks.
+    internal func setting(_ name: String?) -> NavigationState {
+        self.name == name
+        return self
     }
 
     /// Internal logging function.

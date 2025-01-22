@@ -10,11 +10,84 @@ import SwiftUI
 
 extension Navigator {
 
+    /// Sends value to navigation receivers throughout the application.
+    ///
+    /// This is the core functionality behind deep linking support in Navigator.
+    ///
+    /// The primary difference between this and `navigate(to:)` is that you don't need to know what navigator is handling
+    /// the request, nor does the value need to be of type ``NavigationDestination``.
+    ///
+    /// They just need to be `Hashable`.
+    ///
+    /// ### Sending a Value
+    /// Sending a value is simple.
+    /// ```swift
+    /// Button("Select the Home Tab") {
+    ///     navigator.send(value: RootTabs.home)
+    /// }
+    /// ```
+    ///
+    /// ### Receiving Values
+    /// Register a receive handler for the desired type.
+    /// ```swift
+    /// .onNavigationReceive { (tab: RootTabs) in
+    ///     if tab == selectedTab {
+    ///         return .immediately
+    ///     }
+    ///     selectedTab = tab
+    ///     return .auto
+    /// }
+    /// ```
+    /// And then perform whatever action is needed on receipt.
+    ///
+    /// Speaking of which receive handlers return a value of type ``NavigationReceiveResumeType``, which tells Navigator how to
+    /// process the remaining values in the queue. Additional values can be paused, cancelled, or simply processed normally.
+    ///
+    /// Note that there should be one and only one registered handler for a given type in the navigation tree. If more than
+    /// one exists the first handler will consume the value and the remaining handlers should be ignored.
     @MainActor
     @inlinable public func send(value: any Hashable) {
         send(values: [value])
     }
 
+    /// Sends values one at a time to navigation receivers throughout the application.
+    ///
+    /// This is the core functionality behind deep linking support in Navigator.
+    ///
+    /// ### Sending Values
+    /// The following code broadcasts a list of actions to be handled somewhere in the application. First it selects the Home tab,
+    /// then navigates to Page 2.
+    /// ```swift
+    /// Button("Go To Tab Home, Page 2") {
+    ///     navigator.send(values: [
+    ///         RootTabs.home,
+    ///         HomeDestinations.page2
+    ///     ])
+    /// }
+    /// ```
+    /// ### Receiving Values
+    /// Receiving values is simple. Just register a receive handler for the desired type.
+    /// ```swift
+    /// .onNavigationReceive { (tab: RootTabs) in
+    ///     if tab == selectedTab {
+    ///         return .immediately
+    ///     }
+    ///     selectedTab = tab
+    ///     return .auto
+    /// }
+    /// ```
+    /// And then perform whatever action is needed on receipt.
+    ///
+    /// Here's the handler for `HomeDestinations`.`
+    /// ```swift
+    /// .onNavigationReceive { (destination: HomeDestinations, navigator) in
+    ///     navigator.navigate(to: destination)
+    ///     return .auto
+    /// }
+    /// ```
+    ///
+    /// Note that there should be one and only one registered handler for a given type in the navigation tree. If more than
+    /// one exists the first handler will consume the value and the remaining handlers should be ignored.
     @MainActor
     public func send(values: [any Hashable]) {
         guard let value: any Hashable = values.first else {
@@ -70,6 +143,7 @@ extension Navigator {
         send(values: values)
     }
 
+    /// Deletes any stored values that might have been paused by an onNavigationReceive handler.
     @MainActor
     public func cancelResume() {
         Navigator.resumableValues = nil
@@ -81,22 +155,70 @@ extension Navigator {
 
 extension View {
 
+    /// Declarative access to `navigator.send(value:)`.
+    ///
+    /// Note that the bound optional value will be cleared immediately after it's sent.
     public func navigationSend<T: Hashable & Equatable>(_ item: Binding<T?>) -> some View {
         self.modifier(NavigationSendValueModifier<T>(item: item))
     }
 
+    /// Declarative access to `navigator.send(values:)`.
+    ///
+    /// Note that the bound optional values will be cleared immediately after the first value is sent.
     public func navigationSend<T: Hashable & Equatable>(values: Binding<[T]?>) -> some View {
         self.modifier(NavigationSendValuesModifier<T>(values: values))
     }
 
-    public func onNavigationReceive<T: Hashable>(handler: @escaping NavigationReceiveResumeHandler<T>) -> some View {
-        self.modifier(OnNavigationReceiveModifier(handler: handler))
-    }
-
+    /// Handler receives values of a specific type broadcast via `navigator.send`.
+    /// ```swift
+    /// .onNavigationReceive { (tab: RootTabs) in
+    ///     if tab == selectedTab {
+    ///         return .immediately
+    ///     }
+    ///     selectedTab = tab
+    ///     return .auto
+    /// }
+    /// ```
+    /// Receive handlers return a value of type ``NavigationReceiveResumeType``. That tells Navigator how to process the remaining
+    /// values in the queue.
+    ///
+    /// Note that there should be one and only one registered handler for a given type in the navigation tree. If more than
+    /// one exists the first handler will consume the value and the remaining handlers should be ignored.
     public func onNavigationReceive<T: Hashable>(handler: @escaping NavigationReceiveResumeValueOnlyHandler<T>) -> some View {
         self.modifier(OnNavigationReceiveModifier(handler: { (value, _) in handler(value) }))
     }
 
+    /// Handler receives values of a specific type broadcast via `navigator.send`.
+    /// ```swift
+    /// .onNavigationReceive { (destination: HomeDestinations, navigator) in
+    ///     navigator.navigate(to: destination)
+    ///     return .auto
+    /// }
+    /// ```
+    /// This version passes in the current navigator in addition to the sent value.
+    ///
+    /// Receive handlers return a value of type ``NavigationReceiveResumeType``. That tells Navigator how to process the remaining
+    /// values in the queue.
+    ///
+    /// Note that there should be one and only one registered handler for a given type in the navigation tree. If more than
+    /// one exists the first handler will consume the value and the remaining handlers should be ignored.
+    public func onNavigationReceive<T: Hashable>(handler: @escaping NavigationReceiveResumeHandler<T>) -> some View {
+        self.modifier(OnNavigationReceiveModifier(handler: handler))
+    }
+
+    /// Convenience receiver for NavigationDestinations values broadcast via `navigator.send`.
+    ///
+    /// The following code navigates to a specific destination and returns normally.
+    /// ```swift
+    /// .onNavigationReceive { (destination: HomeDestinations, navigator) in
+    ///     navigator.navigate(to: destination)
+    ///     return .auto
+    /// }
+    /// ```
+    /// That sequence occurs so often that there's a shortcut that does the same thing.
+    /// ```swift
+    /// .navigationAutoReceive(HomeDestinations.self)
+    /// ```
     public func navigationAutoReceive<T: NavigationDestination>(_ type: T.Type) -> some View {
         self.modifier(OnNavigationReceiveModifier<T> { (value, navigator) in
             navigator.navigate(to: value)

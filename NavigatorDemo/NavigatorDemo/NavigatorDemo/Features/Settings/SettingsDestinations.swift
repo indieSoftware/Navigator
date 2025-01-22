@@ -26,7 +26,6 @@ extension SettingsDestinations: NavigationDestination {
             Page3SettingsView()
         case .sheet:
             SettingsSheetView()
-                .navigationDismissible()
         case .external:
             SettingsExternalView()
         case .presentLoading:

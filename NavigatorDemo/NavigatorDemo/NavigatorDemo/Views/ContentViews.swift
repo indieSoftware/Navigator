@@ -37,7 +37,7 @@ struct ContentSheetSection: View {
             }
             .sheet(isPresented: $showSheet) {
                 CustomContentView()
-                    .navigationDismissible()
+                    .managedPresentationView()
             }
 
             Button("Dismiss", role: .cancel) {
@@ -120,7 +120,7 @@ struct CustomSettingsSheetSection: View {
             }
             .sheet(item: $showSettings) { destination in
                 destination()
-                    .navigationDismissible()
+                    .managedPresentationView()
             }
         }
     }

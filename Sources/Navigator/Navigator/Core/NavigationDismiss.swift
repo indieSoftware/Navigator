@@ -37,21 +37,6 @@ extension Navigator {
         state.dismissAllChildren()
     }
 
-    /// Returns true if the current ManagedNavigationStack or navigationDismissible is presenting.
-    public nonisolated var isPresenting: Bool {
-        state.isPresenting
-    }
-
-    /// Returns true if the current ManagedNavigationStack or navigationDismissible is presented.
-    public nonisolated var isPresented: Bool {
-        state.isPresented
-    }
-
-    /// Returns true if navigation is locked.
-    public nonisolated var isNavigationLocked: Bool {
-        state.isNavigationLocked
-    }
-
 }
 
 extension View {
@@ -68,11 +53,6 @@ extension View {
     /// Trigger value will be reset to false on dismissal.
     public func navigationDismissAll(trigger: Binding<Bool>) -> some View {
         self.modifier(NavigationDismissModifierAll(trigger: trigger))
-    }
-
-    /// Apply to a presented view on which you want to prevent global dismissal.
-    public func navigationLocked() -> some View {
-        self.modifier(NavigationLockedModifier())
     }
 
 }
@@ -118,22 +98,6 @@ extension NavigationState {
         return false
     }
 
-    internal nonisolated var isPresenting: Bool {
-        children.values.first(where: { $0.object?.isPresented ?? false }) != nil
-    }
-
-    internal var isNavigationLocked: Bool {
-        !root.navigationLocks.isEmpty
-    }
-
-    internal func addNavigationLock(id: UUID) {
-        root.navigationLocks.insert(id)
-    }
-
-    internal func removeNavigationLock(id: UUID) {
-        root.navigationLocks.remove(id)
-    }
-
 }
 
 private struct NavigationDismissModifier: ViewModifier {
@@ -161,28 +125,5 @@ private struct NavigationDismissModifierAll: ViewModifier {
                     _ = try? navigator.dismissAll()
                }
             }
-    }
-}
-
-private struct NavigationLockedModifier: ViewModifier {
-    @StateObject private var sentinel: NavigationLockedSentinel = .init()
-    @Environment(\.navigator) private var navigator: Navigator
-    func body(content: Content) -> some View {
-        content
-            .task {
-                sentinel.lock(navigator)
-            }
-    }
-}
-
-private class NavigationLockedSentinel: ObservableObject {
-    private let id: UUID = UUID()
-    private var state: NavigationState?
-    deinit {
-        state?.removeNavigationLock(id: id)
-    }
-    func lock(_ navigator: Navigator) {
-        self.state = navigator.root.state
-        self.state?.addNavigationLock(id: id)
     }
 }

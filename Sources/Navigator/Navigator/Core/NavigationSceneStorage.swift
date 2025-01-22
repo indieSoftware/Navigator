@@ -92,3 +92,34 @@ extension NavigationState {
     }
 
 }
+
+internal struct NavigationSceneStorageModifier: ViewModifier {
+
+    @ObservedObject internal var state: NavigationState
+
+    @Environment(\.scenePhase) private var scenePhase
+    @SceneStorage private var sceneStorage: Data?
+
+    private let name: String?
+
+    init(state: NavigationState, name: String? = nil) {
+        self.state = state
+        self.name = name
+        self._sceneStorage = SceneStorage("NavigationSceneStorage.\(name ?? "*")")
+    }
+
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: scenePhase) { phase in
+                guard name != nil else {
+                    return
+                }
+                if phase == .active, let data = sceneStorage {
+                    state.restore(from: data)
+                } else {
+                    sceneStorage = state.encoded()
+                }
+            }
+    }
+
+}

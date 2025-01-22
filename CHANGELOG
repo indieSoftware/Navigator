@@ -1,5 +1,11 @@
 # Navigator Changelog
 
+### 0.9.7
+
+* Added ManagedPresentationView wrapper and managedPresentationView modifier to better support presented views #17
+* Restructured ManagedNavigationStack to work correctly within ManagedPresentationView wrappers
+* Added NavigationPresentations.swift and NavigationLocked.swift files and shifted code into each
+
 ### 0.9.6
 
 * Replace missing code in navigationDismissible that enables nested sheets and covers
