@@ -63,11 +63,11 @@ public struct Navigator: @unchecked Sendable {
         state.name
     }
 
-    internal var root: Navigator {
+    public var root: Navigator {
         Navigator(state: state.root)
     }
 
-    internal func log(type: NavigationConfiguration.Verbosity = .info, _ message: @autoclosure () -> String) {
+    public func log(type: NavigationConfiguration.Verbosity = .info, _ message: @autoclosure () -> String) {
         #if DEBUG
         state.log(type: type, message())
         #endif

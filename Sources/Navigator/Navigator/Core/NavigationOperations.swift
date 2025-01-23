@@ -183,4 +183,3 @@ private struct NavigateTriggerModifier<T: NavigationDestination>: ViewModifier {
             }
     }
 }
-

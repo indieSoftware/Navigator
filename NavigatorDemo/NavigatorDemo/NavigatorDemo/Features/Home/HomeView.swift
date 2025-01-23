@@ -8,7 +8,7 @@
 import Navigator
 import SwiftUI
 
-struct RootHomeView: View {
+struct HomeRootView: View {
     var body: some View {
         ManagedNavigationStack(scene: RootTabs.home.id) {
             HomeContentView(title: "Home Navigation")
@@ -192,6 +192,6 @@ struct NestedHomeContentView: View {
 }
 
 #Preview {
-    RootHomeView()
+    HomeRootView()
         .setAuthenticationRoot()
 }

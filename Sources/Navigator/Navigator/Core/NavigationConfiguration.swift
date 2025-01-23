@@ -51,10 +51,14 @@ public struct NavigationConfiguration {
     public init(
         restorationKey: String? = nil,
         logger: ((String) -> Void)? = { print($0) },
-        executionDelay: TimeInterval = 0.1,
+        executionDelay: TimeInterval = 0.01,
         verbosity: Verbosity = .warning
     ) {
-        self.executionDelay = executionDelay
+        if #available(iOS 18, *) {
+            self.executionDelay = min(max(0.01, executionDelay), 1.0)
+        } else {
+            self.executionDelay = min(max(0.6, executionDelay), 1.0)
+        }
         self.restorationKey = restorationKey
         self.logger = logger
         self.verbosity = verbosity

@@ -8,7 +8,7 @@
 import Navigator
 import SwiftUI
 
-struct RootSettingsView: View {
+struct SettingsRootView: View {
     var body: some View {
         ManagedNavigationStack(scene: RootTabs.settings.id) {
             SettingsView(name: "Root Settings")
@@ -84,7 +84,6 @@ struct SettingsView: View {
 }
 
 struct Page2SettingsView: View {
-    @Environment(\.navigator) var navigator: Navigator
     var body: some View {
         List {
             Section("Navigation Actions") {
@@ -101,7 +100,6 @@ struct Page2SettingsView: View {
 }
 
 struct Page3SettingsView: View {
-    @Environment(\.navigator) var navigator: Navigator
     var body: some View {
         List {
             ContentPopSection()
@@ -111,26 +109,29 @@ struct Page3SettingsView: View {
 }
 
 struct SettingsSheetView: View {
-    @Environment(\.navigator) var navigator: Navigator
     var body: some View {
         List {
             Section("Checkpoint Actions") {
-                Button("Return to Settings Checkpoint Value 5") {
-                    navigator.returnToCheckpoint(.settings, value: 5)
-                }
-                Button("Return to Settings Checkpoint Value 0") {
-                    navigator.returnToCheckpoint(.settings, value: 0)
-                }
-                Button("Return to Missing Settings Handler 0.0") {
-                    navigator.returnToCheckpoint(.settings, value: 0.0)
+                WithNavigator { navigator in
+                    Button("Return to Settings Checkpoint Value 5") {
+                        navigator.returnToCheckpoint(.settings, value: 5)
+                    }
+                    Button("Return to Settings Checkpoint Value 0") {
+                        navigator.returnToCheckpoint(.settings, value: 0)
+                    }
+                    Button("Return to Missing Settings Handler 0.0") {
+                        navigator.returnToCheckpoint(.settings, value: 0.0)
+                    }
                 }
             }
             Section("Send Actions") {
-                Button("Send Tab Home") {
-                    navigator.send(values: [
-                        NavigationAction.dismissAll,
-                        RootTabs.home
-                    ])
+                WithNavigator { navigator in
+                    Button("Send Tab Home") {
+                        navigator.send(values: [
+                            NavigationAction.dismissAll,
+                            RootTabs.home
+                        ])
+                    }
                 }
             }
             ContentSheetSection()

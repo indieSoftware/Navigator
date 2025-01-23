@@ -18,10 +18,10 @@ struct RootTabView : View {
     @SceneStorage("selectedTab") var selectedTab: RootTabs = .home
     var body: some View {
         TabView(selection: $selectedTab) {
-            RootHomeView()
+            HomeRootView()
                 .tabItem { Label("Home", systemImage: "house") }
                 .tag(RootTabs.home)
-            RootSettingsView()
+            SettingsRootView()
                 .tabItem { Label("Settings", systemImage: "gear") }
                 .tag(RootTabs.settings)
         }
