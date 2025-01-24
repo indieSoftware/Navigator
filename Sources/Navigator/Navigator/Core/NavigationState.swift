@@ -127,7 +127,7 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
 
     /// Renames state for wrapped navigation stacks.
     internal func setting(_ name: String?) -> NavigationState {
-        self.name == name
+        self.name = name
         return self
     }
 
