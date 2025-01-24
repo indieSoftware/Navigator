@@ -1,5 +1,9 @@
 # Navigator Changelog
 
+### 0.9.9
+
+* Adds Back option to Navigator (mimics standard SwiftUI Dismiss behavior)
+
 ### 0.9.8
 
 * Fix unfortunate timing issues with send on iOS 16/17 #19

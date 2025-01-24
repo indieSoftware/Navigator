@@ -55,7 +55,7 @@ struct ContentSheetSection: View {
     }
 }
 
-struct ContentPopSection: View {
+struct ContentCheckpointSection: View {
     @Environment(\.navigator) var navigator: Navigator
     @Environment(\.dismiss) var dismiss
     @State var returnToCheckpoint: Bool = false
@@ -81,7 +81,14 @@ struct ContentPopSection: View {
                 navigator.returnToCheckpoint("unknown")
             }
         }
+    }
+}
 
+struct ContentPopSection: View {
+    @Environment(\.navigator) var navigator: Navigator
+    @Environment(\.dismiss) var dismiss
+    @State var returnToCheckpoint: Bool = false
+    var body: some View {
         Section("Pop Actions") {
             Button("Pop Current Screen") {
                 navigator.pop()
@@ -97,9 +104,13 @@ struct ContentPopSection: View {
                 navigator.popAll()
             }
             .disabled(navigator.isEmpty)
-        }
+         }
 
         Section("Classic Actions") {
+            Button("Go Back") {
+                navigator.back()
+            }
+
             Button("Dismiss") {
                 dismiss()
             }

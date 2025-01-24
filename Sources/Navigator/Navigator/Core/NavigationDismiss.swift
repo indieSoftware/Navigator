@@ -55,7 +55,16 @@ extension View {
         self.modifier(NavigationDismissModifierAll(trigger: trigger))
     }
 
+    /// Allows presented views not in a navigation stack to be dismissed using a Navigator.
+    @available(*, deprecated, renamed: "managedPresentationView", message: "Use `managedPresentationView()` instead.")
+    public func navigationDismissible() -> some View {
+        ManagedPresentationView {
+            self
+        }
+    }
+
 }
+
 
 extension NavigationState {
 

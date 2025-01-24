@@ -88,13 +88,14 @@ extension Navigator {
     public func pop(last k: Int = 1) -> Bool {
         if state.path.count >= k {
             state.path.removeLast(k)
+            return true
         }
         return false
     }
 
     /// Pops all items from the navigation path, returning to the root view.
     /// ```swift
-    /// Button("Go Back") {
+    /// Button("Go Root") {
     ///     navigator.popAll()
     /// }
     /// ```
@@ -106,6 +107,19 @@ extension Navigator {
             return true
         }
         return false
+    }
+
+    /// Pops an items from the navigation path, or dismiss if we're on the root view.
+    /// ```swift
+    /// Button("Go Back") {
+    ///     navigator.back()
+    /// }
+    /// ```
+    /// This mimics standard SwiftUI dismiss behavior.
+    @MainActor
+    @discardableResult
+    public func back() -> Bool {
+        pop() || dismiss()
     }
 
     /// Indicates whether or not the navigation path is empty.

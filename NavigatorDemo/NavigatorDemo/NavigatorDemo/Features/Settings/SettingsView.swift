@@ -92,6 +92,7 @@ struct Page2SettingsView: View {
                 }
             }
             CustomSettingsSheetSection()
+            ContentCheckpointSection()
             ContentPopSection()
         }
         .navigationCheckpoint(.page2)
@@ -102,6 +103,7 @@ struct Page2SettingsView: View {
 struct Page3SettingsView: View {
     var body: some View {
         List {
+            ContentCheckpointSection()
             ContentPopSection()
         }
         .navigationTitle("Page 3")
