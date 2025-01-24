@@ -203,7 +203,7 @@ struct RootTabView : View {
                 .tag(RootTabs.settings)
         }
         .onNavigationReceive { (tab: RootTabs, navigator) in
-            try? navigator.dismissAll()
+            try? navigator.dismissAny()
             selectedTab = tab
             return .auto
         }

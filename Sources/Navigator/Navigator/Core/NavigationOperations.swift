@@ -88,24 +88,46 @@ extension Navigator {
     public func pop(last k: Int = 1) -> Bool {
         if state.path.count >= k {
             state.path.removeLast(k)
+            return true
         }
         return false
     }
 
-    /// Pops all items from the navigation path, returning to the root view.
+    /// Pops all items from the current navigation path, returning to the root view.
     /// ```swift
-    /// Button("Go Back") {
+    /// Button("Go Root") {
     ///     navigator.popAll()
     /// }
     /// ```
     @MainActor
     @discardableResult
     public func popAll() -> Bool {
-        if !state.path.isEmpty {
-            state.path.removeLast(state.path.count)
-            return true
-        }
-        return false
+        state.popAll()
+    }
+
+    /// Pops all items from *any* navigation path, returning each to the root view.
+    /// ```swift
+    /// Button("Pop Any") {
+    ///     navigator.popAny()
+    /// }
+    /// ```
+    @MainActor
+    @discardableResult
+    public func popAny() throws -> Bool {
+        try root.state.popAny()
+    }
+
+    /// Pops an items from the navigation path, or dismiss if we're on the root view.
+    /// ```swift
+    /// Button("Go Back") {
+    ///     navigator.back()
+    /// }
+    /// ```
+    /// This mimics standard SwiftUI dismiss behavior.
+    @MainActor
+    @discardableResult
+    public func back() -> Bool {
+        pop() || dismiss()
     }
 
     /// Indicates whether or not the navigation path is empty.
@@ -149,6 +171,32 @@ extension NavigationState {
             return true
         }
         return false
+    }
+
+    internal func popAll() -> Bool {
+        if !path.isEmpty {
+            path.removeLast(path.count)
+            return true
+        }
+        return false
+    }
+
+    internal func popAny() throws -> Bool {
+        guard !isNavigationLocked else {
+            log(type: .warning, "Navigator \(id) error navigation locked")
+            throw NavigationError.navigationLocked
+        }
+        return recursivePopAny()
+    }
+
+    internal func recursivePopAny() -> Bool {
+        var popped = popAll()
+        for child in children.values {
+            if let child = child.object {
+                popped = child.recursivePopAny() || popped
+            }
+        }
+        return popped
     }
 
 }

@@ -56,7 +56,7 @@ struct SettingsView: View {
                 .navigationSend($destination)
                 Button("Send Tab Home, Page 2, 88, Present") {
                     navigator.send(values: [
-                        NavigationAction.dismissAll,
+                        NavigationAction.dismissAny,
                         RootTabs.home,
                         HomeDestinations.page2,
                         HomeDestinations.pageN(88),
@@ -92,6 +92,7 @@ struct Page2SettingsView: View {
                 }
             }
             CustomSettingsSheetSection()
+            ContentCheckpointSection()
             ContentPopSection()
         }
         .navigationCheckpoint(.page2)
@@ -102,6 +103,7 @@ struct Page2SettingsView: View {
 struct Page3SettingsView: View {
     var body: some View {
         List {
+            ContentCheckpointSection()
             ContentPopSection()
         }
         .navigationTitle("Page 3")
@@ -128,7 +130,7 @@ struct SettingsSheetView: View {
                 WithNavigator { navigator in
                     Button("Send Tab Home") {
                         navigator.send(values: [
-                            NavigationAction.dismissAll,
+                            NavigationAction.dismissAny,
                             RootTabs.home
                         ])
                     }

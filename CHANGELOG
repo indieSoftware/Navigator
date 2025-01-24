@@ -1,5 +1,14 @@
 # Navigator Changelog
 
+### 0.9.9
+
+* Adds Back option to Navigator (mimics standard SwiftUI Dismiss behavior)
+* DismissAll is now DismissAny, same for the action
+* DismissAllChildren is now DismissAll
+* Added PopAny method similar to DismissAny, resets any navigation paths it can find to the root view
+* Added reset action shortcut (basically does a dismissAny and popAny) #23
+* Fix error in setting(_ name: String?) #22
+
 ### 0.9.8
 
 * Fix unfortunate timing issues with send on iOS 16/17 #19
@@ -70,7 +79,7 @@
 
 ### 0.8.5
 
-* Fix dismissible error in dismissAllChildren
+* Fix dismissible error in dismissAnyChildren
 * Update authentication examples with authentication service and authentication action
 * Added Swift Package Index yml file #8
 

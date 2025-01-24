@@ -124,7 +124,7 @@ extension NavigationState {
             }
         }
         log("Navigator returning to checkpoint: \(checkpoint.name)")
-        _ = dismissAllChildren()
+        _ = dismissAll()
         _ = pop(to: found.index)
         return true
     }

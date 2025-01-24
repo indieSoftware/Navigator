@@ -48,11 +48,6 @@ struct HomeContentView: View {
                 Button("Button Navigate to Home Page 55") {
                     navigator.navigate(to: HomeDestinations.pageN(55))
                 }
-                Button("Button Push 2, 3") {
-                    // not recommended. if you need multiple destinations use send.
-                    navigator.push(HomeDestinations.page2)
-                    navigator.push(HomeDestinations.page3)
-                }
             }
             Section("Send Actions") {
                 Button("Send Home Page 2, 88, 99") {
@@ -76,6 +71,7 @@ struct HomeContentView: View {
 
             SendResumeAuthenticatedView()
             ContentSheetSection()
+            ContentCheckpointSection()
             ContentPopSection()
         }
         .navigationTitle(title)
@@ -114,6 +110,7 @@ struct HomePage2View: View {
                 }
             }
             ContentSheetSection()
+            ContentCheckpointSection()
             ContentPopSection()
         }
         .navigationCheckpoint(.page2)
@@ -174,6 +171,7 @@ struct HomePageNView: View {
                 }
             }
             ContentSheetSection()
+            ContentCheckpointSection()
             ContentPopSection()
         }
         .navigationTitle("Page \(viewModel.number)")

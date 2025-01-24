@@ -26,15 +26,15 @@ extension Navigator {
     /// Returns to the root Navigator and dismisses *any* presented ManagedNavigationStack.
     @MainActor
     @discardableResult
-    public func dismissAll() throws -> Bool {
-        try state.dismissAll()
+    public func dismissAny() throws -> Bool {
+        try state.dismissAny()
     }
 
     /// Dismisses *any* ManagedNavigationStack or navigationDismissible presented by any child of this Navigator.
     @MainActor
     @discardableResult
-    public func dismissAllChildren() -> Bool {
-        state.dismissAllChildren()
+    public func dismissAll() -> Bool {
+        state.dismissAll()
     }
 
 }
@@ -51,8 +51,16 @@ extension View {
     /// Returns to the root Navigator and dismisses *any* presented ManagedNavigationStack.
     ///
     /// Trigger value will be reset to false on dismissal.
-    public func navigationDismissAll(trigger: Binding<Bool>) -> some View {
+    public func navigationdismissAny(trigger: Binding<Bool>) -> some View {
         self.modifier(NavigationDismissModifierAll(trigger: trigger))
+    }
+
+    /// Allows presented views not in a navigation stack to be dismissed using a Navigator.
+    @available(*, deprecated, renamed: "managedPresentationView", message: "Use `managedPresentationView()` instead.")
+    public func navigationDismissible() -> some View {
+        ManagedPresentationView {
+            self
+        }
     }
 
 }
@@ -69,25 +77,25 @@ extension NavigationState {
     }
 
     /// Returns to the root Navigator and dismisses *any* presented ManagedNavigationStack.
-    internal func dismissAll() throws -> Bool {
+    internal func dismissAny() throws -> Bool {
         guard !isNavigationLocked else {
             log(type: .warning, "Navigator \(id) error navigation locked")
             throw NavigationError.navigationLocked
         }
-        return root.dismissAllChildren()
+        return root.dismissAll()
     }
 
-    internal func dismissAllChildren() -> Bool {
+    internal func dismissAll() -> Bool {
         for child in children.values {
             if let childNavigator = child.object {
                 if #available (iOS 18.0, *) {
-                    if childNavigator.dismiss() || childNavigator.dismissAllChildren() {
+                    if childNavigator.dismiss() || childNavigator.dismissAll() {
                         return true
                     }
                 } else {
                     var dismissed: Bool
                     // both functions need to execute, || would short-circuit
-                    dismissed = childNavigator.dismissAllChildren()
+                    dismissed = childNavigator.dismissAll()
                     dismissed = childNavigator.dismiss() || dismissed
                     if dismissed {
                         return true
@@ -122,7 +130,7 @@ private struct NavigationDismissModifierAll: ViewModifier {
             .onChange(of: trigger) { trigger in
                 if trigger {
                     self.trigger = false
-                    _ = try? navigator.dismissAll()
+                    _ = try? navigator.dismissAny()
                }
             }
     }

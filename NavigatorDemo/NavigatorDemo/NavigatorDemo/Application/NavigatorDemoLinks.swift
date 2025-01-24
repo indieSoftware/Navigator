@@ -17,7 +17,7 @@ struct HomeURLHander: NavigationURLHander {
         case "auth":
             // xcrun simctl openurl booted navigator://app/home/auth
             return [
-                .dismissAll,
+                .reset,
                 .send(RootTabs.home),
                 .authenticationRequired,
                 .send(HomeDestinations.pageN(77))
@@ -25,14 +25,14 @@ struct HomeURLHander: NavigationURLHander {
         case "page2":
             // xcrun simctl openurl booted navigator://app/home/page2
             return [
-                .dismissAll,
+                .dismissAny,
                 .send(RootTabs.home),
                 .send(HomeDestinations.page2)
             ]
         case "page3":
             // xcrun simctl openurl booted navigator://app/home/page3
             return [
-                .dismissAll,
+                .dismissAny,
                 .send(RootTabs.home),
                 .popAll(in: RootTabs.home.id),
                 .send(HomeDestinations.page2),
@@ -41,8 +41,8 @@ struct HomeURLHander: NavigationURLHander {
         default:
             // xcrun simctl openurl booted navigator://app/home
             return [
-                .dismissAll,
-                .send(RootTabs.home),
+                .reset,
+                .send(RootTabs.home)
             ]
         }
     }
@@ -54,7 +54,7 @@ struct SettingsURLHander: NavigationURLHander {
             return nil
         }
         return [
-            .dismissAll,
+            .dismissAny,
             .send(RootTabs.settings)
         ]
     }

@@ -67,6 +67,11 @@ public struct Navigator: @unchecked Sendable {
         Navigator(state: state.root)
     }
 
+    public var parent: Navigator? {
+        guard let state = state.parent else { return nil }
+        return Navigator(state: state)
+    }
+
     public func log(type: NavigationConfiguration.Verbosity = .info, _ message: @autoclosure () -> String) {
         #if DEBUG
         state.log(type: type, message())

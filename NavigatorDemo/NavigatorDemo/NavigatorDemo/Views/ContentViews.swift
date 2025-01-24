@@ -21,7 +21,7 @@ struct ContentSheetSection: View {
     @Environment(\.navigator) var navigator: Navigator
     @State var showSheet: Bool = false
     @State var dismiss: Bool = false
-    @State var dismissAll: Bool = false
+    @State var dismissAny: Bool = false
     var body: some View {
         Section("Presentation Actions") {
             Button("Present Navigation View via Sheet") {
@@ -47,15 +47,15 @@ struct ContentSheetSection: View {
             .disabled(!navigator.isPresented)
 
             Button("Dismiss All") {
-                dismissAll = true
+                dismissAny = true
             }
-            .navigationDismissAll(trigger: $dismissAll)
+            .navigationdismissAny(trigger: $dismissAny)
             .disabled(!navigator.isPresented)
         }
     }
 }
 
-struct ContentPopSection: View {
+struct ContentCheckpointSection: View {
     @Environment(\.navigator) var navigator: Navigator
     @Environment(\.dismiss) var dismiss
     @State var returnToCheckpoint: Bool = false
@@ -81,7 +81,14 @@ struct ContentPopSection: View {
                 navigator.returnToCheckpoint("unknown")
             }
         }
+    }
+}
 
+struct ContentPopSection: View {
+    @Environment(\.navigator) var navigator: Navigator
+    @Environment(\.dismiss) var dismiss
+    @State var returnToCheckpoint: Bool = false
+    var body: some View {
         Section("Pop Actions") {
             Button("Pop Current Screen") {
                 navigator.pop()
@@ -97,9 +104,13 @@ struct ContentPopSection: View {
                 navigator.popAll()
             }
             .disabled(navigator.isEmpty)
-        }
+         }
 
         Section("Classic Actions") {
+            Button("Go Back") {
+                navigator.back()
+            }
+
             Button("Dismiss") {
                 dismiss()
             }

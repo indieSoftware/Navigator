@@ -220,7 +220,7 @@ class AppResolver: AppDependencies {
             case .settingsPage2:
                 // Demonstrate routing with navigation actions
                 self.navigator.perform(actions: [
-                    .dismissAll,
+                    .dismissAny,
                     .send(RootTabs.settings),
                     .with(navigator: RootTabs.settings.id) {
                         $0.popAll()
@@ -230,7 +230,7 @@ class AppResolver: AppDependencies {
             case .settingsPage3:
                 // Demonstrate routing sending raw navigation values
                 self.navigator.send(values: [
-                    NavigationAction.dismissAll,
+                    NavigationAction.dismissAny,
                     RootTabs.settings,
                     NavigationAction.with(navigator: RootTabs.settings.id) {
                         $0.popAll()

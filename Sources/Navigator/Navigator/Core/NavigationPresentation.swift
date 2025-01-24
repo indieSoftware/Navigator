@@ -38,6 +38,42 @@ extension Navigator {
 
 }
 
+extension View {
+
+    /// Allows presented views not in a navigation stack to be dismissed using a Navigator.
+    ///
+    /// Also supports nested sheets and covers.
+    ///
+    /// If you present sheets or covers in your own code, outside of `navigate(to:)`, and if those presented
+    /// views don't use ``ManagedNavigationStack``, then `ManagedPresentationView`  tells Navigator about them.
+    /// ```swift
+    /// Button("Present Page 3 via Sheet") {
+    ///     showSettings = .page3
+    /// }
+    /// .sheet(item: $showSettings) { destination in
+    ///     destination()
+    ///         .managedPresentationView()
+    /// }
+    /// ```
+    /// That in turn allows them to be manipulated or closed when performing deep linking actions like dismissAny().
+    ///
+    /// This modifier is just a wrapper around ``ManagedPresentationView``.
+    /// ```swift
+    /// .sheet(item: $showSettings) { destination in
+    ///     ManagedPresentationView {
+    ///         destination()
+    ///     }
+    /// }
+    /// ```
+    /// > Warning: Failure to tag presented views as such can lead to inconsistent deep linking and navigation behavior.
+    public func managedPresentationView() -> some View {
+        ManagedPresentationView {
+            self
+        }
+    }
+
+}
+
 extension NavigationState {
 
     internal nonisolated var isPresenting: Bool {

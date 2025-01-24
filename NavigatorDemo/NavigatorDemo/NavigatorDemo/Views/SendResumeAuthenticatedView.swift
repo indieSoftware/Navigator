@@ -17,7 +17,7 @@ struct SendResumeAuthenticatedView: View {
         Section("Send Pause/Resume Actions") {
             Button("Send Authentication Required, Page 77") {
                 navigator.send(values: [
-                    NavigationAction.dismissAll,
+                    NavigationAction.dismissAny,
                     NavigationAction.authenticationRequired,
                     HomeDestinations.pageN(77)
                 ])

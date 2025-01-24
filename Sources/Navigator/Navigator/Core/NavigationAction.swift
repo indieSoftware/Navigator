@@ -56,10 +56,10 @@ extension NavigationAction {
     /// Dismisses all presented views.
     ///
     /// If navigation dismissal is locked, this action will cancel and no further actions in this sequence will be executed.
-    @MainActor public static var dismissAll: NavigationAction {
+    @MainActor public static var dismissAny: NavigationAction {
         .init {
             do {
-                return try $0.dismissAll() ? .auto : .immediately
+                return try $0.dismissAny() ? .auto : .immediately
             } catch {
                 return .cancel
             }
@@ -91,6 +91,26 @@ extension NavigationAction {
             }
             return .cancel
         }
+    }
+
+    /// Dismisses any presented views and resets all paths back to zero.
+    ///
+    ///  Inserts value into the queue for next send in order to correctly handle that values resume type.
+    @MainActor public static var popAny: NavigationAction {
+        .init {
+            do {
+                return try $0.popAny() ? .auto : .immediately
+            } catch {
+                return .cancel
+            }
+        }
+    }
+
+    /// Dismisses any presented views and resets all paths back to zero.
+    ///
+    ///  Inserts value into the queue for next send in order to correctly handle that values resume type.
+    @MainActor public static var reset: NavigationAction {
+        .init { _ in .inserting([NavigationAction.dismissAny, NavigationAction.popAny]) }
     }
 
     /// Sends value via navigation send.
