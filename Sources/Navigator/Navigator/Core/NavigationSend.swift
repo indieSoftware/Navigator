@@ -347,11 +347,7 @@ internal class NavigationSendValues {
 
     deinit {
         if consumed == false {
-            if let identifier {
-                navigator.log("Navigator missing receive handler: \(identifier) for type: \(type(of: value))!!!")
-            } else {
-                navigator.log("Navigator missing receive handler for type: \(type(of: value))!!!")
-            }
+            navigator.log("Navigator missing receive handler for type: \(type(of: value))!!!")
         }
     }
 
@@ -377,8 +373,8 @@ internal class NavigationSendValues {
 
 extension NavigationSendValues {
 
-    convenience init<T: Hashable>(navigator: Navigator, checkpoint: NavigationCheckpoint, value: T) {
-        self.init(navigator: navigator, value: value, values: [], identifier: checkpoint.name)
+    convenience init<T: Hashable>(navigator: Navigator, identifier: String, value: T) {
+        self.init(navigator: navigator, value: value, values: [], identifier: identifier)
     }
 
 }

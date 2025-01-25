@@ -166,18 +166,26 @@ extension View {
     /// This also makes using the same destination type with more than one navigation stack a lot easier.
     ///
     /// Important: NavigationDestination must be registered using this function!
-    public func navigationDestination<D: NavigationDestination>(_ destinations: D.Type) -> some View {
-        self.navigationDestination(for: D.self) { destination in
-            destination()
-        }
+    public func navigationDestination<D: NavigationDestination>(_ destination: D.Type) -> some View {
+        self.modifier(NavigationDestinationModifier(destination: destination))
     }
 
-    public func navigationDestinationAutoReceive<D: NavigationDestination>(_ destinations: D.Type) -> some View {
+    public func navigationDestinationAutoReceive<D: NavigationDestination>(_ destination: D.Type) -> some View {
         self
-            .navigationDestination(for: D.self) { destination in
-                destination()
-            }
+            .modifier(NavigationDestinationModifier(destination: destination))
             .navigationAutoReceive(D.self)
     }
 
+}
+
+private struct NavigationDestinationModifier<D: NavigationDestination>: ViewModifier {
+    let destination: D.Type
+    // @Environment(\.navigator) var navigator
+    func body(content: Content) -> some View {
+        content
+            .navigationDestination(for: D.self) { destination in
+                // let _ = print(navigator.count)
+                destination()
+            }
+    }
 }

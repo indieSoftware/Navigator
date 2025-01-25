@@ -133,6 +133,7 @@ struct HomePage3View: View {
                 }
             }
             ContentSheetSection()
+            ContentCheckpointSection()
             ContentPopSection()
         }
         .navigationTitle("Page 3")

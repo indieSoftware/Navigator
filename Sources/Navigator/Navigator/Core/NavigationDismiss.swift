@@ -51,8 +51,8 @@ extension View {
     /// Returns to the root Navigator and dismisses *any* presented ManagedNavigationStack.
     ///
     /// Trigger value will be reset to false on dismissal.
-    public func navigationdismissAny(trigger: Binding<Bool>) -> some View {
-        self.modifier(NavigationDismissModifierAll(trigger: trigger))
+    public func navigationDismissAny(trigger: Binding<Bool>) -> some View {
+        self.modifier(NavigationDismissAnyModifier(trigger: trigger))
     }
 
     /// Allows presented views not in a navigation stack to be dismissed using a Navigator.
@@ -122,7 +122,7 @@ private struct NavigationDismissModifier: ViewModifier {
     }
 }
 
-private struct NavigationDismissModifierAll: ViewModifier {
+private struct NavigationDismissAnyModifier: ViewModifier {
     @Binding internal var trigger: Bool
     @Environment(\.navigator) internal var navigator: Navigator
     func body(content: Content) -> some View {

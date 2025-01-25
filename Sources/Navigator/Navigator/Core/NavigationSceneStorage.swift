@@ -10,7 +10,6 @@ import SwiftUI
 /// Provides state restoration storage for named ManagedNavigationControllers.
 internal struct NavigationSceneStorage: Codable {
 
-    let id: UUID
     let name: String?
     let restorationKey: String
     let path: Data?
@@ -20,7 +19,6 @@ internal struct NavigationSceneStorage: Codable {
     let cover: Data?
 
     internal init(
-        id: UUID = UUID(),
         name: String?,
         restorationKey: String,
         path: Data?,
@@ -29,7 +27,6 @@ internal struct NavigationSceneStorage: Codable {
         sheet: Data?,
         cover: Data?
     ) {
-        self.id = id
         self.name = name
         self.restorationKey = restorationKey
         self.path = path
@@ -53,7 +50,6 @@ extension NavigationState {
         }
         let path = try? path.codable.map(NavigationState.encoder.encode)
         let storage = NavigationSceneStorage(
-            id: id,
             name: name,
             restorationKey: restorationKey,
             path: path ?? Data(),
@@ -71,13 +67,18 @@ extension NavigationState {
               storage.restorationKey == configuration?.restorationKey else {
             return
         }
-        id = storage.id
+        self.name = storage.name
         if let data = storage.path, let representation = try? NavigationState.decoder.decode(NavigationPath.CodableRepresentation.self, from: data) {
             path = NavigationPath(representation)
         } else {
             path = .init()
         }
-        checkpoints = storage.checkpoints
+        // merge checkpoint indices only
+        for (key, stored) in storage.checkpoints {
+            if let checkpoint = checkpoints[key]?.setting(index: stored.index) {
+                checkpoints[key] = checkpoint
+            }
+        }
         isPresented = storage.dismissible
         if let data = storage.sheet {
             sheet = try? NavigationState.decoder.decode(AnyNavigationDestination.self, from: data)

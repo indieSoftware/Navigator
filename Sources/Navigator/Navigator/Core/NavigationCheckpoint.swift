@@ -41,35 +41,78 @@ import SwiftUI
 /// }
 /// ```
 /// Using the same checkpoint name more than once in the same navigation tree isn't recommended.
-public struct NavigationCheckpoint: Codable, Equatable, ExpressibleByStringLiteral, Hashable, Sendable {
+public struct NavigationCheckpoint: Equatable, ExpressibleByStringLiteral, Hashable, Sendable {
 
     public let name: String
+
+    internal let identifier: String?
     internal let index: Int
 
     public init(stringLiteral value: String) {
         self.name = value
+        self.identifier = nil
         self.index = 0
     }
 
-    public init(name: String) {
+    public init(name: String, identifier: String? = nil) {
         self.name = name
+        self.identifier = identifier
         self.index = 0
     }
 
-    internal init(name: String, index: Int) {
+    internal init(name: String, identifier: String?, index: Int) {
         self.name = name
+        self.identifier = identifier
         self.index = index
+    }
+
+    public var unique: NavigationCheckpoint {
+        let id = UUID().uuidString
+        return .init(name: self.name + "." + id, identifier: id, index: index)
     }
 
     internal func setting(index: Int) -> NavigationCheckpoint {
         guard self.index == 0 else {
             return self
         }
-        return NavigationCheckpoint(name: name, index: index)
+        return NavigationCheckpoint(name: name, identifier: identifier, index: index)
+    }
+
+    internal func setting<T>(type: T.Type) -> NavigationCheckpoint {
+        NavigationCheckpoint(name: name + "(\(String(describing: type)))", identifier: identifier, index: index)
+    }
+
+    internal func setting(identifier: String?) -> NavigationCheckpoint {
+        NavigationCheckpoint(name: name, identifier: identifier, index: index)
     }
 
     public static func == (lhs: NavigationCheckpoint, rhs: NavigationCheckpoint) -> Bool {
-        lhs.name == rhs.name
+        lhs.name == rhs.name && lhs.identifier == rhs.identifier
+    }
+
+}
+
+extension NavigationCheckpoint: Codable {
+
+    // Coding keys for encoding and decoding
+    private enum CodingKeys: String, CodingKey {
+        case name
+        case index
+    }
+
+    // Custom encoder
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(name, forKey: .name)
+        try container.encode(index, forKey: .index)
+    }
+
+    // Custom decoder
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.identifier = nil
+        self.index = try container.decode(Int.self, forKey: .index)
     }
 
 }
@@ -85,8 +128,7 @@ extension Navigator {
     /// }
     /// ```
     @MainActor
-    @discardableResult
-    public func returnToCheckpoint(_ checkpoint: NavigationCheckpoint) -> Bool {
+    public func returnToCheckpoint(_ checkpoint: NavigationCheckpoint) {
         state.returnToCheckpoint(checkpoint)
     }
 
@@ -95,8 +137,7 @@ extension Navigator {
     /// This function will pop and/or dismiss intervening views as needed.
     @MainActor
     public func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, value: T?) {
-        log("Navigator \(id) sending checkpoint: \(checkpoint.name) value: \(String(describing: value))")
-        state.publisher.send(NavigationSendValues(navigator: self, checkpoint: checkpoint, value: value))
+        state.returnToCheckpoint(checkpoint, value: value)
     }
 
     /// Allow the code to determine if the checkpoint has been set and is known to the system.
@@ -114,35 +155,57 @@ extension NavigationState {
 
     // Most of the following code does recursive data manipulation best performed on the state object itself.
 
-    internal func returnToCheckpoint(_ checkpoint: NavigationCheckpoint) -> Bool {
-        guard let found = checkpoints[checkpoint.name] else {
-            if let parent {
-                return parent.returnToCheckpoint(checkpoint)
-            } else {
-                log(type:.warning, "Navigator checkpoint not found in current navigation tree: \(checkpoint.name)")
-                return false
-            }
+    internal func find(_ checkpoint: NavigationCheckpoint) -> (NavigationState, NavigationCheckpoint)? {
+        if let found = checkpoints[checkpoint.name] {
+            return (self, found)
+        }
+        return parent?.find(checkpoint)
+    }
+
+    internal func returnToCheckpoint(_ checkpoint: NavigationCheckpoint) {
+        guard let (navigator, found) = find(checkpoint) else {
+            log(type:.warning, "Navigator checkpoint not found in current navigation tree: \(checkpoint.name)")
+            return
         }
         log("Navigator returning to checkpoint: \(checkpoint.name)")
-        _ = dismissAll()
-        _ = pop(to: found.index)
-        return true
+        _ = navigator.dismissAll()
+        _ = navigator.pop(to: found.index)
+    }
+
+    internal func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, value: T) {
+        let checkpoint = checkpoint.setting(type: T.self)
+        guard let (navigator, found) = find(checkpoint) else {
+            log(type:.warning, "Navigator checkpoint value handler not found: \(checkpoint.name)")
+            return
+        }
+        log("Navigator returning to checkpoint: \(checkpoint.name) value: \(value)")
+        // send value to specific receive handler
+        if let identifier = found.identifier {
+            let values = NavigationSendValues(navigator: Navigator(state: self), identifier: identifier, value: value)
+            publisher.send(values)
+        }
+        // return to sender
+        _ = navigator.dismissAll()
+        _ = navigator.pop(to: found.index)
     }
 
     internal nonisolated func canReturnToCheckpoint(_ checkpoint: NavigationCheckpoint) -> Bool {
-        guard let found = checkpoints[checkpoint.name] else {
-            return parent?.canReturnToCheckpoint(checkpoint) ?? false
+        guard let (navigator, found) = find(checkpoint) else {
+            return false
         }
-        return isPresenting || found.index < path.count
+        return navigator.isPresenting || found.index < navigator.path.count
     }
 
     internal func addCheckpoint(_ checkpoint: NavigationCheckpoint) {
-        guard checkpoints[checkpoint.name] == nil else {
+        if let found = checkpoints[checkpoint.name] {
+            if checkpoint.identifier != found.identifier {
+                checkpoints[checkpoint.name] = checkpoint.setting(identifier: checkpoint.identifier)
+            }
             return
         }
         let checkpoint = checkpoint.setting(index: path.count)
         checkpoints[checkpoint.name] = checkpoint.setting(index: path.count)
-        log("Navigator adding checkpoint: \(checkpoint)")
+        log("Navigator adding checkpoint: \(checkpoint.name)")
     }
 
     internal func cleanCheckpoints() {
@@ -236,16 +299,25 @@ private struct NavigationCheckpointModifier: ViewModifier {
 }
 
 private struct NavigationCheckpointValueModifier<T: Hashable>: ViewModifier {
-    internal let checkpoint: NavigationCheckpoint
+    @State internal var checkpoint: NavigationCheckpoint
     internal let completion: (T) -> Void
-    @Environment(\.navigator) var navigator: Navigator
+    @Environment(\.navigator) private var navigator: Navigator
+    init(
+        checkpoint: NavigationCheckpoint,
+        completion: @escaping (T) -> Void
+    ) {
+        self.checkpoint = checkpoint
+            .setting(type: T.self)
+            .setting(identifier: checkpoint.identifier ?? UUID().uuidString)
+        self.completion = completion
+    }
     func body(content: Content) -> some View {
         content
             .onReceive(navigator.state.publisher) { values in
-                if let value: T = values.consume(checkpoint.name) {
-                    navigator.log("Navigator \(navigator.id) receiving checkpoint: \(checkpoint.name) value: \(value)")
+                if let value: T = values.consume(checkpoint.identifier) {
+                    navigator.log("Navigator processing checkpoint: \(checkpoint.name) value: \(value)")
                     completion(value)
-                    values.resume(.checkpoint(checkpoint))
+                    values.resume(.auto)
                 }
             }
             .navigationCheckpoint(checkpoint)

@@ -44,6 +44,10 @@ struct SettingsView: View {
                     triggerPage3.toggle()
                 }
                 .navigate(trigger: $triggerPage3, destination: SettingsDestinations.page3)
+//                Button("Navigator Push 2, 3 (error)") {
+//                    navigator.push(SettingsDestinations.page2)
+//                    navigator.push(SettingsDestinations.page3)
+//                }
             }
 
             Section("Send Actions") {
@@ -84,6 +88,7 @@ struct SettingsView: View {
 }
 
 struct Page2SettingsView: View {
+    @Environment(\.navigator) var navigator: Navigator
     var body: some View {
         List {
             Section("Navigation Actions") {

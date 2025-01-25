@@ -46,10 +46,10 @@ struct ContentSheetSection: View {
             .navigationDismiss(trigger: $dismiss)
             .disabled(!navigator.isPresented)
 
-            Button("Dismiss All") {
+            Button("Dismiss Any") {
                 dismissAny = true
             }
-            .navigationdismissAny(trigger: $dismissAny)
+            .navigationDismissAny(trigger: $dismissAny)
             .disabled(!navigator.isPresented)
         }
     }
@@ -76,6 +76,10 @@ struct ContentCheckpointSection: View {
                 navigator.returnToCheckpoint(.settings)
             }
             .disabled(!navigator.canReturnToCheckpoint(.settings))
+
+            Button("Return to Settings Checkpoint Value 9") {
+                navigator.returnToCheckpoint(.settings, value: 9)
+            }
 
             Button("Return To Unknown Checkpoint") {
                 navigator.returnToCheckpoint("unknown")
