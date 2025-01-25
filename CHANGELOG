@@ -6,6 +6,7 @@
 * Update checkpoints to allow different type handlers for same checkpoint name
 * Allow passing unique checkpoints into a function for later return
 * Fix scene storage issue that could impact checkpoint identifiers
+* Adds onNavigationReceive(assign:) modifier
 * Split demo dependencies into separate files for better understanding
 
 ### 0.9.9

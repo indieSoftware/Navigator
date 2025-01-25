@@ -206,6 +206,17 @@ extension View {
         self.modifier(OnNavigationReceiveModifier(handler: handler))
     }
 
+    // Handler receives values of a specific type broadcast via `navigator.send` and assigns the result to bound value
+    public func onNavigationReceive<T: Hashable & Equatable>(assign binding: Binding<T>) -> some View {
+        self.modifier(OnNavigationReceiveModifier<T> { (value, _) in
+            if binding.wrappedValue == value {
+                return .immediately
+            }
+            binding.wrappedValue = value
+            return .auto
+        })
+    }
+
     /// Convenience receiver for NavigationDestinations values broadcast via `navigator.send`.
     ///
     /// The following code navigates to a specific destination and returns normally.
