@@ -1,11 +1,18 @@
 # Navigator Changelog
 
+### 0.9.10
+
+* Update checkpoints with values to search current navigation tree only for correct handler
+* Update checkpoints to allow different type handlers for same checkpoint name
+* Allow passing unique checkpoints into a function for later return
+* Fix scene storage issue that could impact checkpoint identifiers
+
 ### 0.9.9
 
 * Adds Back option to Navigator (mimics standard SwiftUI Dismiss behavior)
 * DismissAll is now DismissAny, same for the action
 * DismissAllChildren is now DismissAll
-* Added PopAny method similar to DismissAny, resets any navigation paths it can find to the root view
+* Added PopAny method similar to DismissAny, resets any navigation paths it can find from the root view
 * Added reset action shortcut (basically does a dismissAny and popAny) #23
 * Fix error in setting(_ name: String?) #22
 
