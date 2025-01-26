@@ -9,7 +9,7 @@ import Navigator
 import SwiftUI
 
 struct KnownRouteSplitViewProvider: NavigationActionProviding {
-    func actions(for route: KnownRoutes) -> [NavigationAction]? {
+    func actions(for route: KnownRoutes) -> [NavigationAction] {
         return switch route {
         case .auth:
             // xcrun simctl openurl booted navigator://app/home/auth

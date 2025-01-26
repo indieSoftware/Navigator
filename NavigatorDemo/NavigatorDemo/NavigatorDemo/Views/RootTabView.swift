@@ -33,6 +33,9 @@ struct RootTabView : View {
             selectedTab = tab
             return .auto
         }
+        .onNavigationReceive { (route: KnownRoutes, navigator) in
+            .replacing(routeActionProvider.actions(for: route))
+        }
         .onNavigationOpenURL(handlers: [
             HomeURLHander(provider: routeActionProvider),
             SettingsURLHander(provider: routeActionProvider)
