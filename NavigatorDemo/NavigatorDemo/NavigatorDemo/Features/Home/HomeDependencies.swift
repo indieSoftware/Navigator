@@ -19,8 +19,8 @@ public typealias HomeDependencies = CoreDependencies
 // Specify everything required by this module
 public protocol HomeModuleDependencies {
     func loader() -> any Loading
-    @MainActor func homeExternalViewProvider() -> any ExternalNavigationViewProviding<HomeExternalViews>
-    @MainActor func homeExternalRouter() -> any ExternalNavigationRouting<HomeExternalRoutes>
+    @MainActor func homeExternalViewProvider() -> any NavigationViewProviding<HomeExternalViews>
+    @MainActor func homeExternalRouter() -> any NavigationRouting<HomeExternalRoutes>
 }
 
 // Construct defaults, including defaults that depend on other modules
@@ -37,12 +37,12 @@ protocol MockHomeDependencies: HomeDependencies, MockCoreDependencies {}
 // Provide missing defaults
 extension MockHomeDependencies {
     // Mock a view we need to be provided from elsewhere
-    @MainActor public func homeExternalViewProvider() -> any ExternalNavigationViewProviding<HomeExternalViews> {
-        MockExternalNavigationViewProvider()
+    @MainActor public func homeExternalViewProvider() -> any NavigationViewProviding<HomeExternalViews> {
+        MockNavigationViewProvider()
     }
     // Mock a router
-    @MainActor public func homeExternalRouter() -> any ExternalNavigationRouting<HomeExternalRoutes> {
-        MockExternalNavigationRouter()
+    @MainActor public func homeExternalRouter() -> any NavigationRouting<HomeExternalRoutes> {
+        MockNavigationRouter()
     }
 }
 
@@ -55,12 +55,12 @@ extension EnvironmentValues {
 }
 
 // Demonstration of external routes that the home feature wants to trigger
-public enum HomeExternalRoutes: ExternalNavigationRoutes {
+public enum HomeExternalRoutes: NavigationRoutes {
     case settingsPage2
     case settingsPage3
 }
 
 // Demonstration of external views that the home feature needs from somewhere
-public enum HomeExternalViews: ExternalNavigationViews {
+public enum HomeExternalViews: NavigationViews {
     case external
 }

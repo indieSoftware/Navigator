@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-public protocol ExternalNavigationViews: Hashable {}
+public protocol NavigationViews: Hashable {}
 
-public protocol ExternalNavigationViewProviding<D> {
-    associatedtype D: ExternalNavigationViews
+public protocol NavigationViewProviding<D> {
+    associatedtype D: NavigationViews
     func view(for destination: D) -> AnyView
 }
 
-public struct ExternalNavigationViewProvider<V: View, D: ExternalNavigationViews>: ExternalNavigationViewProviding {
+public struct NavigationViewProvider<V: View, D: NavigationViews>: NavigationViewProviding {
     private let builder: (D) -> V
     public init(@ViewBuilder builder: @escaping (D) -> V) {
         self.builder = builder
@@ -24,10 +24,9 @@ public struct ExternalNavigationViewProvider<V: View, D: ExternalNavigationViews
     }
 }
 
-public struct MockExternalNavigationViewProvider<D: ExternalNavigationViews>: ExternalNavigationViewProviding {
+public struct MockNavigationViewProvider<D: NavigationViews>: NavigationViewProviding {
     public init() {}
     public func view(for destination: D) -> AnyView {
         AnyView(EmptyView())
     }
 }
-

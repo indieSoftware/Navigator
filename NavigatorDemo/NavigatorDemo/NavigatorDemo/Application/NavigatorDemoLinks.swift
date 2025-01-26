@@ -9,34 +9,36 @@ import Navigator
 import SwiftUI
 
 struct HomeURLHander: NavigationURLHander {
-    let provider: any NavigationActionProviding<KnownRoutes>
-    @MainActor public func handles(_ url: URL) -> [NavigationAction]? {
+    let router: any NavigationRouting<KnownRoutes>
+    @MainActor public func handles(_ url: URL) -> Bool {
         guard url.pathComponents.count > 1, url.pathComponents[1] == "home" else {
-            return nil
+            return false
         }
         switch url.pathComponents.last {
         case "auth":
             // xcrun simctl openurl booted navigator://app/home/auth
-            return provider.actions(for: .auth)
+            router.route(to: .auth)
         case "page2":
             // xcrun simctl openurl booted navigator://app/home/page2
-            return provider.actions(for: .homePage2)
+            router.route(to: .homePage2)
         case "page3":
             // xcrun simctl openurl booted navigator://app/home/page3
-            return provider.actions(for: .homePage3)
+            router.route(to: .homePage3)
         default:
             // xcrun simctl openurl booted navigator://app/home
-            return provider.actions(for: .home)
+            router.route(to: .home)
         }
+        return true
     }
 }
 
 struct SettingsURLHander: NavigationURLHander {
-    let provider: any NavigationActionProviding<KnownRoutes>
-    @MainActor public func handles(_ url: URL) -> [NavigationAction]? {
+    let router: any NavigationRouting<KnownRoutes>
+    @MainActor public func handles(_ url: URL) -> Bool {
         guard url.pathComponents.count > 1, url.pathComponents[1] == "settings" else {
-            return nil
+            return false
         }
-        return provider.actions(for: .settings)
+        router.route(to: .settings)
+        return true
     }
 }

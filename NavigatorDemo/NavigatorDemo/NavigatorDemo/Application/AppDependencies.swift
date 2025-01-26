@@ -23,9 +23,13 @@ class AppResolver: AppDependencies {
     // root navigator
     let navigator: Navigator
 
+    // application router
+    let router: any NavigationRouting<KnownRoutes>
+
     // initializer
-    init(navigator: Navigator) {
+    init(navigator: Navigator, router: any NavigationRouting<KnownRoutes>) {
         self.navigator = navigator
+        self.router = router
     }
 
     // need one per app
@@ -37,8 +41,8 @@ class AppResolver: AppDependencies {
     }
 
     // Home needs an external view from somewhere. Provide it.
-    @MainActor func homeExternalViewProvider() -> any ExternalNavigationViewProviding<HomeExternalViews> {
-        ExternalNavigationViewProvider {
+    @MainActor func homeExternalViewProvider() -> any NavigationViewProviding<HomeExternalViews> {
+        NavigationViewProvider {
             switch $0 {
             case .external:
                 SettingsDestinations.external()
@@ -47,29 +51,14 @@ class AppResolver: AppDependencies {
     }
 
     // Home feature wants to be able to route to settings feature, app knows how app is structured, so...
-    @MainActor func homeExternalRouter() -> any ExternalNavigationRouting<HomeExternalRoutes> {
-        ExternalNavigationRouter {
+    @MainActor func homeExternalRouter() -> any NavigationRouting<HomeExternalRoutes> {
+        NavigationRouter {
+            // Map external types to internal types
             switch $0 {
             case .settingsPage2:
-                // Demonstrate routing with navigation actions
-                self.navigator.perform(actions: [
-                    .dismissAny,
-                    .send(RootTabs.settings),
-                    .with(navigator: RootTabs.settings.id) {
-                        $0.popAll()
-                        $0.push(SettingsDestinations.page2)
-                    },
-                ])
+                self.router.route(to: .settingsPage2)
             case .settingsPage3:
-                // Demonstrate routing sending raw navigation values
-                self.navigator.send(values: [
-                    NavigationAction.dismissAny,
-                    RootTabs.settings,
-                    NavigationAction.with(navigator: RootTabs.settings.id) {
-                        $0.popAll()
-                        $0.push(SettingsDestinations.page3)
-                    },
-                ])
+                self.router.route(to: .settingsPage3)
             }
         }
     }

@@ -1,5 +1,5 @@
 //
-//  KnownCheckpoins.swift
+//  KnownCheckpoints.swift
 //  NavigatorDemo
 //
 //  Created by Michael Long on 1/19/25.

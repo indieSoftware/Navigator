@@ -1,5 +1,5 @@
 //
-//  KnownRouteSplitViewProvider.swift
+//  SplitViewNavigationRouter.swift
 //  NavigatorDemo
 //
 //  Created by Michael Long on 1/25/25.
@@ -8,11 +8,17 @@
 import Navigator
 import SwiftUI
 
-struct KnownRouteSplitViewProvider: NavigationActionProviding {
-    func actions(for route: KnownRoutes) -> [NavigationAction] {
-        return switch route {
+public struct SplitViewNavigationRouter: NavigationRouting {
+
+    let navigator: Navigator
+
+    @MainActor public func route(to destination: KnownRoutes) {
+        navigator.perform(actions: actions(for: destination))
+    }
+
+    @MainActor func actions(for route: KnownRoutes) -> [NavigationAction] {
+        switch route {
         case .auth:
-            // xcrun simctl openurl booted navigator://app/home/auth
             [
                 .reset,
                 .send(RootTabs.home),
@@ -25,14 +31,12 @@ struct KnownRouteSplitViewProvider: NavigationActionProviding {
                 .send(RootTabs.home)
             ]
         case .homePage2:
-            // xcrun simctl openurl booted navigator://app/home/page2
             [
                 .dismissAny,
                 .send(RootTabs.home),
                 .send(HomeDestinations.page2)
             ]
-        case .homePage3:
-            // xcrun simctl openurl booted navigator://app/home/page3
+        case .homePage3, .homePage2Page3:
             [
                 .dismissAny,
                 .send(RootTabs.home),
@@ -40,8 +44,13 @@ struct KnownRouteSplitViewProvider: NavigationActionProviding {
                 .send(HomeDestinations.page2),
                 .send(HomeDestinations.page3)
             ]
+        case .settings:
+            [
+                .dismissAny,
+                .send(RootTabs.settings),
+                .popAll(in: RootTabs.settings.id)
+            ]
         default:
-            // xcrun simctl openurl booted navigator://app/home
             [
                 .reset,
                 .send(RootTabs.home)

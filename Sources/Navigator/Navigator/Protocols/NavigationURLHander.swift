@@ -29,13 +29,11 @@ import SwiftUI
 /// }
 ///```
 public protocol NavigationURLHander {
-    /// Method examines the passed URL and converts it into a set of NavigationDestination or Hashable values.
+    /// Method examines the passed URL, parses the values, and routes it as needed.
     ///
-    /// Those values will then be broadcast throughout the application using `navigator.send(values:)`.
-    ///
-    /// If a given handler doesn't recognize the URL in question, it returns nil. Handlers are processed in order until the URL is recognized
+    /// If a given handler doesn't recognize the URL in question, it returns false. Handlers are processed in order until the URL is recognized
     /// or until recognition fails.
-    @MainActor func handles(_ url: URL) -> [NavigationAction]?
+    @MainActor func handles(_ url: URL) -> Bool
 }
 
 extension View {
@@ -45,8 +43,8 @@ extension View {
     /// using the provided set of NavigationURLHanders.
     /// ```swift
     /// .onNavigationOpenURL(handlers: [
-    ///     HomeURLHander(),
-    ///     SettingsURLHander()
+    ///     HomeURLHander(router: router),
+    ///     SettingsURLHander(router: router)
     /// ])
     ///```
     public func onNavigationOpenURL(handlers: [any NavigationURLHander]) -> some View {
@@ -68,8 +66,8 @@ private struct OnNavigationOpenURLModifier: ViewModifier {
         content
             .onOpenURL { url in
                 for handler in handlers {
-                    if let actions = handler.handles(url) {
-                        return navigator.perform(actions: actions)
+                    if handler.handles(url) {
+                        break
                     }
                 }
             }

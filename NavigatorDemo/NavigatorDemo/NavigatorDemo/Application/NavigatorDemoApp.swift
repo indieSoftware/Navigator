@@ -17,7 +17,6 @@ struct NavigatorDemoApp: App {
         WindowGroup {
             // we want a new application resolver and navigator for each scene
             applicationView(applicationResolver())
-                .onNavigationReceive(assign: $rootViewType)
         }
     }
 
@@ -28,33 +27,26 @@ struct NavigatorDemoApp: App {
             verbosity: .info
         )
         let navigator = Navigator(configuration: configuration)
-        return AppResolver(navigator: navigator)
+        let router = rootViewType.router(navigator)
+        return AppResolver(navigator: navigator, router: router)
     }
 
     func applicationView(_ resolver: AppResolver) -> some View {
         rootViewType()
+            // navigation environment
             .environment(\.navigator, resolver.navigator)
+            .environment(\.router, resolver.router)
+            // application dependencies
             .environment(\.coreDependencies, resolver)
             .environment(\.homeDependencies, resolver)
             .environment(\.settingsDependencies, resolver)
+            // url handlers
+            .onNavigationOpenURL(handlers: [
+                HomeURLHander(router: resolver.router),
+                SettingsURLHander(router: resolver.router)
+            ])
+            // receiver handler to switch application root view type
+            .onNavigationReceive(assign: $rootViewType)
     }
 
-}
-
-enum RootViewType {
-    case tabbed
-    case split
-}
-
-extension RootViewType: NavigationDestination {
-    var view: some View {
-        switch self {
-        case .tabbed:
-            RootTabView()
-                .environment(\.routeActionProvider, KnownRouteTabProvider())
-        case .split:
-            RootSplitView()
-                .environment(\.routeActionProvider, KnownRouteSplitViewProvider())
-        }
-    }
 }

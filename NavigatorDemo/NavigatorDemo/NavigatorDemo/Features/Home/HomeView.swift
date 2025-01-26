@@ -32,6 +32,7 @@ class HomeContentViewModel: ObservableObject {
 struct HomeContentView: View {
     let title: String
     @Environment(\.navigator) var navigator
+    @Environment(\.router) var router
     @Environment(\.homeDependencies) var resolver
     var body: some View {
         List {
@@ -50,18 +51,22 @@ struct HomeContentView: View {
                 }
             }
             Section("Send Actions") {
-                Button("Send Home Page 2, 88, 99") {
+                Button("Send Home Page 2, 3") {
                     navigator.send(values: [
                         HomeDestinations.page2,
-                        HomeDestinations.pageN(88),
-                        HomeDestinations.pageN(99)
+                        HomeDestinations.page3,
                     ])
+                }
+            }
+            Section("Routing Actions") {
+                Button("Route To Home Page 2, 3") {
+                    router.route(to: .homePage2Page3)
+                }
+                Button("Route To Home Page 2, 3, 99") {
+                    router.route(to: .homePage2Page3PageN(99))
                 }
                 Button("Route To Settings Page 2") {
                     resolver.homeExternalRouter().route(to: .settingsPage2)
-                }
-                Button("Button Send Route 2, 3") {
-                    navigator.send(value: KnownRoutes.homePage2Page3)
                 }
             }
 
