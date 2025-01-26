@@ -1,5 +1,5 @@
 //
-//  SplitViewNavigationRouter.swift
+//  RootSplitViewRouter.swift
 //  NavigatorDemo
 //
 //  Created by Michael Long on 1/25/25.
@@ -8,7 +8,7 @@
 import Navigator
 import SwiftUI
 
-public struct SplitViewNavigationRouter: NavigationRouting {
+public struct RootSplitViewRouter: NavigationRouting {
 
     let navigator: Navigator
 

@@ -25,6 +25,7 @@ struct RootTabView : View {
                 .tabItem { Label("Settings", systemImage: "gear") }
                 .tag(RootTabs.settings)
         }
+        // setup tab switching
         .onNavigationReceive { (tab: RootTabs) in
             if tab == selectedTab {
                 return .immediately
@@ -32,6 +33,7 @@ struct RootTabView : View {
             selectedTab = tab
             return .auto
         }
+        // set authentication root from which auth dialog will be presented
         .setAuthenticationRoot()
     }
 }

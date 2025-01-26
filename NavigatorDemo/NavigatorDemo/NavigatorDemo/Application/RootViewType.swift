@@ -15,6 +15,7 @@ enum RootViewType {
 
 extension RootViewType: NavigationDestination {
 
+    // Provides the correct view for this type
     var view: some View {
         switch self {
         case .tabbed:
@@ -24,12 +25,13 @@ extension RootViewType: NavigationDestination {
         }
     }
 
+    // Provides the correct router since application structure changes for each type
     func router(_ navigator: Navigator) -> any NavigationRouting<KnownRoutes> {
         switch self {
         case .tabbed:
-            TabViewNavigationRouter(navigator: navigator)
+            RootTabViewRouter(navigator: navigator)
         case .split:
-            SplitViewNavigationRouter(navigator: navigator)
+            RootSplitViewRouter(navigator: navigator)
         }
     }
     

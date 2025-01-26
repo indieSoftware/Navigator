@@ -1,5 +1,5 @@
 //
-//  TabViewNavigationRouter.swift
+//  RootTabViewRouter.swift
 //  NavigatorDemo
 //
 //  Created by Michael Long on 1/25/25.
@@ -8,7 +8,7 @@
 import Navigator
 import SwiftUI
 
-public struct TabViewNavigationRouter: NavigationRouting {
+public struct RootTabViewRouter: NavigationRouting {
 
     let navigator: Navigator
 

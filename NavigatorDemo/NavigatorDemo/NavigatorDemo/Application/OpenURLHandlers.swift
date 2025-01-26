@@ -8,9 +8,26 @@
 import Navigator
 import SwiftUI
 
-struct HomeURLHander: NavigationURLHander {
+// Illustrates parsing a URL and directly sending actions to navigator
+struct SimpleURLHandler: NavigationURLHandler {
+    @MainActor public func handles(_ url: URL, with navigator: Navigator) -> Bool {
+        guard url.pathComponents.count > 1, url.pathComponents[1] == "simple", url.pathComponents.last == "sheet" else {
+            return false
+        }
+        // xcrun simctl openurl booted navigator://app/simple/sheet
+        navigator.perform(actions: [
+            .reset,
+            .send(RootTabs.home),
+            .send(HomeDestinations.presented1),
+        ])
+        return true
+    }
+}
+
+// Illustrates parsing a URL and mapping actions to a router
+struct HomeURLHandler: NavigationURLHandler {
     let router: any NavigationRouting<KnownRoutes>
-    @MainActor public func handles(_ url: URL) -> Bool {
+    @MainActor public func handles(_ url: URL, with navigator: Navigator) -> Bool {
         guard url.pathComponents.count > 1, url.pathComponents[1] == "home" else {
             return false
         }
@@ -32,9 +49,10 @@ struct HomeURLHander: NavigationURLHander {
     }
 }
 
-struct SettingsURLHander: NavigationURLHander {
+// Illustrates parsing a URL and mapping actions to a router
+struct SettingsURLHandler: NavigationURLHandler {
     let router: any NavigationRouting<KnownRoutes>
-    @MainActor public func handles(_ url: URL) -> Bool {
+    @MainActor public func handles(_ url: URL, with navigator: Navigator) -> Bool {
         guard url.pathComponents.count > 1, url.pathComponents[1] == "settings" else {
             return false
         }

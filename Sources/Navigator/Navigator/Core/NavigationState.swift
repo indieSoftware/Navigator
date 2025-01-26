@@ -48,7 +48,7 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
 
     /// Determines whether or not users should see animation steps when deep linking.
     public var executionDelay: TimeInterval {
-        configuration?.executionDelay ?? 0.1
+        configuration?.executionDelay ?? 0.6
     }
 
     /// Update counter for navigation path.

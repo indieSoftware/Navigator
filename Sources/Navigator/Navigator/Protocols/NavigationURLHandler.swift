@@ -28,12 +28,12 @@ import SwiftUI
 ///     return .auto
 /// }
 ///```
-public protocol NavigationURLHander {
+public protocol NavigationURLHandler {
     /// Method examines the passed URL, parses the values, and routes it as needed.
     ///
     /// If a given handler doesn't recognize the URL in question, it returns false. Handlers are processed in order until the URL is recognized
     /// or until recognition fails.
-    @MainActor func handles(_ url: URL) -> Bool
+    @MainActor func handles(_ url: URL, with navigator: Navigator) -> Bool
 }
 
 extension View {
@@ -47,18 +47,18 @@ extension View {
     ///     SettingsURLHander(router: router)
     /// ])
     ///```
-    public func onNavigationOpenURL(handlers: [any NavigationURLHander]) -> some View {
+    public func onNavigationOpenURL(handlers: [any NavigationURLHandler]) -> some View {
         self.modifier(OnNavigationOpenURLModifier(handlers: handlers))
     }
 }
 
 private struct OnNavigationOpenURLModifier: ViewModifier {
 
-    private let handlers: [any NavigationURLHander]
+    private let handlers: [any NavigationURLHandler]
 
     @Environment(\.navigator) var navigator: Navigator
 
-    init(handlers: [any NavigationURLHander]) {
+    init(handlers: [any NavigationURLHandler]) {
         self.handlers = handlers
     }
 
@@ -66,7 +66,7 @@ private struct OnNavigationOpenURLModifier: ViewModifier {
         content
             .onOpenURL { url in
                 for handler in handlers {
-                    if handler.handles(url) {
+                    if handler.handles(url, with: navigator) {
                         break
                     }
                 }

@@ -17,7 +17,7 @@ struct NavigatorDemoApp: App {
         WindowGroup {
             // we want a new application resolver and navigator for each scene
             applicationView(applicationResolver())
-        }
+         }
     }
 
     func applicationResolver() -> AppResolver {
@@ -27,26 +27,26 @@ struct NavigatorDemoApp: App {
             verbosity: .info
         )
         let navigator = Navigator(configuration: configuration)
-        let router = rootViewType.router(navigator)
-        return AppResolver(navigator: navigator, router: router)
+        return AppResolver(rootViewType: rootViewType, navigator: navigator)
     }
 
     func applicationView(_ resolver: AppResolver) -> some View {
         rootViewType()
-            // navigation environment
+            // setup url handlers
+            .onNavigationOpenURL(handlers: [
+                SimpleURLHandler(),
+                HomeURLHandler(router: resolver.router),
+                SettingsURLHandler(router: resolver.router)
+            ])
+            // setup receive handler to switch application root view type
+            .onNavigationReceive(assign: $rootViewType)
+             // setup navigation environment
             .environment(\.navigator, resolver.navigator)
             .environment(\.router, resolver.router)
-            // application dependencies
+            // provide application dependencies
             .environment(\.coreDependencies, resolver)
             .environment(\.homeDependencies, resolver)
             .environment(\.settingsDependencies, resolver)
-            // url handlers
-            .onNavigationOpenURL(handlers: [
-                HomeURLHander(router: resolver.router),
-                SettingsURLHander(router: resolver.router)
-            ])
-            // receiver handler to switch application root view type
-            .onNavigationReceive(assign: $rootViewType)
     }
 
 }

@@ -20,6 +20,9 @@ typealias AppDependencies = CoreDependencies
 // Make the application's dependency resolver
 class AppResolver: AppDependencies {
 
+    // root view type
+    let rootViewType: RootViewType
+
     // root navigator
     let navigator: Navigator
 
@@ -27,9 +30,10 @@ class AppResolver: AppDependencies {
     let router: any NavigationRouting<KnownRoutes>
 
     // initializer
-    init(navigator: Navigator, router: any NavigationRouting<KnownRoutes>) {
+    init(rootViewType: RootViewType, navigator: Navigator) {
+        self.rootViewType = rootViewType
         self.navigator = navigator
-        self.router = router
+        self.router = rootViewType.router(navigator)
     }
 
     // need one per app
@@ -53,7 +57,7 @@ class AppResolver: AppDependencies {
     // Home feature wants to be able to route to settings feature, app knows how app is structured, so...
     @MainActor func homeExternalRouter() -> any NavigationRouting<HomeExternalRoutes> {
         NavigationRouter {
-            // Map external types to internal types
+            // Map external routes required by Home feature to internal routes
             switch $0 {
             case .settingsPage2:
                 self.router.route(to: .settingsPage2)
