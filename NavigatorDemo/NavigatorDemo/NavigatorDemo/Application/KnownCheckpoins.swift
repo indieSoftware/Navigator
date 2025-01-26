@@ -12,4 +12,3 @@ extension NavigationCheckpoint {
     public static let page2: NavigationCheckpoint = "myApp.page2"
     public static let settings: NavigationCheckpoint = "myApp.settings"
 }
-

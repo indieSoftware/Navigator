@@ -48,15 +48,10 @@ struct HomeContentView: View {
                 Button("Button Navigate to Home Page 55") {
                     navigator.navigate(to: HomeDestinations.pageN(55))
                 }
-//                Button("Button Push 2, 3") {
-//                    navigator.push(HomeDestinations.page2)
-//                    navigator.push(HomeDestinations.page3)
-//                }
             }
             Section("Send Actions") {
                 Button("Send Home Page 2, 88, 99") {
                     navigator.send(values: [
-                        NavigationAction.popAll(in: RootTabs.home.id),
                         HomeDestinations.page2,
                         HomeDestinations.pageN(88),
                         HomeDestinations.pageN(99)
@@ -65,11 +60,8 @@ struct HomeContentView: View {
                 Button("Route To Settings Page 2") {
                     resolver.homeExternalRouter().route(to: .settingsPage2)
                 }
-                Button("Button Send 2, 3") {
-                    navigator.send(values: [
-                        HomeDestinations.page2,
-                        HomeDestinations.page3
-                    ])
+                Button("Button Send Route 2, 3") {
+                    navigator.send(value: KnownRoutes.homePage2Page3)
                 }
             }
 

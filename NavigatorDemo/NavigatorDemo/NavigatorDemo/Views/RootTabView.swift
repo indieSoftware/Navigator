@@ -16,6 +16,7 @@ enum RootTabs: Int, Identifiable, Codable {
 
 struct RootTabView : View {
     @SceneStorage("selectedTab") var selectedTab: RootTabs = .home
+    @Environment(\.routeActionProvider) var routeActionProvider
     var body: some View {
         TabView(selection: $selectedTab) {
             HomeRootView()
@@ -33,8 +34,8 @@ struct RootTabView : View {
             return .auto
         }
         .onNavigationOpenURL(handlers: [
-            HomeURLHander(),
-            SettingsURLHander()
+            HomeURLHander(provider: routeActionProvider),
+            SettingsURLHander(provider: routeActionProvider)
         ])
         .setAuthenticationRoot()
     }
