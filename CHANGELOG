@@ -1,5 +1,13 @@
 # Navigator Changelog
 
+### 0.9.11
+
+* Code changes for NavigationRouting support
+* Rename ExternalNavigationRouting to NavigationRouting
+* Rename ExternalNavigationViewProviding to NavigationViewProviding
+* Changed OpenURLHandlers to perform actions directly which allows them to use navigation routers
+* Begin testing support for NavigationSplitViews (incomplete)
+
 ### 0.9.10
 
 * Update checkpoints with values to search current navigation tree only for correct handler
