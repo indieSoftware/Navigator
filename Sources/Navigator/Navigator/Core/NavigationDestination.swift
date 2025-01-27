@@ -15,7 +15,7 @@ import SwiftUI
 ///
 /// * Standard SwiftUI modifiers like `NavigationLink(value:label:)`.
 /// * Imperatively by asking a ``Navigator`` to perform the desired action.
-/// * Or via a deep link action enabled by a ``NavigationURLHander``.
+/// * Or via a deep link action enabled by a ``NavigationURLHandler``.
 ///
 /// They're one of the core elements that make Navigator possible.
 ///
@@ -180,12 +180,14 @@ extension View {
 
 private struct NavigationDestinationModifier<D: NavigationDestination>: ViewModifier {
     let destination: D.Type
-    // @Environment(\.navigator) var navigator
+    @Environment(\.navigator) var navigator
     func body(content: Content) -> some View {
         content
             .navigationDestination(for: D.self) { destination in
-                // let _ = print(navigator.count)
                 destination()
+                    // propagates environment so destination continues to use the same navigator
+                    // this is primarily needed when using NavigationSplitView
+                    .environment(\.navigator, navigator)
             }
     }
 }

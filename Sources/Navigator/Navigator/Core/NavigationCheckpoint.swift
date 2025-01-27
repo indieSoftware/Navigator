@@ -205,13 +205,13 @@ extension NavigationState {
         }
         let checkpoint = checkpoint.setting(index: path.count)
         checkpoints[checkpoint.name] = checkpoint.setting(index: path.count)
-        log("Navigator adding checkpoint: \(checkpoint.name)")
+        log("Navigator \(id) adding checkpoint: \(checkpoint.name)")
     }
 
     internal func cleanCheckpoints() {
         checkpoints = checkpoints.filter {
             guard $1.index <= path.count else {
-                log("Navigator removing checkpoint: \($1.name)")
+                log("Navigator \(id) removing checkpoint: \($1.name)")
                 return false
             }
             return true

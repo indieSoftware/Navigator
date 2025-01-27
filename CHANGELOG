@@ -1,5 +1,10 @@
 # Navigator Changelog
 
+### 0.9.12
+
+* Add destination change needed to propagate navigators correctly in navigation split views.
+* Update demo code to run split views on iPad. (WIP)
+
 ### 0.9.11
 
 * Code changes for NavigationRouting support

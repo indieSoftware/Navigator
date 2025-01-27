@@ -68,7 +68,7 @@ ManagedNavigationStack {
         .navigationDestination(HomeDestinations.self)
 }
 ```
-This also makes using the same destination type with more than one navigation stack a lot easier.
+This can also make using the same destination type with more than one navigation stack a lot easier.
 
 ### Using Navigation Destinations
 With that out of the way, Navigation Destinations can be dispatched using a standard SwiftUI `NavigationLink(value:label:)` view.
@@ -99,11 +99,11 @@ Or imperatively by asking a Navigator to perform the desired action.
 ```swift
 @Environment(\.navigator) var navigator: Navigator
 ...
-Button("Button Push Home Page 55") {
-    navigator.push(HomeDestinations.pageN(55))
-}
 Button("Button Navigate To Home Page 55") {
     navigator.navigate(to: HomeDestinations.pageN(55))
+}
+Button("Button Push Home Page 55") {
+    navigator.push(HomeDestinations.pageN(55))
 }
 ```
 In case you're wondering, calling `push` pushes the associate view onto the current `NavigationStack`, while `Navigate(to:)` will push
@@ -140,7 +140,16 @@ Button("Present Home Page 55 Via Sheet") {
 
 ### Checkpoints
 
-While one can programmatically pop and dismiss their way out of a screen, that approach is problematic and fragile. One could pass bindings down the tree, but that can be equally problematic at worst, and cumbersome at best.
+Like most systems based on NavigationStack, Navigator supports operations like popping back to a previous view, dismissing a presented view, and so on.
+```swift
+Button("Pop To Previous Screen") {
+    navigator.pop()
+}
+Button("Dismiss Presented View") {
+    navigator.dismiss()
+}
+```
+But those are all imperative operations. While one can programmatically pop and dismiss their way out of a screen, that approach is problematic and tends to be fragile. One could pass bindings down the tree, but that can also be cumbersome and difficult to maintain.
 
 Fortunately, Navigator supports checkpoints; named points in the navigation stack to which one can easily return.
 
@@ -167,12 +176,12 @@ Button("Return To Checkpoint Home") {
 }
 .disabled(!navigator.canReturnToCheckpoint(.home))
 ```
-When fired, checkpoints will dismiss any presented screens and pop any pushed views to return exactly where desired.
+When fired, checkpoints will dismiss any presented screens and pop any pushed views to return *exactly* to the point desired.
 
 Checkpoints can also be used to return values to a caller.
 ```swift
 // Define a checkpoint with a value handler.
-.navigationCheckpoint(.settings) { (result: Int?) in
+.navigationCheckpoint(.settings) { (result: Int) in
     returnValue = result
 }
 
@@ -202,8 +211,10 @@ struct RootTabView : View {
                 .tabItem { Label("Settings", systemImage: "gear") }
                 .tag(RootTabs.settings)
         }
-        .onNavigationReceive { (tab: RootTabs, navigator) in
-            try? navigator.dismissAny()
+        .onNavigationReceive { (tab: RootTabs) in
+            if tab == selectedTab {
+                return .immediately
+            }
             selectedTab = tab
             return .auto
         }
@@ -232,6 +243,21 @@ The `RootTabs` receiver switches to the selected tab, and then a similar `HomeDe
 ```
 This mechanism makes deep linking and internal navigation support simple and easy.
 
+Note that some of the above sequences are so common there are shortcuts to support them.
+```swift
+struct RootTabView : View {
+    @SceneStorage("selectedTab") var selectedTab: RootTabs = .home
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            ...
+        }
+        .onNavigationReceive(assign: $tab)
+        .onNavigationReceive(HomeDestinations.self) 
+    }
+}
+```
+Both of the above perform identically to the examples shown previously.
+
 ### Advanced Destinations
 
 What if we can't construct a specific view without external dependencies or without accessing the environment? 
@@ -246,7 +272,7 @@ extension HomeDestinations: NavigationDestination {
 
 private struct HomeDestinationsView: View {
     let destination: HomeDestinations
-    @Environment(\.coreDependencies) var resolver
+    @Environment(\.homeDependencies) var resolver
     var body: some View {
         switch self {
         case .home:
@@ -261,7 +287,7 @@ private struct HomeDestinationsView: View {
     }
 }
 ```
-In the above code, we obtain a `coreDependencies` resolver from the environment, and then use it to construct our views
+In the above code, we obtain a `homeDependencies` resolver from the environment, then use it to construct our views
 and view models.
 
 Note this technique can be used to construct and use fully functional views elsewhere in your view code. Consider.
@@ -278,11 +304,11 @@ struct RootHomeView: View {
 Calling the destination as a function obtains a fully resolved `HomePageView` and view model from `HomeDestinationsView`, 
 complete and ready to go.
 
-See the 'DemoDependency.swift' file in the NavigatorDemo project for a possible dependency injection mechanism.
+Check out the NavigatorDemo project for a more thorough example of this dependency injection mechanism.
 
 ## Documentation
 
-A single README file barely scratches the surface. Fortunately, Navigator is throughly documented. 
+A single README file barely scratches the surface. Fortunately, Navigator is (will be) throughly documented. 
 
 See [Navigator Documentation](https://hmlongco.github.io/Navigator/documentation/navigator).
 

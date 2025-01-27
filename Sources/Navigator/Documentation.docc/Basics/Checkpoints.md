@@ -4,7 +4,16 @@ Navigation Checkpoints allow one to return to a specific waypoint in the navigat
 
 ## Overview
 
-While one can programmatically pop and dismiss their way out of a screen, that approach is problematic and fragile. One could pass bindings down the tree, but that can be equally problematic at worst, and cumbersome at best.
+Like most systems based on NavigationStack, Navigator supports operations like popping back to a previous view, dismissing a presented view, and so on.
+```swift
+Button("Pop To Previous Screen") {
+    navigator.pop()
+}
+Button("Dismiss Presented View") {
+    navigator.dismiss()
+}
+```
+But those are all imperative operations. While one can programmatically pop and dismiss their way out of a screen, that approach is problematic and tends to be fragile. One could pass bindings down the tree, but that can also be cumbersome and difficult to maintain.
 
 Fortunately, Navigator supports checkpoints; named points in the navigation stack to which one can easily return.
 
@@ -50,7 +59,7 @@ Checkpoints can also be used to return values to a caller.
 First we establish our checkpoint, but also adding a handler that receives a specific value type.
 ```swift
 // Define a checkpoint with a value handler.
-.navigationCheckpoint(.settings) { (result: Int?) in
+.navigationCheckpoint(.settings) { (result: Int) in
     returnValue = result
 }
 ```

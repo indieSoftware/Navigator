@@ -59,9 +59,11 @@ struct SettingsView: View {
                 }
                 .navigationSend($destination)
                 Button("Send Tab Home, Page 2, 88, Present") {
+                    // assumes knowledge of app structure, doing a route would be better
                     navigator.send(values: [
                         NavigationAction.dismissAny,
                         RootTabs.home,
+                        NavigationAction.popAll(in: RootTabs.home.id),
                         HomeDestinations.page2,
                         HomeDestinations.pageN(88),
                         HomeDestinations.presented1
@@ -80,6 +82,8 @@ struct SettingsView: View {
             }
         }
         .navigationTitle(name)
+        // establishes a standard checkpoint
+        .navigationCheckpoint(.settings)
         // establishes a checkpoint with a return value handler
         .navigationCheckpoint(.settings) { (result: Int?) in
             returnValue = result

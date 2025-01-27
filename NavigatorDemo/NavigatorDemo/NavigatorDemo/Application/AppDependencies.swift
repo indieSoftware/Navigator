@@ -21,7 +21,7 @@ typealias AppDependencies = CoreDependencies
 class AppResolver: AppDependencies {
 
     // root view type
-    let rootViewType: RootViewType
+    let rootViewType: AppRootType
 
     // root navigator
     let navigator: Navigator
@@ -30,7 +30,7 @@ class AppResolver: AppDependencies {
     let router: any NavigationRouting<KnownRoutes>
 
     // initializer
-    init(rootViewType: RootViewType, navigator: Navigator) {
+    init(rootViewType: AppRootType, navigator: Navigator) {
         self.rootViewType = rootViewType
         self.navigator = navigator
         self.router = rootViewType.router(navigator)

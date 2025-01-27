@@ -8,22 +8,15 @@
 import Navigator
 import SwiftUI
 
-enum RootTabs: Int, Identifiable, Codable {
-    case home
-    case settings
-    var id: String { "\(self)" }
-}
-
 struct RootTabView : View {
     @SceneStorage("selectedTab") var selectedTab: RootTabs = .home
     var body: some View {
         TabView(selection: $selectedTab) {
-            HomeRootView()
-                .tabItem { Label("Home", systemImage: "house") }
-                .tag(RootTabs.home)
-            SettingsRootView()
-                .tabItem { Label("Settings", systemImage: "gear") }
-                .tag(RootTabs.settings)
+            ForEach(RootTabs.tabs) { tab in
+                tab()
+                    .tabItem { Label(tab.title, systemImage: tab.image) }
+                    .tag(tab)
+            }
         }
         // setup tab switching
         .onNavigationReceive { (tab: RootTabs) in
@@ -31,10 +24,8 @@ struct RootTabView : View {
                 return .immediately
             }
             selectedTab = tab
-            return .auto
+            return .after(0.8) // a little extra time for tab switching improves the UI
         }
-        // set authentication root from which auth dialog will be presented
-        .setAuthenticationRoot()
     }
 }
 

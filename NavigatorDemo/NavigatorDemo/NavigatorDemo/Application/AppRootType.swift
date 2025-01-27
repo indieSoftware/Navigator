@@ -8,12 +8,12 @@
 import Navigator
 import SwiftUI
 
-enum RootViewType {
+enum AppRootType {
     case tabbed
     case split
 }
 
-extension RootViewType: NavigationDestination {
+extension AppRootType: NavigationDestination {
 
     // Provides the correct view for this type
     var view: some View {
@@ -25,7 +25,7 @@ extension RootViewType: NavigationDestination {
         }
     }
 
-    // Provides the correct router since application structure changes for each type
+    // Illustrates providing the correct router since application structure could change for each type
     func router(_ navigator: Navigator) -> any NavigationRouting<KnownRoutes> {
         switch self {
         case .tabbed:

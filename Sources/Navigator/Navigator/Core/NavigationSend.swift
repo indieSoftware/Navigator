@@ -109,9 +109,11 @@ extension Navigator {
         case .auto:
             let delay: TimeInterval = delay ?? state.executionDelay
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                // log("Navigator \(id) delay: \(delay)")
                 self.send(values: values)
             }
         case .immediately:
+            // log("Navigator \(id) immediate send")
             send(values: values)
         case .after(let interval):
             resume(.auto, values: values, delay: interval)
@@ -340,7 +342,7 @@ private struct NavigationResumeModifier: ViewModifier {
     }
 }
 
-internal class NavigationSendValues {
+internal final class NavigationSendValues {
 
     internal let navigator: Navigator
     internal let value: any Hashable
