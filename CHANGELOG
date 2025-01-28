@@ -1,9 +1,15 @@
 # Navigator Changelog
 
+### 0.9.13
+
+* Change to checkpoint code to potentially correct issue #24
+* Change to popAll code to potentially correct issue #24
+* Changes to demo code for split views on iPad (WIP)
+
 ### 0.9.12
 
-* Add destination change needed to propagate navigators correctly in navigation split views.
-* Update demo code to run split views on iPad. (WIP)
+* Add destination change needed to propagate navigators correctly in navigation split views
+* Update demo code to run split views on iPad (WIP)
 
 ### 0.9.11
 
@@ -11,7 +17,7 @@
 * Rename ExternalNavigationRouting to NavigationRouting
 * Rename ExternalNavigationViewProviding to NavigationViewProviding
 * Changed OpenURLHandlers to perform actions directly which allows them to use navigation routers
-* Begin testing support for NavigationSplitViews (incomplete)
+* Begin testing support for NavigationSplitViews (WIP)
 
 ### 0.9.10
 

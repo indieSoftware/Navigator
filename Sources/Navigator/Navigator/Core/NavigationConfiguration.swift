@@ -51,11 +51,11 @@ public struct NavigationConfiguration {
     public init(
         restorationKey: String? = nil,
         logger: ((String) -> Void)? = { print($0) },
-        executionDelay: TimeInterval = 0.1,
+        executionDelay: TimeInterval = 0.3,
         verbosity: Verbosity = .warning
     ) {
         if #available(iOS 18, *) {
-            self.executionDelay = min(max(0.1, executionDelay), 5.0)
+            self.executionDelay = min(max(0.3, executionDelay), 5.0)
         } else {
             self.executionDelay = min(max(0.7, executionDelay), 5.0)
         }

@@ -285,16 +285,7 @@ private struct NavigationCheckpointModifier: ViewModifier {
     internal let checkpoint: NavigationCheckpoint
     func body(content: Content) -> some View {
         content
-            .modifier(WrappedModifier(checkpoint: checkpoint, navigator: navigator))
-    }
-    // Wrapped modifier allows parent environment variables can be extracted and passed to navigator.
-    struct WrappedModifier:  ViewModifier {
-        init(checkpoint: NavigationCheckpoint, navigator: Navigator) {
-            navigator.addCheckpoint(checkpoint)
-        }
-        func body(content: Content) -> some View {
-            content
-        }
+            .task { navigator.addCheckpoint(checkpoint) }
     }
 }
 

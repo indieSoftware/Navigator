@@ -209,13 +209,17 @@ extension View {
     }
 
     // Handler receives values of a specific type broadcast via `navigator.send` and assigns the result to bound value
-    public func onNavigationReceive<T: Hashable & Equatable>(assign binding: Binding<T>) -> some View {
+    public func onNavigationReceive<T: Hashable & Equatable>(assign binding: Binding<T>, delay: TimeInterval? = nil) -> some View {
         self.modifier(OnNavigationReceiveModifier<T> { (value, _) in
             if binding.wrappedValue == value {
                 return .immediately
             }
             binding.wrappedValue = value
-            return .auto
+            if let delay {
+                return .after(delay)
+            } else {
+                return .auto
+            }
         })
     }
 

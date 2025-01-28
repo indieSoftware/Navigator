@@ -114,7 +114,7 @@ extension Navigator {
     @MainActor
     @discardableResult
     public func popAny() throws -> Bool {
-        try root.state.popAny()
+        try state.popAny()
     }
 
     /// Pops an items from the navigation path, or dismiss if we're on the root view.
@@ -174,11 +174,9 @@ extension NavigationState {
     }
 
     internal func popAll() -> Bool {
-        if !path.isEmpty {
-            path.removeLast(path.count)
-            return true
-        }
-        return false
+        let result = !path.isEmpty
+        path = NavigationPath()
+        return result
     }
 
     internal func popAny() throws -> Bool {
@@ -186,7 +184,7 @@ extension NavigationState {
             log(type: .warning, "Navigator \(id) error navigation locked")
             throw NavigationError.navigationLocked
         }
-        return recursivePopAny()
+        return root.recursivePopAny()
     }
 
     internal func recursivePopAny() -> Bool {

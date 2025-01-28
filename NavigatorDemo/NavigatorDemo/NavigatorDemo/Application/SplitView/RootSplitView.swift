@@ -9,25 +9,28 @@ import Navigator
 import SwiftUI
 
 struct RootSplitView: View {
-    @State var selectedTab: RootTabs? = .home
+    @State var selectedTab: RootTabs! = .home
     var body: some View {
         NavigationSplitView {
             List(selection: $selectedTab) {
-                ForEach(RootTabs.sidebar) { tab in
-                    NavigationLink(value: tab) {
-                        Label(tab.title, systemImage: tab.image)
+                Section("Menu") {
+                    ForEach(RootTabs.sidebar) { tab in
+                        NavigationLink(value: tab) {
+                            Label(tab.title, systemImage: tab.image)
+                        }
                     }
                 }
             }
+            .navigationSplitViewColumnWidth(200)
         } detail: {
-            selectedTab?()
+            selectedTab()
         }
         .onNavigationReceive { (tab: RootTabs) in
             if tab == selectedTab {
                 return .immediately
             }
             selectedTab = tab
-            return .after(0.8) // a little extra time for "tab" switching improves the UI
+            return .after(0.8) // switching root views needs a little more time
         }
     }
 }

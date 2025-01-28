@@ -24,7 +24,7 @@ struct RootTabView : View {
                 return .immediately
             }
             selectedTab = tab
-            return .after(0.8) // a little extra time for tab switching improves the UI
+            return .after(0.8)  // switching tabs needs a little more time
         }
     }
 }

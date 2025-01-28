@@ -31,7 +31,7 @@ struct NavigatorDemoApp: App {
     func applicationResolver() -> AppResolver {
         let configuration: NavigationConfiguration = .init(
             restorationKey: nil, // "1.0.0",
-            executionDelay: 0.3, // 0.1 - 5.0
+            executionDelay: 0.3, // 0.3 - 5.0
             verbosity: .info
         )
         let navigator = Navigator(configuration: configuration)
