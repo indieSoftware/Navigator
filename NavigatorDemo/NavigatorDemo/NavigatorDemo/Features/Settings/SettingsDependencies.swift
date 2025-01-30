@@ -40,10 +40,11 @@ extension MockSettingsDependencies {
 }
 
 // Make our mock resolver
-public struct MockSettingsResolver: MockSettingsDependencies {}
+public class MockSettingsResolver: MockCoreResolver, MockSettingsDependencies {}
 
 // Illustrate making a test resolver that overrides default behavior
 public struct TestSettingsResolver: MockSettingsDependencies {
+    public let cache: DependencyCache = .init()
     public var settingsKey: String { "test" }
 }
 

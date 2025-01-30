@@ -16,6 +16,7 @@ import SwiftUI
 public protocol CoreDependencies: NetworkDependencies
     & LoggingDependencies
     & AnalyticsDependencies
+    & DependencyCaching
 {}
 
 // Define a dependency
@@ -66,16 +67,25 @@ public protocol MockCoreDependencies: CoreDependencies {}
 extension MockCoreDependencies {
     // override default provider
     public func networker() -> any Networking {
-        MockNetworker()
+        cached { MockNetworker() as any Networking }
     }
     // provide missing service
     public func analytics() -> any AnalyticsService {
-        MockAnalyticsService()
+        cached { MockAnalyticsService() as any AnalyticsService }
     }
+    #if DEBUG
+    // add preview and mocking support for networking
+    public func mock<T>(_ factory: @escaping () -> T) -> Self {
+        (networker() as? MockNetworker)?.add(factory)
+        return self
+    }
+    #endif
 }
 
-// Make our mock resolver
-public struct MockCoreResolver: MockCoreDependencies {}
+// Make our mock resolver. Default implementation provides the dependency cache so that subclasses aren't required to do so.
+public class MockCoreResolver: MockCoreDependencies {
+    public let cache: DependencyCache = .init()
+}
 
 // Make our environment entry
 extension EnvironmentValues {

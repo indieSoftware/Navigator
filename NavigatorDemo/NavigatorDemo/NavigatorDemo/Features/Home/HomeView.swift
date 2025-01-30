@@ -13,10 +13,10 @@ class HomeRootViewModel: ObservableObject {
     private let logger: any Logging
     init(resolver: HomeDependencies) {
         self.logger = resolver.logger()
-        logger.log("HomeRootViewModel INIT \(id)")
+        logger.log("HomeRootViewModel initialized \(id)")
     }
     deinit {
-        logger.log("HomeRootViewModel DEINIT \(id)")
+        logger.log("HomeRootViewModel deinit \(id)")
     }
 }
 
@@ -93,6 +93,10 @@ class HomePage2ViewModel: ObservableObject {
     let title: String
     init(dependencies: HomeDependencies) {
         title = "Page 2 " + dependencies.loader().load()
+        print("HomePage2ViewModel initialized \(ObjectIdentifier(self))")
+    }
+    deinit {
+        print("HomePage2ViewModel deinit \(ObjectIdentifier(self))")
     }
 }
 
@@ -201,7 +205,15 @@ struct NestedHomeContentView: View {
     }
 }
 
+#if DEBUG
 #Preview {
-    HomeRootView(viewModel: HomeRootViewModel(resolver: MockHomeResolver()))
+    // Demonstrates using destinations to build root views that may have dependencies.
+    // Also mocking network call results for these types.
+    RootTabs.home()
         .setAuthenticationRoot()
+        .environment(\.homeDependencies, MockHomeResolver()
+            .mock { "(M5)" }
+            .mock { 222 }
+        )
 }
+#endif

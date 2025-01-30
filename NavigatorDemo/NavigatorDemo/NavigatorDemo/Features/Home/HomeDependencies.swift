@@ -48,7 +48,7 @@ extension MockHomeDependencies {
 }
 
 // Make our mock resolver
-public struct MockHomeResolver: MockHomeDependencies {}
+public class MockHomeResolver: MockCoreResolver, MockHomeDependencies {}
 
 // Make our environment entry
 extension EnvironmentValues {
