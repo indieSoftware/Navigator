@@ -42,8 +42,6 @@ struct NavigatorDemoApp: App {
         // Remember that modifiers wrap their parent view or parent modifiers, which means that they work from the outside in.
         // So here we're setting up dependencies first, then navigation, then url handlers, then authentication root
         rootViewType()
-            // set authentication root from which auth dialog will be presented
-            .setAuthenticationRoot()
             // setup url handlers
             .onNavigationOpenURL(handlers: [
                 SimpleURLHandler(),

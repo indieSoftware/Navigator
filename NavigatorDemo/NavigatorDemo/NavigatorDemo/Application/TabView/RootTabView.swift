@@ -26,6 +26,8 @@ struct RootTabView : View {
             selectedTab = tab
             return .after(0.8)  // switching tabs needs a little more time
         }
+        // set authentication root from which auth dialog will be presented
+        .setAuthenticationRoot()
     }
 }
 

@@ -18,6 +18,8 @@ struct RootSplitView: View {
             selectedTab?()
         }
         .onNavigationReceive(assign: $selectedTab, delay: 0.8) // switching root views needs a little more time
+        // set authentication root from which auth dialog will be presented
+        .setAuthenticationRoot()
     }
 }
 
