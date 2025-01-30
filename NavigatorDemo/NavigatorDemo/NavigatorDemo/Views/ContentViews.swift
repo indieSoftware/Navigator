@@ -88,6 +88,25 @@ struct ContentCheckpointSection: View {
     }
 }
 
+struct ContentRoutingSection: View {
+    @Environment(\.router) var router
+    @Environment(\.homeDependencies) var resolver
+    @State var returnToCheckpoint: Bool = false
+    var body: some View {
+        Section("Routing Actions") {
+            Button("Route To Home Page 2, 3") {
+                router.route(to: .homePage2Page3)
+            }
+            Button("Route To Home Page 2, 3, 99") {
+                router.route(to: .homePage2Page3PageN(99))
+            }
+            Button("Route To Settings Page 2") {
+                resolver.homeExternalRouter().route(to: .settingsPage2)
+            }
+        }
+    }
+}
+
 struct ContentPopSection: View {
     @Environment(\.navigator) var navigator: Navigator
     @Environment(\.dismiss) var dismiss

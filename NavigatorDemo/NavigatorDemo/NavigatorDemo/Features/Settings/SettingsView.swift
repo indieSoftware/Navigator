@@ -8,7 +8,15 @@
 import Navigator
 import SwiftUI
 
+class SettingsRootViewModel: ObservableObject {
+    @Published var id = UUID()
+    init() {
+        print(id)
+    }
+}
+
 struct SettingsRootView: View {
+    @EnvironmentObject var rootViewModel: SettingsRootViewModel
     var body: some View {
         ManagedNavigationStack(scene: RootTabs.settings.id) {
             SettingsView(name: "Root Settings")

@@ -13,8 +13,9 @@ import SwiftUI
 //
 
 // Specify everything this module needs
-public typealias HomeDependencies = CoreDependencies
+public protocol HomeDependencies: CoreDependencies
     & HomeModuleDependencies
+{}
 
 // Specify everything required by this module
 public protocol HomeModuleDependencies {

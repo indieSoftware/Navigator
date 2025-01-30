@@ -13,8 +13,9 @@ import SwiftUI
 //
 
 // Specify everything this module needs
-public typealias SettingsDependencies = CoreDependencies
+public protocol SettingsDependencies: CoreDependencies
     & SettingsModuleDependencies
+{}
 
 // Specify everything specific to this module
 public protocol SettingsModuleDependencies {

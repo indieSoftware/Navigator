@@ -5,17 +5,18 @@
 //  Created by Michael Long on 12/5/24.
 //
 
-import SwiftUI
 import Navigator
+import SwiftUI
 
 //
 // CORE MODULE DEPENDENCIES
 //
 
 // Convenience type specifies everything visible and available in our core module
-public typealias CoreDependencies = NetworkDependencies
+public protocol CoreDependencies: NetworkDependencies
     & LoggingDependencies
     & AnalyticsDependencies
+{}
 
 // Define a dependency
 public protocol NetworkDependencies {

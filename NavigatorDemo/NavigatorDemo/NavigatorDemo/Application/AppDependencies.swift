@@ -29,6 +29,9 @@ class AppResolver: AppDependencies {
     // application router
     let router: any NavigationRouting<KnownRoutes>
 
+    // ensure we have dependency cache in scope
+    let thirdPartyAnalyticsService = ThirdPartyAnalyticsService()
+
     // initializer
     init(rootViewType: AppRootType, navigator: Navigator) {
         self.rootViewType = rootViewType
@@ -36,12 +39,9 @@ class AppResolver: AppDependencies {
         self.router = rootViewType.router(navigator)
     }
 
-    // need one per app
-    let analyticsService = ThirdPartyAnalyticsService()
-
     // Missing default dependencies forces app to provide them.
     func analytics() -> any AnalyticsService {
-        analyticsService
+        thirdPartyAnalyticsService
     }
 
     // Home needs an external view from somewhere. Provide it.

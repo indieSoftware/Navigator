@@ -8,7 +8,26 @@
 import Navigator
 import SwiftUI
 
+class HomeRootViewModel: ObservableObject {
+    @Published var id = UUID()
+    private let logger: any Logging
+    init(resolver: HomeDependencies) {
+        self.logger = resolver.logger()
+        logger.log("HomeRootViewModel INIT \(id)")
+    }
+    deinit {
+        logger.log("HomeRootViewModel DEINIT \(id)")
+    }
+}
+
+//extension HomeDependencies {
+//    var homeRootViewModel: HomeRootViewModel {
+//        HomeRootViewModel(dependencies: self)
+//    }
+//}
+
 struct HomeRootView: View {
+    @StateObject var viewModel: HomeRootViewModel
     var body: some View {
         ManagedNavigationStack(scene: RootTabs.home.id) {
             HomeContentView(title: "Home Navigation")
@@ -32,7 +51,6 @@ class HomeContentViewModel: ObservableObject {
 struct HomeContentView: View {
     let title: String
     @Environment(\.navigator) var navigator
-    @Environment(\.router) var router
     @Environment(\.homeDependencies) var resolver
     var body: some View {
         List {
@@ -58,24 +76,16 @@ struct HomeContentView: View {
                     ])
                 }
             }
-            Section("Routing Actions") {
-                Button("Route To Home Page 2, 3") {
-                    router.route(to: .homePage2Page3)
-                }
-                Button("Route To Home Page 2, 3, 99") {
-                    router.route(to: .homePage2Page3PageN(99))
-                }
-                Button("Route To Settings Page 2") {
-                    resolver.homeExternalRouter().route(to: .settingsPage2)
-                }
-            }
-
+            ContentRoutingSection()
             SendResumeAuthenticatedView()
             ContentSheetSection()
             ContentCheckpointSection()
             ContentPopSection()
         }
         .navigationTitle(title)
+        .onAppear {
+            resolver.logger().log("HomeContentView.onAppear")
+        }
     }
 }
 
@@ -192,6 +202,6 @@ struct NestedHomeContentView: View {
 }
 
 #Preview {
-    HomeRootView()
+    HomeRootView(viewModel: HomeRootViewModel(resolver: MockHomeResolver()))
         .setAuthenticationRoot()
 }
