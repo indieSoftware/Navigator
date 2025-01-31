@@ -10,8 +10,10 @@ import SwiftUI
 
 class HomeRootViewModel: ObservableObject {
     @Published var id = UUID()
-    private let logger: any Logging
+    internal let resolver: HomeDependencies
+    internal let logger: any Logging
     init(resolver: HomeDependencies) {
+        self.resolver = resolver
         self.logger = resolver.logger()
         logger.log("HomeRootViewModel initialized \(id)")
     }
@@ -30,7 +32,7 @@ struct HomeRootView: View {
     @StateObject var viewModel: HomeRootViewModel
     var body: some View {
         ManagedNavigationStack(scene: RootTabs.home.id) {
-            HomeContentView(title: "Home Navigation")
+            HomeContentView(resolver: viewModel.resolver, title: "Home Navigation")
                 .navigationCheckpoint(.home)
                 .navigationDestination(HomeDestinations.self)
                 .onNavigationReceive { (destination: HomeDestinations, navigator) in
@@ -43,15 +45,17 @@ struct HomeRootView: View {
 
 class HomeContentViewModel: ObservableObject {
     let title: String
-    init(dependencies: HomeDependencies, title: String) {
-        self.title = title + " " + dependencies.loader().load()
+    init(resolver: HomeDependencies, title: String) {
+        self.title = title
     }
 }
 
 struct HomeContentView: View {
-    let title: String
+    @StateObject private var viewModel: HomeContentViewModel
+    init(resolver: HomeDependencies, title: String) {
+        self._viewModel = .init(wrappedValue: .init(resolver: resolver, title: title))
+    }
     @Environment(\.navigator) var navigator
-    @Environment(\.homeDependencies) var resolver
     var body: some View {
         List {
             Section("Navigation Actions") {
@@ -82,10 +86,7 @@ struct HomeContentView: View {
             ContentCheckpointSection()
             ContentPopSection()
         }
-        .navigationTitle(title)
-        .onAppear {
-            resolver.logger().log("HomeContentView.onAppear")
-        }
+        .navigationTitle(viewModel.title)
     }
 }
 
@@ -157,9 +158,9 @@ struct HomePage3View: View {
 
 class HomePageNViewModel: ObservableObject {
     let number: Int
-    let dependencies: HomeDependencies
-    init(dependencies: HomeDependencies, number: Int) {
-        self.dependencies = dependencies
+    let resolver: HomeDependencies
+    init(resolver: HomeDependencies, number: Int) {
+        self.resolver = resolver
         self.number = number
     }
 }
@@ -167,9 +168,8 @@ class HomePageNViewModel: ObservableObject {
 struct HomePageNView: View {
     @StateObject private var viewModel: HomePageNViewModel
     @Environment(\.navigator) var navigator: Navigator
-    @Environment(\.homeDependencies) var resolver
-    init(dependencies: HomeDependencies, number: Int) {
-        self._viewModel = .init(wrappedValue: .init(dependencies: dependencies, number: number))
+    init(resolver: HomeDependencies, number: Int) {
+        self._viewModel = .init(wrappedValue: .init(resolver: resolver, number: number))
     }
     var body: some View {
         List {
@@ -183,7 +183,7 @@ struct HomePageNView: View {
                     ])
                 }
                 Button("Route To Settings Page 2") {
-                    resolver.homeExternalRouter().route(to: .settingsPage2)
+                    viewModel.resolver.homeExternalRouter().route(to: .settingsPage2)
                 }
             }
             ContentSheetSection()

@@ -40,7 +40,7 @@ struct NavigatorDemoApp: App {
 
     func applicationView(_ resolver: AppResolver) -> some View {
         // Remember that modifiers wrap their parent view or parent modifiers, which means that they work from the outside in.
-        // So here we're setting up dependencies first, then navigation, then url handlers, then authentication root
+        // So here we're setting up dependencies first, then navigation, then url handlers.
         rootViewType()
             // setup url handlers
             .onNavigationOpenURL(handlers: [
@@ -48,7 +48,7 @@ struct NavigatorDemoApp: App {
                 HomeURLHandler(router: resolver.router),
                 SettingsURLHandler(router: resolver.router)
             ])
-             // setup navigation environment
+            // setup navigation environment
             .environment(\.navigator, resolver.navigator)
             .environment(\.router, resolver.router)
             // provide application dependencies

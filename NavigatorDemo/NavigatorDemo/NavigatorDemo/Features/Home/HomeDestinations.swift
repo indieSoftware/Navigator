@@ -35,7 +35,8 @@ private struct HomeDestinationsView: View {
     var body: some View {
         switch destination {
         case .home(let title):
-            HomeContentView(title: title)
+            // Demonstrates passing resolver to view and letting it do what's needed.
+            HomeContentView(resolver: resolver, title: title)
         case .page2:
             // Demonstrates method of injecting dependencies and building fully constructed view models
             HomePage2View(viewModel: HomePage2ViewModel(dependencies: resolver))
@@ -43,7 +44,7 @@ private struct HomeDestinationsView: View {
             HomePage3View(initialValue: 66)
         case .pageN(let value):
             // Demonstrates passing resolver to view and letting it do what's needed.
-            HomePageNView(dependencies: resolver, number: value)
+            HomePageNView(resolver: resolver, number: value)
         case .external:
             // Demonstrates getting view from unknown source
             resolver.homeExternalViewProvider().view(for: .external)
