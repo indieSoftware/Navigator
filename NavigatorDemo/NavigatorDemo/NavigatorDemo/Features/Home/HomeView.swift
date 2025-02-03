@@ -14,7 +14,7 @@ class HomeRootViewModel: ObservableObject {
     internal let logger: any Logging
     init(resolver: HomeDependencies) {
         self.resolver = resolver
-        self.logger = resolver.logger()
+        self.logger = resolver.logger
         logger.log("HomeRootViewModel initialized \(id)")
     }
     deinit {
@@ -90,7 +90,7 @@ extension HomeDependencies {
 class HomePage2ViewModel: ObservableObject {
     let title: String
     init(dependencies: HomeDependencies) {
-        title = "Page 2 " + dependencies.loader().load()
+        title = "Page 2 " + dependencies.loader.load()
         print("HomePage2ViewModel initialized \(ObjectIdentifier(self))")
     }
     deinit {
@@ -180,7 +180,7 @@ struct HomePageNView: View {
                     ])
                 }
                 Button("Route To Settings Page 2") {
-                    viewModel.resolver.homeExternalRouter().route(to: .settingsPage2)
+                    viewModel.resolver.homeExternalRouter.route(to: .settingsPage2)
                 }
             }
             ContentSheetSection()

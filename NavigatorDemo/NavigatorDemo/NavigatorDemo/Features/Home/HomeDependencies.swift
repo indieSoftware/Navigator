@@ -19,16 +19,16 @@ public protocol HomeDependencies: CoreDependencies
 
 // Specify everything required by this module
 public protocol HomeModuleDependencies {
-    func loader() -> any Loading
-    @MainActor func homeExternalViewProvider() -> any NavigationViewProviding<HomeExternalViews>
-    @MainActor func homeExternalRouter() -> any NavigationRouting<HomeExternalRoutes>
+    var loader: any Loading { get }
+    @MainActor var homeExternalViewProvider: any NavigationViewProviding<HomeExternalViews> { get }
+    @MainActor var homeExternalRouter: any NavigationRouting<HomeExternalRoutes> { get }
 }
 
 // Construct defaults, including defaults that depend on other modules
 extension HomeModuleDependencies where Self: CoreDependencies {
     // Using where Self: CoreDependencies illustrates accessing default dependencies from known dependencies.
-    public func loader() -> any Loading {
-        Loader(networker: networker())
+    public var loader: any Loading {
+        Loader(networker: networker)
     }
 }
 
@@ -38,11 +38,11 @@ protocol MockHomeDependencies: HomeDependencies, MockCoreDependencies {}
 // Provide missing defaults
 extension MockHomeDependencies {
     // Mock a view we need to be provided from elsewhere
-    @MainActor public func homeExternalViewProvider() -> any NavigationViewProviding<HomeExternalViews> {
+    @MainActor public var homeExternalViewProvider: any NavigationViewProviding<HomeExternalViews> {
         MockNavigationViewProvider()
     }
     // Mock a router
-    @MainActor public func homeExternalRouter() -> any NavigationRouting<HomeExternalRoutes> {
+    @MainActor public var homeExternalRouter: any NavigationRouting<HomeExternalRoutes> {
         MockNavigationRouter()
     }
 }

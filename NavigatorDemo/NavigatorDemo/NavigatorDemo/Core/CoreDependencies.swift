@@ -21,31 +21,31 @@ public protocol CoreDependencies: NetworkDependencies
 
 // Define a dependency
 public protocol NetworkDependencies {
-    func networker() -> any Networking
+    var networker: any Networking { get }
 }
 
 // Provide a known default where we can
 extension NetworkDependencies {
-    public func networker() -> any Networking {
+    public var networker: any Networking {
         Networker()
     }
 }
 
 // Define a dependency
 public protocol LoggingDependencies {
-    func logger() -> any Logging
+    var logger: any Logging { get }
 }
 
 // Provide a known default where we can
 extension LoggingDependencies {
-    public func logger() -> any Logging {
+    public var logger: any Logging {
         Logger()
     }
 }
 
 // Define a dependency
 public protocol AnalyticsDependencies {
-    func analytics() -> any AnalyticsService
+    var analytics: any AnalyticsService { get }
 }
 
 // Usually we'd provide a known default...
@@ -66,17 +66,17 @@ public protocol MockCoreDependencies: CoreDependencies {}
 // Provide mock types
 extension MockCoreDependencies {
     // override default provider
-    public func networker() -> any Networking {
+    public var networker: any Networking {
         cached { MockNetworker() as any Networking }
     }
     // provide missing service
-    public func analytics() -> any AnalyticsService {
+    public var analytics: any AnalyticsService {
         cached { MockAnalyticsService() as any AnalyticsService }
     }
     #if DEBUG
     // add preview and mocking support for networking
     public func mock<T>(_ factory: @escaping () -> T) -> Self {
-        (networker() as? MockNetworker)?.add(factory)
+        (networker as? MockNetworker)?.add(factory)
         return self
     }
     #endif

@@ -20,14 +20,14 @@ public protocol SettingsDependencies: CoreDependencies
 // Specify everything specific to this module
 public protocol SettingsModuleDependencies {
     var settingsKey: String { get }
-    func settingsProvider() -> any Loading
+    var settingsProvider: any Loading { get }
 }
 
 // Construct defaults, including defaults that depend on other modules
 extension SettingsModuleDependencies where Self: CoreDependencies {
     // Using where Self: CoreDependencies illustrates accessing default dependencies from known dependencies.
-    public func settingsProvider() -> any Loading {
-        Loader(networker: networker())
+    public var settingsProvider: any Loading {
+        Loader(networker: networker)
     }
 }
 

@@ -55,7 +55,7 @@ private struct HomeDestinationsView: View {
 
         case .external:
             // Demonstrates getting view itself from unknown source
-            resolver.homeExternalViewProvider().view(for: .external)
+            resolver.homeExternalViewProvider.view(for: .external)
 
         case .presented1:
             // Demonstrates internally presented view via method

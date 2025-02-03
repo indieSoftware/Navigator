@@ -36,12 +36,12 @@ class AppResolver: AppDependencies {
     }
 
     // Missing default dependencies forces app to provide them.
-    func analytics() -> any AnalyticsService {
+    var analytics: any AnalyticsService {
         cached { ThirdPartyAnalyticsService() }
     }
 
     // Home needs an external view from somewhere. Provide it.
-    @MainActor func homeExternalViewProvider() -> any NavigationViewProviding<HomeExternalViews> {
+    @MainActor public var homeExternalViewProvider: any NavigationViewProviding<HomeExternalViews> {
         NavigationViewProvider {
             switch $0 {
             case .external:
@@ -51,7 +51,7 @@ class AppResolver: AppDependencies {
     }
 
     // Home feature wants to be able to route to settings feature, app knows how app is structured, so...
-    @MainActor func homeExternalRouter() -> any NavigationRouting<HomeExternalRoutes> {
+    @MainActor var homeExternalRouter: any NavigationRouting<HomeExternalRoutes> {
         NavigationRouter(navigator) { route in
             // Map external routes required by Home feature to known application routes
             switch route {

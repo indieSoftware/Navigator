@@ -1,5 +1,9 @@
 # Navigator Changelog
 
+### 0.9.16
+
+* Update app dependencies to be simple vars when function parameters aren't needed
+
 ### 0.9.15
 
 * Updates to streamline NavigationRouting and NavigationRouteHandlers
