@@ -1,5 +1,12 @@
 # Navigator Changelog
 
+### 0.9.15
+
+* Updates to streamline NavigationRouting and NavigationRouteHandlers
+* Updates to NavigationURLHandlers to better communicate with NavigationRouting
+* Add perform(route: any NavigationRoute) to Navigator
+* Update demo application to eliminate router from environment
+
 ### 0.9.14
 
 * Some updates to the demo application for clarity
