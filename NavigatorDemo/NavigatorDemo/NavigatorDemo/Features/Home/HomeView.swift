@@ -22,17 +22,11 @@ class HomeRootViewModel: ObservableObject {
     }
 }
 
-//extension HomeDependencies {
-//    var homeRootViewModel: HomeRootViewModel {
-//        HomeRootViewModel(dependencies: self)
-//    }
-//}
-
 struct HomeRootView: View {
     @StateObject var viewModel: HomeRootViewModel
     var body: some View {
         ManagedNavigationStack(scene: RootTabs.home.id) {
-            HomeContentView(resolver: viewModel.resolver, title: "Home Navigation")
+            HomeContentView(viewModel: HomeContentViewModel(resolver: viewModel.resolver, title: "Home Navigation"))
                 .navigationCheckpoint(.home)
                 .navigationDestination(HomeDestinations.self)
                 .onNavigationReceive { (destination: HomeDestinations, navigator) in
@@ -51,10 +45,7 @@ class HomeContentViewModel: ObservableObject {
 }
 
 struct HomeContentView: View {
-    @StateObject private var viewModel: HomeContentViewModel
-    init(resolver: HomeDependencies, title: String) {
-        self._viewModel = .init(wrappedValue: .init(resolver: resolver, title: title))
-    }
+    @StateObject var viewModel: HomeContentViewModel
     @Environment(\.navigator) var navigator
     var body: some View {
         List {
@@ -87,6 +78,12 @@ struct HomeContentView: View {
             ContentPopSection()
         }
         .navigationTitle(viewModel.title)
+    }
+}
+
+extension HomeDependencies {
+    var homePage2ViewModel: HomePage2ViewModel {
+        .init(dependencies: self)
     }
 }
 

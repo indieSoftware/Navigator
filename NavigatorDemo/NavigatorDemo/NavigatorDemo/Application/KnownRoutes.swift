@@ -19,7 +19,3 @@ public enum KnownRoutes: NavigationRoutes {
     case settingsPage2
     case settingsPage3
 }
-
-extension EnvironmentValues {
-    @Entry public var router: any NavigationRouting<KnownRoutes> = MockNavigationRouter()
-}

@@ -310,15 +310,8 @@ private struct NavigationSendValuesModifier<T: Hashable & Equatable>: ViewModifi
 }
 
 private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
-
-    private let handler: NavigationReceiveResumeHandler<T>
-
+    internal let handler: NavigationReceiveResumeHandler<T>
     @Environment(\.navigator) var navigator: Navigator
-
-    init(handler: @escaping NavigationReceiveResumeHandler<T>) {
-        self.handler = handler
-    }
-
     func body(content: Content) -> some View {
         content
             .onReceive(navigator.state.publisher) { values in
@@ -333,7 +326,6 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
                 }
             }
     }
-
 }
 
 private struct NavigationResumeModifier: ViewModifier {

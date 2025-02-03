@@ -24,9 +24,8 @@ struct SimpleURLHandler: NavigationURLHandler {
     }
 }
 
-// Illustrates parsing a URL and mapping actions to a router
+// Illustrates parsing a URL and mapping actions to a route
 struct HomeURLHandler: NavigationURLHandler {
-    let router: any NavigationRouting<KnownRoutes>
     @MainActor public func handles(_ url: URL, with navigator: Navigator) -> Bool {
         guard url.pathComponents.count > 1, url.pathComponents[1] == "home" else {
             return false
@@ -34,16 +33,16 @@ struct HomeURLHandler: NavigationURLHandler {
         switch url.pathComponents.last {
         case "auth":
             // xcrun simctl openurl booted navigator://app/home/auth
-            router.route(to: .auth)
+            navigator.perform(route: KnownRoutes.auth)
         case "page2":
             // xcrun simctl openurl booted navigator://app/home/page2
-            router.route(to: .homePage2)
+            navigator.perform(route: KnownRoutes.homePage2)
         case "page3":
             // xcrun simctl openurl booted navigator://app/home/page3
-            router.route(to: .homePage3)
+            navigator.perform(route: KnownRoutes.homePage3)
         default:
             // xcrun simctl openurl booted navigator://app/home
-            router.route(to: .home)
+            navigator.perform(route: KnownRoutes.home)
         }
         return true
     }
@@ -51,12 +50,11 @@ struct HomeURLHandler: NavigationURLHandler {
 
 // Illustrates parsing a URL and mapping actions to a router
 struct SettingsURLHandler: NavigationURLHandler {
-    let router: any NavigationRouting<KnownRoutes>
     @MainActor public func handles(_ url: URL, with navigator: Navigator) -> Bool {
         guard url.pathComponents.count > 1, url.pathComponents[1] == "settings" else {
             return false
         }
-        router.route(to: .settings)
+        navigator.perform(route: KnownRoutes.settings)
         return true
     }
 }

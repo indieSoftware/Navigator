@@ -45,12 +45,11 @@ struct NavigatorDemoApp: App {
             // setup url handlers
             .onNavigationOpenURL(handlers: [
                 SimpleURLHandler(),
-                HomeURLHandler(router: resolver.router),
-                SettingsURLHandler(router: resolver.router)
+                HomeURLHandler(),
+                SettingsURLHandler()
             ])
             // setup navigation environment
             .environment(\.navigator, resolver.navigator)
-            .environment(\.router, resolver.router)
             // provide application dependencies
             .environment(\.coreDependencies, resolver)
             .environment(\.homeDependencies, resolver)

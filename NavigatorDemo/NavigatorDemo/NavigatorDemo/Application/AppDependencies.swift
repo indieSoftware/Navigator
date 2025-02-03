@@ -26,9 +26,6 @@ class AppResolver: AppDependencies {
     // root navigator
     let navigator: Navigator
 
-    // application router
-    let router: any NavigationRouting<KnownRoutes>
-
     // ensure we have dependency cache in scope
     let cache: DependencyCache = .init()
 
@@ -36,7 +33,6 @@ class AppResolver: AppDependencies {
     init(rootViewType: AppRootType, navigator: Navigator) {
         self.rootViewType = rootViewType
         self.navigator = navigator
-        self.router = rootViewType.router(navigator)
     }
 
     // Missing default dependencies forces app to provide them.
@@ -56,13 +52,13 @@ class AppResolver: AppDependencies {
 
     // Home feature wants to be able to route to settings feature, app knows how app is structured, so...
     @MainActor func homeExternalRouter() -> any NavigationRouting<HomeExternalRoutes> {
-        NavigationRouter {
-            // Map external routes required by Home feature to internal routes
-            switch $0 {
+        NavigationRouter(navigator) { route in
+            // Map external routes required by Home feature to known application routes
+            switch route {
             case .settingsPage2:
-                self.router.route(to: .settingsPage2)
+                self.navigator.perform(route: KnownRoutes.settingsPage2)
             case .settingsPage3:
-                self.router.route(to: .settingsPage3)
+                self.navigator.perform(route: KnownRoutes.settingsPage3)
             }
         }
     }

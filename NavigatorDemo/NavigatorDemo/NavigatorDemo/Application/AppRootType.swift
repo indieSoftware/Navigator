@@ -24,15 +24,5 @@ extension AppRootType: NavigationDestination {
             RootSplitView()
         }
     }
-
-    // Illustrates providing the correct router since application structure could change for each type
-    func router(_ navigator: Navigator) -> any NavigationRouting<KnownRoutes> {
-        switch self {
-        case .tabbed:
-            RootTabViewRouter(navigator: navigator)
-        case .split:
-            RootSplitViewRouter(navigator: navigator)
-        }
-    }
     
 }

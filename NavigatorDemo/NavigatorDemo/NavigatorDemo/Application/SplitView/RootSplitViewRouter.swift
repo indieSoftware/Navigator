@@ -8,12 +8,10 @@
 import Navigator
 import SwiftUI
 
-public struct RootSplitViewRouter: NavigationRouting {
+public struct RootSplitViewRouter: NavigationRouteHandling {
 
-    let navigator: Navigator
-
-    @MainActor public func route(to destination: KnownRoutes) {
-        navigator.perform(actions: actions(for: destination))
+    @MainActor public func route(to route: KnownRoutes, with navigator: Navigator) {
+        navigator.perform(actions: actions(for: route))
     }
 
     @MainActor func actions(for route: KnownRoutes) -> [NavigationAction] {

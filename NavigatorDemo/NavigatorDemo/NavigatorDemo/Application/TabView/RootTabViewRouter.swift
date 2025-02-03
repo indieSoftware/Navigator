@@ -8,12 +8,10 @@
 import Navigator
 import SwiftUI
 
-public struct RootTabViewRouter: NavigationRouting {
-
-    let navigator: Navigator
-
-    @MainActor public func route(to destination: KnownRoutes) {
-        navigator.perform(actions: actions(for: destination))
+public struct RootTabViewRouter: NavigationRouteHandling {
+    
+    @MainActor public func route(to route: KnownRoutes, with navigator: Navigator) {
+        navigator.perform(actions: actions(for: route))
     }
 
     @MainActor func actions(for route: KnownRoutes) -> [NavigationAction] {
