@@ -12,10 +12,10 @@ import SwiftUI
 /// A NavigationURLHander examines the passed URL and converts it into a set of NavigationDestination or Hashable values
 /// that can be broadcast throughout the application using `navigator.send(values:)`.
 /// ```swift
-/// .onNavigationOpenURL(handlers: [
+/// .onNavigationOpenURL(
 ///     HomeURLHander(),
 ///     SettingsURLHander()
-/// ])
+/// )
 ///```
 /// Developers can add `.onNavigationReceive` modifiers to their code to listen for specific types and perform specific actions when they're
 /// received.
@@ -42,26 +42,24 @@ extension View {
     /// The `onNavigationOpenURL` modifier adds an `onOpenURL` modifier to a view and translates the incoming URL to a set of destinations
     /// using the provided set of NavigationURLHanders.
     /// ```swift
-    /// .onNavigationOpenURL(handlers: [
-    ///     HomeURLHander(router: router),
-    ///     SettingsURLHander(router: router)
-    /// ])
+    /// .onNavigationOpenURL(
+    ///     HomeURLHandler(),
+    ///     SettingsURLHandler()
+    /// )
     ///```
-    public func onNavigationOpenURL(handlers: [any NavigationURLHandler]) -> some View {
+    ///The parameters passed to this function are variadic, one or more.
+    public func onNavigationOpenURL(_ handlers: (any NavigationURLHandler)...) -> some View {
+        self.modifier(OnNavigationOpenURLModifier(handlers: handlers))
+    }
+    /// Additional interface that takes an array of handlers
+    public func onNavigationOpenURL(_ handlers: [any NavigationURLHandler]) -> some View {
         self.modifier(OnNavigationOpenURLModifier(handlers: handlers))
     }
 }
 
 private struct OnNavigationOpenURLModifier: ViewModifier {
-
-    private let handlers: [any NavigationURLHandler]
-
+    internal let handlers: [any NavigationURLHandler]
     @Environment(\.navigator) var navigator: Navigator
-
-    init(handlers: [any NavigationURLHandler]) {
-        self.handlers = handlers
-    }
-
     func body(content: Content) -> some View {
         content
             .onOpenURL { url in
@@ -72,5 +70,4 @@ private struct OnNavigationOpenURLModifier: ViewModifier {
                 }
             }
     }
-
 }

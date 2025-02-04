@@ -31,11 +31,11 @@ struct NavigatorDemoApp: App {
     func applicationResolver() -> AppResolver {
         let configuration: NavigationConfiguration = .init(
             restorationKey: nil, // "1.0.0",
-            executionDelay: 0.3, // 0.3 - 5.0
+            executionDelay: 0.4, // 0.3 - 5.0
             verbosity: .info
         )
         let navigator = Navigator(configuration: configuration)
-        return AppResolver(rootViewType: rootViewType, navigator: navigator)
+        return AppResolver(navigator: navigator)
     }
 
     func applicationView(_ resolver: AppResolver) -> some View {
@@ -43,11 +43,11 @@ struct NavigatorDemoApp: App {
         // So here we're setting up dependencies first, then navigation, then url handlers.
         rootViewType()
             // setup url handlers
-            .onNavigationOpenURL(handlers: [
+            .onNavigationOpenURL(
                 SimpleURLHandler(),
                 HomeURLHandler(),
                 SettingsURLHandler()
-            ])
+            )
             // setup navigation environment
             .environment(\.navigator, resolver.navigator)
             // provide application dependencies

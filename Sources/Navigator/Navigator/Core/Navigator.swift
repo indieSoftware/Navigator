@@ -94,10 +94,13 @@ extension Navigator: Hashable {
 
 extension EnvironmentValues {
     /// Create environment entry for the Navigator managing the current ManagedNavigationStack.
-    @Entry public var navigator: Navigator = Navigator.defaultNavigator
+    public var navigator: Navigator {
+        get { self[NavigatorKey.self] }
+        set { self[NavigatorKey.self] = newValue }
+    }
 }
 
-extension Navigator {
-    // Exists since the Environment Entry process loves to recreate default values
-    internal static let defaultNavigator: Navigator = Navigator()
+private struct NavigatorKey: EnvironmentKey {
+    // Old-school approach avoids subtle bug in @Entry macro
+    static let defaultValue: Navigator = Navigator()
 }

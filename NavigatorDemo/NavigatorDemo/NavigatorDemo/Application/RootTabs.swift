@@ -10,13 +10,14 @@ import SwiftUI
 
 enum RootTabs: Int, Codable {
     case home
+    case examples
     case settings
 }
 
 extension RootTabs: Identifiable {
 
     static var tabs: [RootTabs] {
-        [.home, .settings]
+        [.home, .examples, settings]
     }
 
     static var sidebar: [RootTabs] {
@@ -31,6 +32,8 @@ extension RootTabs: Identifiable {
         switch self {
         case .home:
             "Home"
+        case .examples:
+            "Examples"
         case .settings:
             "Settings"
         }
@@ -40,6 +43,8 @@ extension RootTabs: Identifiable {
         switch self {
         case .home:
             "house"
+        case .examples:
+            "list.star"
         case .settings:
             "gear"
         }
@@ -60,6 +65,8 @@ private struct RootTabsViewBuilder: View {
         switch destination {
         case .home:
             HomeRootView(viewModel: HomeRootViewModel(resolver: resolver))
+        case .examples:
+            ExamplesRootView()
         case .settings:
             SettingsRootView()
         }

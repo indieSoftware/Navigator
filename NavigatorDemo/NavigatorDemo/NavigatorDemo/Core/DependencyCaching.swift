@@ -31,6 +31,10 @@ extension DependencyCaching {
         cache.shared(factory)
     }
 
+    @inlinable public func singleton<T>(_ factory: @escaping () -> T) -> T {
+        cache.singleton(factory)
+    }
+
     @inlinable public func unique<T>(_ factory: @escaping () -> T) -> T {
         cache.unique(factory)
     }
@@ -83,6 +87,19 @@ public class DependencyCache: @unchecked Sendable {
         }
     }
 
+    public func singleton<T>(_ factory: @escaping () -> T) -> T {
+        lock.withLock {
+            // print("Resolving \(T.self)")
+            let id = ObjectIdentifier(T.self)
+            if let cached: T = registrations[id] as? T ?? Self.singletons[id] as? T {
+                return cached
+            }
+            let instance: T = factory()
+            Self.singletons[id] = instance
+            return instance
+        }
+    }
+
     public func unique<T>(_ factory: @escaping () -> T) -> T {
         lock.withLock {
             // print("Resolving \(T.self)")
@@ -93,8 +110,11 @@ public class DependencyCache: @unchecked Sendable {
         }
     }
 
-    public func reset() {
+    public func reset(includingSingletons: Bool = false) {
         lock.withLock {
+            if includingSingletons {
+                Self.singletons = [:]
+            }
             registrations = [:]
             cache = [:]
         }
@@ -105,6 +125,8 @@ public class DependencyCache: @unchecked Sendable {
             cache = [:]
         }
     }
+
+    private nonisolated(unsafe) static var singletons: [ObjectIdentifier: Any] = [:]
 
     private var lock: NSRecursiveLock = .init()
     private var cache: [ObjectIdentifier: Any] = [:]

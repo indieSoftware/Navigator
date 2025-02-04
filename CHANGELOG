@@ -2,7 +2,10 @@
 
 ### 0.9.16
 
+* Add examples section with first example on using transitions with Navigator #25
 * Update app dependencies to be simple vars when function parameters aren't needed
+* Navigator Entry internal change
+* Updates onNavigationOpenURL initializer to variadic parameters for clarity
 
 ### 0.9.15
 

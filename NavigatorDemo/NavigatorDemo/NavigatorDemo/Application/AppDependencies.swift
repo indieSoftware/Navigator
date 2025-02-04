@@ -20,9 +20,6 @@ typealias AppDependencies = CoreDependencies
 // Make the application's dependency resolver
 class AppResolver: AppDependencies {
 
-    // root view type
-    let rootViewType: AppRootType
-
     // root navigator
     let navigator: Navigator
 
@@ -30,14 +27,13 @@ class AppResolver: AppDependencies {
     let cache: DependencyCache = .init()
 
     // initializer
-    init(rootViewType: AppRootType, navigator: Navigator) {
-        self.rootViewType = rootViewType
+    init(navigator: Navigator) {
         self.navigator = navigator
     }
 
     // Missing default dependencies forces app to provide them.
     var analytics: any AnalyticsService {
-        cached { ThirdPartyAnalyticsService() }
+        singleton { ThirdPartyAnalyticsService() as any AnalyticsService }
     }
 
     // Home needs an external view from somewhere. Provide it.

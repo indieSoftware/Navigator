@@ -24,7 +24,7 @@ struct RootTabView : View {
                 return .immediately
             }
             selectedTab = tab
-            return .after(0.8)  // switching tabs needs a little more time
+            return .auto
         }
         // set route handler for this view type
         .onNavigationRoute(RootTabViewRouter())
