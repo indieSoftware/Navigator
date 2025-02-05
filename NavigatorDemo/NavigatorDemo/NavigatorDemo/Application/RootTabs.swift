@@ -66,7 +66,7 @@ private struct RootTabsViewBuilder: View {
         case .home:
             HomeRootView(viewModel: HomeRootViewModel(resolver: resolver))
         case .examples:
-            ExamplesRootView()
+            ExamplesView()
         case .settings:
             SettingsRootView()
         }
