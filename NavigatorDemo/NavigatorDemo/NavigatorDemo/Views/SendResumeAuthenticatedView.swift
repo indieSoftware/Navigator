@@ -16,11 +16,11 @@ struct SendResumeAuthenticatedView: View {
     var body: some View {
         Section("Send Pause/Resume Actions") {
             Button("Send Authentication Required, Page 77") {
-                navigator.send(values: [
+                navigator.send(
                     NavigationAction.dismissAny,
                     NavigationAction.authenticationRequired,
                     HomeDestinations.pageN(77)
-                ])
+                )
             }
             Button("Logout") {
                 authentication.logout()

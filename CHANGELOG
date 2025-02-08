@@ -1,5 +1,11 @@
 # Navigator Changelog
 
+### 0.9.18
+
+* Simplify send and perform syntax with variadics
+* Updated demo application to show switching root view types #26
+
+
 ### 0.9.17
 
 * Allows the ManagedNavigationStack closure to obtain the current Navigator for that stack.

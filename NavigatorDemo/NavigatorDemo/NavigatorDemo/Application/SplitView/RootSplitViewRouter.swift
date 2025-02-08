@@ -11,66 +11,62 @@ import SwiftUI
 public struct RootSplitViewRouter: NavigationRouteHandling {
 
     @MainActor public func route(to route: KnownRoutes, with navigator: Navigator) {
-        navigator.perform(actions: actions(for: route))
-    }
-
-    @MainActor func actions(for route: KnownRoutes) -> [NavigationAction] {
         switch route {
         case .auth:
-            [
+            navigator.perform(
                 .reset,
                 .send(RootTabs.home),
                 .authenticationRequired,
-                .send(HomeDestinations.pageN(77)),
-            ]
+                .send(HomeDestinations.pageN(77))
+            )
         case .home:
-            [
+            navigator.perform(
                 .reset,
-                .send(RootTabs.home),
-            ]
+                .send(RootTabs.home)
+            )
         case .homePage2:
-            [
+            navigator.perform(
                 .dismissAny,
                 .send(RootTabs.home),
-                .send(HomeDestinations.page2),
-            ]
+                .send(HomeDestinations.page2)
+            )
         case .homePage3, .homePage2Page3:
-            [
+            navigator.perform(
                 .dismissAny,
                 .send(RootTabs.home),
                 .popAll(in: RootTabs.home.id),
                 .send(HomeDestinations.page2),
-                .send(HomeDestinations.page3),
-            ]
+                .send(HomeDestinations.page3)
+            )
         case .homePage2Page3PageN(let n):
-            [
+            navigator.perform(
                 .dismissAny,
                 .send(RootTabs.home),
                 .popAll(in: RootTabs.home.id),
                 .send(HomeDestinations.page2),
                 .send(HomeDestinations.page3),
-                .send(HomeDestinations.pageN(n)),
-            ]
+                .send(HomeDestinations.pageN(n))
+            )
         case .settings:
-            [
+            navigator.perform(
                 .dismissAny,
                 .send(RootTabs.settings),
-                .popAll(in: RootTabs.settings.id),
-            ]
+                .popAll(in: RootTabs.settings.id)
+            )
         case .settingsPage2:
-            [
+            navigator.perform(
                 .dismissAny,
                 .send(RootTabs.settings),
                 .popAll(in: RootTabs.settings.id),
-                .send(SettingsDestinations.page2),
-            ]
+                .send(SettingsDestinations.page2)
+            )
         case .settingsPage3:
-            [
+            navigator.perform(
                 .dismissAny,
                 .send(RootTabs.settings),
                 .popAll(in: RootTabs.settings.id),
-                .send(SettingsDestinations.page3),
-            ]
+                .send(SettingsDestinations.page3)
+            )
         }
     }
 }

@@ -39,8 +39,8 @@ public struct Navigator: @unchecked Sendable {
         self.state = state
     }
 
-    internal init(name: String? = nil) {
-        self.state = NavigationState(owner: .root, name: name)
+    internal init(owner: NavigationState.Owner, name: String? = nil) {
+        self.state = NavigationState(owner: owner, name: name)
         self.environmentID = state.hashValue
     }
 
@@ -102,5 +102,6 @@ extension EnvironmentValues {
 
 private struct NavigatorKey: EnvironmentKey {
     // Old-school approach avoids subtle bug in @Entry macro
-    static let defaultValue: Navigator = Navigator()
+    // https://michaellong.medium.com/debugging-swiftuis-entry-macro-e018a4974454
+    static let defaultValue: Navigator = Navigator(owner: .application)
 }

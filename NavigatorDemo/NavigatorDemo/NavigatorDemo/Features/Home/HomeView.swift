@@ -65,17 +65,23 @@ struct HomeContentView: View {
             }
             Section("Send Actions") {
                 Button("Send Home Page 2, 3") {
-                    navigator.send(values: [
+                    navigator.send(
                         HomeDestinations.page2,
-                        HomeDestinations.page3,
-                    ])
+                        HomeDestinations.page3
+                    )
                 }
             }
             ContentRoutingSection()
             SendResumeAuthenticatedView()
             ContentSheetSection()
             ContentCheckpointSection()
-            ContentPopSection()
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                Section("Layout") {
+                    Button("Toggle Root View Type") {
+                        navigator.send(ToogleAppRootType())
+                    }
+                }
+            }
         }
         .navigationTitle(viewModel.title)
     }
@@ -117,7 +123,7 @@ struct HomePage2View: View {
                 }
                 Button("Clear Settings With Action") {
                     // Roundabout way of doing this, primarily for testing
-                    navigator.perform(action: .with(navigator: RootTabs.settings.id) {
+                    navigator.perform(.with(navigator: RootTabs.settings.id) {
                         $0.popAll()
                     })
                 }
@@ -172,12 +178,12 @@ struct HomePageNView: View {
         List {
             Section("Send Actions") {
                 Button("Send Home Page 2, 88, 99") {
-                    navigator.send(values: [
+                    navigator.send(
                         NavigationAction.popAll(in: RootTabs.home.id),
                         HomeDestinations.page2,
                         HomeDestinations.pageN(88),
                         HomeDestinations.pageN(99)
-                    ])
+                    )
                 }
                 Button("Route To Settings Page 2") {
                     viewModel.resolver.homeExternalRouter.route(to: .settingsPage2)

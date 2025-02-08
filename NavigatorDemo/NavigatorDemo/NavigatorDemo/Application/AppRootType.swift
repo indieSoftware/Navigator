@@ -8,7 +8,7 @@
 import Navigator
 import SwiftUI
 
-enum AppRootType {
+enum AppRootType: Int {
     case tabbed
     case split
 }
@@ -26,3 +26,5 @@ extension AppRootType: NavigationDestination {
     }
     
 }
+
+struct ToogleAppRootType: Hashable {}

@@ -10,12 +10,12 @@ import SwiftUI
 extension Navigator {
 
     @MainActor
-    @inlinable public func perform(action: NavigationAction) {
-        send(values: [action])
+    public func perform(_ actions: NavigationAction...) {
+        send(values: actions)
     }
 
     @MainActor
-    @inlinable public func perform(actions: [NavigationAction]) {
+    public func perform(actions: [NavigationAction]) {
         send(values: actions)
     }
 

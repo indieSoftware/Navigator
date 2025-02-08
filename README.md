@@ -225,13 +225,13 @@ Sharp eyes may have spotted the `onNavigationReceive` modifier, which--much like
 
 When received, Navigator will dismiss any presented screens, set the selected tab, and then return normally.
 
-Values are broadcast using `navigationSend()` or `navigationSend(values:)`, as shown below.
+Values are broadcast using `navigationSend()` as shown below.
 ```swift
 Button("Send Tab Home, Page 2") {
-    navigator.send(values: [
+    navigator.send(
         RootTabs.home,
         HomeDestinations.page2
-    ])
+    )
 }
 ```
 The `RootTabs` receiver switches to the selected tab, and then a similar `HomeDestinations` receiver sends the user to page 2.

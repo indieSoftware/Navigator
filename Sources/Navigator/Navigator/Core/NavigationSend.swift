@@ -10,7 +10,7 @@ import SwiftUI
 
 extension Navigator {
 
-    /// Sends value to navigation receivers throughout the application.
+    /// Sends a value or values to navigation receivers throughout the application.
     ///
     /// This is the core functionality behind deep linking support in Navigator.
     ///
@@ -19,50 +19,15 @@ extension Navigator {
     ///
     /// They just need to be `Hashable`.
     ///
-    /// ### Sending a Value
-    /// Sending a value is simple.
-    /// ```swift
-    /// Button("Select the Home Tab") {
-    ///     navigator.send(value: RootTabs.home)
-    /// }
-    /// ```
-    ///
-    /// ### Receiving Values
-    /// Register a receive handler for the desired type.
-    /// ```swift
-    /// .onNavigationReceive { (tab: RootTabs) in
-    ///     if tab == selectedTab {
-    ///         return .immediately
-    ///     }
-    ///     selectedTab = tab
-    ///     return .auto
-    /// }
-    /// ```
-    /// And then perform whatever action is needed on receipt.
-    ///
-    /// Speaking of which receive handlers return a value of type ``NavigationReceiveResumeType``, which tells Navigator how to
-    /// process the remaining values in the queue. Additional values can be paused, cancelled, or simply processed normally.
-    ///
-    /// Note that there should be one and only one registered handler for a given type in the navigation tree. If more than
-    /// one exists the first handler will consume the value and the remaining handlers should be ignored.
-    @MainActor
-    @inlinable public func send(value: any Hashable) {
-        send(values: [value])
-    }
-
-    /// Sends values one at a time to navigation receivers throughout the application.
-    ///
-    /// This is the core functionality behind deep linking support in Navigator.
-    ///
     /// ### Sending Values
     /// The following code broadcasts a list of actions to be handled somewhere in the application. First it selects the Home tab,
     /// then navigates to Page 2.
     /// ```swift
     /// Button("Go To Tab Home, Page 2") {
-    ///     navigator.send(values: [
+    ///     navigator.send(
     ///         RootTabs.home,
     ///         HomeDestinations.page2
-    ///     ])
+    ///     )
     /// }
     /// ```
     /// ### Receiving Values
@@ -86,10 +51,24 @@ extension Navigator {
     /// }
     /// ```
     ///
+    /// Speaking of which, receive handlers return a value of type ``NavigationReceiveResumeType``, which tells Navigator how to
+    /// process the remaining values in the queue. Additional values can be paused, cancelled, or simply processed normally.
+    ///
     /// Note that there should be one and only one registered handler for a given type in the navigation tree. If more than
     /// one exists the first handler will consume the value and the remaining handlers should be ignored.
     @MainActor
-    public func send(values: [any Hashable]) {
+    public func send(_ values: any Hashable...) {
+        send(values: values)
+    }
+
+    @available(*, deprecated, renamed: "send", message: "Use send(...) instead.")
+    @MainActor
+    public func send(value: any Hashable) {
+        send(values: [value])
+    }
+
+    @MainActor
+    public func send(values values: [any Hashable]) {
         guard let value: any Hashable = values.first else {
             return
         }

@@ -60,7 +60,7 @@ struct SettingsView: View {
 
             Section("Send Actions") {
                 Button("Send Page 2 via Navigator") {
-                    navigator.send(value: SettingsDestinations.page2)
+                    navigator.send(SettingsDestinations.page2)
                 }
                 Button("Send Page 3 via Modifier") {
                     destination = SettingsDestinations.page3
@@ -68,23 +68,23 @@ struct SettingsView: View {
                 .navigationSend($destination)
                 Button("Send Tab Home, Page 2, 88, Present") {
                     // assumes knowledge of app structure, doing a route would be better
-                    navigator.send(values: [
+                    navigator.send(
                         NavigationAction.dismissAny,
                         RootTabs.home,
                         NavigationAction.popAll(in: RootTabs.home.id),
                         HomeDestinations.page2,
                         HomeDestinations.pageN(88),
                         HomeDestinations.presented1
-                    ])
+                    )
                 }
             }
 
             Section("Resume Actions") {
                 Button("Present Resumable Loading View") {
-                    navigator.send(values: [
+                    navigator.send(
                         SettingsDestinations.presentLoading,
-                        LoadingDestinations.external,
-                    ])
+                        LoadingDestinations.external
+                    )
                 }
 
             }
@@ -146,10 +146,10 @@ struct SettingsSheetView: View {
             Section("Send Actions") {
                 WithNavigator { navigator in
                     Button("Send Tab Home") {
-                        navigator.send(values: [
+                        navigator.send(
                             NavigationAction.dismissAny,
                             RootTabs.home
-                        ])
+                        )
                     }
                 }
             }

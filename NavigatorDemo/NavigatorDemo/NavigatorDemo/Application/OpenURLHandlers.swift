@@ -15,11 +15,11 @@ struct SimpleURLHandler: NavigationURLHandler {
             return false
         }
         // xcrun simctl openurl booted navigator://app/simple/sheet
-        navigator.perform(actions: [
+        navigator.perform(
             .reset,
             .send(RootTabs.home),
-            .send(HomeDestinations.presented1),
-        ])
+            .send(HomeDestinations.presented1)
+        )
         return true
     }
 }

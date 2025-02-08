@@ -12,6 +12,7 @@ import SwiftUI
 public class NavigationState: ObservableObject, @unchecked Sendable {
 
     public enum Owner: Int {
+        case application
         case root
         case stack
         case presenter
@@ -80,7 +81,7 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
     internal init(configuration: NavigationConfiguration? = nil) {
         self.name = "root"
         self.configuration = configuration
-        log("Navigator root: \(id)")
+        log("Navigator configured root: \(id)")
     }
 
     /// Internal initializer used by ManagedNavigationStack and navigationDismissible modifiers.
