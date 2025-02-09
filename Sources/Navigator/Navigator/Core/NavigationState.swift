@@ -35,6 +35,12 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
     /// Dismiss trigger for ManagedNavigationStack or navigationDismissible views.
     @Published internal var triggerDismiss: Bool = false
 
+    /// Checkpoints managed by this navigation stack
+    @Published internal var checkpoints: [String: NavigationCheckpoint] = [:]
+
+    /// Navigation locks, if any
+    @Published internal var navigationLocks: Set<UUID> = []
+
     /// Persistent id of this navigator.
     internal var id: UUID = .init()
 
@@ -59,20 +65,10 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
     internal weak var parent: NavigationState? = nil
 
     /// Presented children, if any.
-    internal var children: [UUID : WeakObject<NavigationState>] = [:] {
-        didSet { changed() }
-    }
-
-    /// Checkpoints managed by this navigation stack
-    internal var checkpoints: [String: NavigationCheckpoint] = [:] {
-        didSet { changed() }
-    }
+    internal var children: [UUID : WeakObject<NavigationState>] = [:]
 
     /// True if the current ManagedNavigationStack or navigationDismissible is presented.
     internal var isPresented: Bool = false
-
-    /// Navigation locks, if any
-    internal var navigationLocks: Set<UUID> = []
 
     /// Navigation send publisher
     internal var publisher: PassthroughSubject<NavigationSendValues, Never> = .init()
@@ -94,13 +90,6 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
     deinit {
         log("Navigator deinit: \(id)")
         parent?.removeChild(self)
-    }
-
-    /// Delayed signal of state change that might occur during the rendering cycle.
-    func changed() {
-        DispatchQueue.main.async {
-            self.objectWillChange.send()
-        }
     }
 
     /// Walks up the parent tree and returns the root Navigator.
