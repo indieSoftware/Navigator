@@ -1,10 +1,13 @@
 # Navigator Changelog
 
+### 09.19
+
+* Fix returnToCheckpoint issue with multiple checkpoints using same id
+
 ### 0.9.18
 
 * Simplify send and perform syntax with variadics
 * Updated demo application to show switching root view types #26
-
 
 ### 0.9.17
 
