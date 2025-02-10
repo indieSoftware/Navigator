@@ -66,9 +66,8 @@ public struct NavigationCheckpoint: Equatable, ExpressibleByStringLiteral, Hasha
         self.index = index
     }
 
-    public var unique: NavigationCheckpoint {
-        let id = UUID().uuidString
-        return .init(name: self.name + "." + id, identifier: id, index: index)
+    internal var key: String {
+        "\(name).\(index)"
     }
 
     internal func setting(index: Int) -> NavigationCheckpoint {
@@ -156,7 +155,10 @@ extension NavigationState {
     // Most of the following code does recursive data manipulation best performed on the state object itself.
 
     internal func find(_ checkpoint: NavigationCheckpoint) -> (NavigationState, NavigationCheckpoint)? {
-        if let found = checkpoints[checkpoint.name], isPresenting || found.index < path.count {
+        let checkpoints = checkpoints.values
+            .filter { $0.name == checkpoint.name && (isPresenting || $0.index < path.count) }
+            .sorted { $0.index > $1.index } // descending
+        if let found = checkpoints.first {
             return (self, found)
         }
         return parent?.find(checkpoint)
@@ -167,7 +169,7 @@ extension NavigationState {
             log(type:.warning, "Navigator checkpoint not found in current navigation tree: \(checkpoint.name)")
             return
         }
-        log("Navigator returning to checkpoint: \(checkpoint.name)")
+        log("Navigator returning to checkpoint: \(checkpoint.key)")
         _ = navigator.dismissAll()
         _ = navigator.pop(to: found.index)
     }
@@ -178,7 +180,7 @@ extension NavigationState {
             log(type:.warning, "Navigator checkpoint value handler not found: \(checkpoint.name)")
             return
         }
-        log("Navigator returning to checkpoint: \(checkpoint.name) value: \(value)")
+        log("Navigator returning to checkpoint: \(checkpoint.key) value: \(value)")
         // send value to specific receive handler
         if let identifier = found.identifier {
             let values = NavigationSendValues(navigator: Navigator(state: self), identifier: identifier, value: value)
@@ -194,21 +196,21 @@ extension NavigationState {
     }
 
     internal func addCheckpoint(_ checkpoint: NavigationCheckpoint) {
-        if let found = checkpoints[checkpoint.name] {
+        let checkpoint = checkpoint.setting(index: path.count)
+        if let found = checkpoints[checkpoint.key] {
             if checkpoint.identifier != found.identifier {
-                checkpoints[checkpoint.name] = checkpoint.setting(identifier: checkpoint.identifier)
+                checkpoints[checkpoint.key] = checkpoint.setting(identifier: checkpoint.identifier)
             }
             return
         }
-        let checkpoint = checkpoint.setting(index: path.count)
-        checkpoints[checkpoint.name] = checkpoint.setting(index: path.count)
-        log("Navigator \(id) adding checkpoint: \(checkpoint.name)")
+        checkpoints[checkpoint.key] = checkpoint
+        log("Navigator \(id) adding checkpoint: \(checkpoint.key)")
     }
 
     internal func cleanCheckpoints() {
         checkpoints = checkpoints.filter {
             guard $1.index <= path.count else {
-                log("Navigator \(id) removing checkpoint: \($1.name)")
+                log("Navigator \(id) removing checkpoint: \($1.key)")
                 return false
             }
             return true

@@ -2,6 +2,7 @@
 
 ### 09.19
 
+* Supports multiple checkpoints using same id within the same navigation path
 * Fix returnToCheckpoint issue with multiple checkpoints using same id
 
 ### 0.9.18

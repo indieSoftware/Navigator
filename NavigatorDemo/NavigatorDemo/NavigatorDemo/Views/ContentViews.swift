@@ -72,6 +72,11 @@ struct ContentCheckpointSection: View {
             .navigationReturnToCheckpoint(trigger: $returnToCheckpoint, checkpoint: .page2)
             .disabled(!navigator.canReturnToCheckpoint(.page2))
 
+            Button("Return To Checkpoint Duplicate (1, 2)") {
+                navigator.returnToCheckpoint(.duplicate)
+            }
+            .disabled(!navigator.canReturnToCheckpoint(.duplicate))
+
             Button("Return To Checkpoint Settings") {
                 navigator.returnToCheckpoint(.settings)
             }

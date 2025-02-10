@@ -33,7 +33,7 @@ struct SettingsView: View {
     @State var returnValue: Int? = nil
     var body: some View {
         List {
-            Section("Sheet Actions") {
+            Section("Checkpoint Value Actions") {
                 Button("Settings Sheet With Return Value") {
                     navigator.navigate(to: SettingsDestinations.sheet)
                 }
@@ -101,8 +101,16 @@ struct SettingsView: View {
 
 struct Page2SettingsView: View {
     @Environment(\.navigator) var navigator: Navigator
+    @State var returnValue: Int? = nil
     var body: some View {
         List {
+            Section("Checkpoint Value Actions") {
+                Button("Settings Sheet With Return Value") {
+                    navigator.navigate(to: SettingsDestinations.sheet)
+                }
+                Text("Return Value: \(String(describing: returnValue))")
+                    .foregroundStyle(.secondary)
+            }
             Section("Navigation Actions") {
                 NavigationLink(value: SettingsDestinations.page3) {
                     Text("Link to Test Page 3!")
@@ -113,6 +121,10 @@ struct Page2SettingsView: View {
             ContentPopSection()
         }
         .navigationCheckpoint(.page2)
+        // establishes a second checkpoint with a return value handler
+        .navigationCheckpoint(.settings) { (result: Int?) in
+            returnValue = result
+        }
         .navigationTitle("Page 2")
     }
 }

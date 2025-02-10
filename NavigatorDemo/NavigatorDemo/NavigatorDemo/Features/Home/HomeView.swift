@@ -84,6 +84,7 @@ struct HomeContentView: View {
             }
         }
         .navigationTitle(viewModel.title)
+        .navigationCheckpoint(.duplicate)
     }
 }
 
@@ -133,6 +134,7 @@ struct HomePage2View: View {
             ContentPopSection()
         }
         .navigationCheckpoint(.page2)
+        .navigationCheckpoint(.duplicate)
 //        .navigationCheckpoint(.page2, position: 1)
         .navigationTitle(viewModel.title)
     }
