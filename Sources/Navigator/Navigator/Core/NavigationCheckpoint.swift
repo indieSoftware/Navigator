@@ -169,7 +169,7 @@ extension NavigationState {
             log(type:.warning, "Navigator checkpoint not found in current navigation tree: \(checkpoint.name)")
             return
         }
-        log("Navigator returning to checkpoint: \(checkpoint.key)")
+        log("Navigator returning to checkpoint: \(checkpoint.name)")
         _ = navigator.dismissAll()
         _ = navigator.pop(to: found.index)
     }
@@ -180,7 +180,7 @@ extension NavigationState {
             log(type:.warning, "Navigator checkpoint value handler not found: \(checkpoint.name)")
             return
         }
-        log("Navigator returning to checkpoint: \(checkpoint.key) value: \(value)")
+        log("Navigator returning to checkpoint: \(checkpoint.name) value: \(value)")
         // send value to specific receive handler
         if let identifier = found.identifier {
             let values = NavigationSendValues(navigator: Navigator(state: self), identifier: identifier, value: value)
