@@ -188,7 +188,7 @@ struct HomePageNView: View {
                     )
                 }
                 Button("Route To Settings Page 2") {
-                    viewModel.resolver.homeExternalRouter.route(to: .settingsPage2)
+                    try? viewModel.resolver.homeExternalRouter.route(to: .settingsPage2)
                 }
             }
             ContentSheetSection()

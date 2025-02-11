@@ -106,7 +106,7 @@ struct ContentRoutingSection: View {
                 navigator.perform(route: KnownRoutes.homePage2Page3PageN(99))
             }
             Button("Route To Settings Page 2") {
-                resolver.homeExternalRouter.route(to: .settingsPage2)
+                try? resolver.homeExternalRouter.route(to: .settingsPage2)
             }
         }
     }

@@ -1,6 +1,10 @@
 # Navigator Changelog
 
-### 09.19
+### 0.9.20
+
+* Allow NavigationRouting to throw errors
+
+### 0.9.19
 
 * Supports multiple checkpoints using same id within the same navigation path
 * Fix returnToCheckpoint issue with multiple checkpoints using same id
