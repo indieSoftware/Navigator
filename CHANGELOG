@@ -1,5 +1,9 @@
 # Navigator Changelog
 
+### 0.9.21
+
+* Adds default identifier to Callback handler
+
 ### 0.9.20
 
 * Allow NavigationRouting to throw errors

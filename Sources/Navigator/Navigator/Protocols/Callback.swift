@@ -12,16 +12,16 @@ import SwiftUI
 // Note, however, that Callback handlers are NOT Codable and as such will disable state restoration in any ManagedNavigationStack that uses them.
 //
 // Using callback handlers between views will also interfere with deep linking, since URL handlers and other deep linking mechanisms will probably
-// be unable to synthesize the correct binding.
+// be unable to synthesize the correct callback closures externally.
 //
 // Consider navigation Send or Checkpoints with values instead.
 public struct Callback<Value>: Hashable, Equatable {
 
-    public let name: String
+    public let identifier: String
     public let handler: (Value) -> Void
 
-    public init(_ name: String, handler: @escaping (Value) -> Void) {
-        self.name = name
+    public init(_ identifier: String = UUID().uuidString, handler: @escaping (Value) -> Void) {
+        self.identifier = identifier
         self.handler = handler
     }
 
@@ -30,11 +30,11 @@ public struct Callback<Value>: Hashable, Equatable {
     }
 
     public func hash(into hasher: inout Hasher) {
-       hasher.combine(name)
+       hasher.combine(identifier)
     }
 
     public static func == (lhs: Callback<Value>, rhs: Callback<Value>) -> Bool {
-        lhs.name == rhs.name
+        lhs.identifier == rhs.identifier
     }
 
 }

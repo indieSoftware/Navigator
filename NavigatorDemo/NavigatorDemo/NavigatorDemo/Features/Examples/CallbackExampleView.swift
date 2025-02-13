@@ -18,7 +18,10 @@ struct CallbackExampleView: View {
                 }
                 Section {
                     Button("Present Callback Sheet") {
-                        navigator.navigate(to: Destinations.destination1(.init("example") { self.value = $0 }), method: .sheet)
+                        navigator.navigate(to: Destinations.destination1(value, .init {
+                            value = $0
+                            navigator.dismissPresentedViews()
+                        }), method: .sheet)
                     }
                     Button("Dismiss Example") {
                         navigator.dismiss()
@@ -32,19 +35,19 @@ struct CallbackExampleView: View {
 
 extension CallbackExampleView {
     enum Destinations: NavigationDestination {
-        case destination1(Callback<Double>)
+        case destination1(Double, Callback<Double>)
         var view: some View {
             switch self {
-            case .destination1(let callback):
-                PresentedCallbackExampleView(handler: callback.handler)
+            case .destination1(let value, let callback):
+                PresentedCallbackExampleView(value: value, handler: callback.handler)
             }
         }
     }
 }
 
 struct PresentedCallbackExampleView: View {
+    @State var value: Double
     let handler: (Double) -> Void
-    @State var value: Double = 0
     var body: some View {
         ManagedNavigationStack { navigator in
             List {
@@ -54,7 +57,6 @@ struct PresentedCallbackExampleView: View {
                 }
                 Button("Callback With Value: \(Int(value))") {
                     handler(value)
-                    navigator.dismiss()
                 }
                 Button("Dismiss") {
                     navigator.dismiss()
