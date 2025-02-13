@@ -10,10 +10,16 @@ import SwiftUI
 
 public enum ExampleDestinations: String, NavigationDestination, CaseIterable {
 
+    case binding
+    case callback
     case transition
 
     public var view: some View {
         switch self {
+        case .binding:
+            BindingExampleView()
+        case .callback:
+            CallbackExampleView()
         case .transition:
             if #available(iOS 18.0, *) {
                 TransitionExampleView()
@@ -33,6 +39,10 @@ public enum ExampleDestinations: String, NavigationDestination, CaseIterable {
 
     public var description: String {
         switch self {
+        case .binding:
+            "Demonstrates using a binding in navigation destinations."
+        case .callback:
+            "Demonstrates using a callback handler in navigation destinations."
         case .transition:
             "Demonstrates custom transitions with navigation destinations. (iOS 18.0+)"
         }

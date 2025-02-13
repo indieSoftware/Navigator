@@ -13,7 +13,9 @@ Button("Dismiss Presented View") {
     navigator.dismiss()
 }
 ```
-But those are all imperative operations. While one can programmatically pop and dismiss their way out of a screen, that approach is problematic and tends to be fragile. One could pass bindings down the tree, but that can also be cumbersome and difficult to maintain.
+But those are all imperative operations. While one can programmatically pop and dismiss their way out of a screen, that approach is problematic and tends to be fragile. It also assumes that the code has explicit knowledge of the application structure and navigation tree.
+
+One could pass bindings down the tree, but that can also be cumbersome and difficult to maintain.
 
 Fortunately, Navigator supports checkpoints; named points in the navigation stack to which one can easily return.
 
@@ -56,7 +58,7 @@ When fired, checkpoints will dismiss any presented screens and pop any pushed vi
 ### Returning values to a Checkpoint
 Checkpoints can also be used to return values to a caller.
 
-First we establish our checkpoint, but also adding a handler that receives a specific value type.
+As before we establish our checkpoint, but this time we add a handler that receives a specific value type.
 ```swift
 // Define a checkpoint with a value handler.
 .navigationCheckpoint(.settings) { (result: Int) in

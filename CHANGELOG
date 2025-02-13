@@ -3,6 +3,8 @@
 ### 0.9.20
 
 * Allow NavigationRouting to throw errors
+* Provides mechanism for passing Binding in NavigationDestinations
+* Provides mechanism for passing Callback handler in NavigationDestinations
 
 ### 0.9.19
 

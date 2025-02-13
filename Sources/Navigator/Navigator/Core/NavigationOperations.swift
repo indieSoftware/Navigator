@@ -27,7 +27,7 @@ extension Navigator {
     /// This may push an item onto the stacks navigation path, or present a sheet or fullscreen cover view.
     @MainActor
     public func navigate<D: NavigationDestination>(to destination: D, method: NavigationMethod) {
-        log("Navigator \(id) navigating to: \(destination), via: \(method)")
+        log("Navigator \(id) navigating to: \(String(reflecting: destination)), via: \(method)")
         switch method {
         case .push:
             push(destination)

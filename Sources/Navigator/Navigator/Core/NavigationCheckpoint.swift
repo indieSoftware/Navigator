@@ -134,12 +134,17 @@ extension Navigator {
     /// Returns to a named checkpoint in the navigation system, passing value to that checkpoint's completion handler.
     ///
     /// This function will pop and/or dismiss intervening views as needed.
+    /// ```swift
+    /// Button("Cancel") {
+    ///     navigator.returnToCheckpoint(.transaction, value: account)
+    /// }
+    /// ```
     @MainActor
     public func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, value: T?) {
         state.returnToCheckpoint(checkpoint, value: value)
     }
 
-    /// Allow the code to determine if the checkpoint has been set and is known to the system.
+    /// Allows the code to determine if the checkpoint has been set and is known to the system.
     public nonisolated func canReturnToCheckpoint(_ checkpoint: NavigationCheckpoint) -> Bool {
         state.canReturnToCheckpoint(checkpoint)
     }
