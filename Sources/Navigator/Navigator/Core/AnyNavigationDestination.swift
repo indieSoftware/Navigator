@@ -10,6 +10,7 @@ import SwiftUI
 /// Wrapper boxes a specific NavigationDestination.
 public struct AnyNavigationDestination {
     public var wrapped: any NavigationDestination
+    public var method: NavigationMethod
 }
 
 extension AnyNavigationDestination: Identifiable {
@@ -50,6 +51,7 @@ extension AnyNavigationDestination: Codable {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "\(typeName) is not decodable.")
         }
         wrapped = destination
+        method = try container.decode(NavigationMethod.self)
     }
 
     // convert NavigationDestination to storable data

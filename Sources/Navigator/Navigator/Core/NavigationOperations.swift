@@ -35,17 +35,18 @@ extension Navigator {
         case .send:
             send(value: destination)
 
-        case .sheet:
+        case .sheet, .managedSheet:
             guard state.sheet?.id != destination.id else { return }
-            state.sheet = AnyNavigationDestination(wrapped: destination)
+            state.sheet = AnyNavigationDestination(wrapped: destination, method: method)
 
-        case .cover:
+        case .cover, .managedCover:
             guard state.cover?.id != destination.id else { return }
             #if os(iOS)
-            state.cover = AnyNavigationDestination(wrapped: destination)
+            state.cover = AnyNavigationDestination(wrapped: destination, method: method)
             #else
-            state.sheet = AnyNavigationDestination(wrapped: destination)
+            state.sheet = AnyNavigationDestination(wrapped: destination, method: method)
             #endif
+
         }
     }
 

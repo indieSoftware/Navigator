@@ -32,7 +32,7 @@
 ///
 /// > Important: When using `NavigationLink(value:label:)` the method will be ignored and SwiftUI will push
 /// the value onto the navigation stack as it would normally.
-public enum NavigationMethod {
+public enum NavigationMethod: Int, Codable {
     /// Pushes the destination onto the navigation stack path.
     case push
 
@@ -44,4 +44,21 @@ public enum NavigationMethod {
 
     /// Displays the destination as a SwiftUI full screen cover on iOS.
     case cover
+
+    /// Displays the destination as a SwiftUI sheet wrapped within a ManagedNavigationStack.
+    case managedSheet
+
+    /// Displays the destination as a SwiftUI full screen cover wrapped within a ManagedNavigationStack on iOS.
+    case managedCover
+
+    // True if navigation stack wanted.
+    var requiresNavigationStack: Bool {
+        switch self {
+        case .managedSheet, .managedCover:
+            return true
+        default:
+            return false
+        }
+    }
+
 }

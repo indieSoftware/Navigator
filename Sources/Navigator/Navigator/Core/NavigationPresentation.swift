@@ -99,15 +99,11 @@ internal struct NavigationPresentationModifiers: ViewModifier {
     func body(content: Content) -> some View {
         content
             .sheet(item: $state.sheet) { (destination) in
-                ManagedPresentationView {
-                    destination()
-                }
+                managedView(for: destination)
             }
             #if os(iOS)
             .fullScreenCover(item: $state.cover) { (destination) in
-                ManagedPresentationView {
-                    destination()
-                }
+                managedView(for: destination)
             }
             #endif
             .onChange(of: state.triggerDismiss) { trigger in
@@ -115,6 +111,18 @@ internal struct NavigationPresentationModifiers: ViewModifier {
                     dismiss()
                 }
             }
+    }
+
+    @ViewBuilder func managedView(for destination: AnyNavigationDestination) -> some View {
+        ManagedPresentationView {
+            if destination.method.requiresNavigationStack {
+                ManagedNavigationStack {
+                    destination()
+                }
+            } else {
+                destination()
+            }
+        }
     }
 
 }

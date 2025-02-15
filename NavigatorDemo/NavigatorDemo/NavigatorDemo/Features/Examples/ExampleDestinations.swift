@@ -42,7 +42,7 @@ public enum ExampleDestinations: String, NavigationDestination, CaseIterable {
         case .binding:
             "Demonstrates using a binding in navigation destinations."
         case .callback:
-            "Demonstrates using a callback handler in navigation destinations."
+            "Demonstrates using callback handlers and checkpoints in navigation destinations."
         case .transition:
             "Demonstrates custom transitions with navigation destinations. (iOS 18.0+)"
         }
