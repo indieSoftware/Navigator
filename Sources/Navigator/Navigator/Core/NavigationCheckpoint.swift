@@ -140,7 +140,7 @@ extension Navigator {
     /// }
     /// ```
     @MainActor
-    public func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, value: T?) {
+    public func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, value: T) {
         state.returnToCheckpoint(checkpoint, value: value)
     }
 
