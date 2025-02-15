@@ -93,7 +93,7 @@ struct SettingsView: View {
         // establishes a standard checkpoint
         .navigationCheckpoint(.settings)
         // establishes a checkpoint with a return value handler
-        .navigationCheckpoint(.settings) { (result: Int?) in
+        .navigationCheckpoint(.settings) { (result: Int) in
             returnValue = result
         }
     }
@@ -122,7 +122,7 @@ struct Page2SettingsView: View {
         }
         .navigationCheckpoint(.page2)
         // establishes a second checkpoint with a return value handler
-        .navigationCheckpoint(.settings) { (result: Int?) in
+        .navigationCheckpoint(.settings) { (result: Int) in
             returnValue = result
         }
         .navigationTitle("Page 2")
