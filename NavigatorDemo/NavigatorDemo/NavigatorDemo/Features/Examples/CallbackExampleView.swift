@@ -17,38 +17,35 @@ struct CallbackExampleView: View {
                     Text("Callback Value: \(Int(value))")
                 }
                 Section {
-                    ExampleListItem(
+                    ExampleListButton(
                         title: "Present Callback Sheet w/Dismiss",
-                        description: "Callback handler dismisses presented views with dismissPresentedViews.",
+                        text: "Callback handler dismisses presented views with dismissPresentedViews.",
                         action: {
                             navigator.navigate(to: CallbackDestinations.presented(value, .init {
                                 value = $0
                                 navigator.dismissPresentedViews()
                             }))
-                        }
-                    )
-                    ExampleListItem(
+                        })
+                    ExampleListButton(
                         title: "Present Callback Sheet w/Checkpoint",
-                        description: "Callback handler dismisses presented views with returnToCheckpoint(.home).",
+                        text: "Callback handler dismisses presented views with returnToCheckpoint(.home).",
                         action: {
                             navigator.navigate(to: CallbackDestinations.presented(value, .init {
                                 value = $0
                                 navigator.returnToCheckpoint(.home)
                             }))
-                        }
-                    )
+                        })
                 }
                 Section {
-                    ExampleListItem(
+                    ExampleListButton(
                         title: "Push Callback View",
-                        description: "Callback handler dismisses presented views with returnToCheckpoint(.home).",
+                        text: "Callback handler dismisses presented views with returnToCheckpoint(.home).",
                         action: {
                             navigator.navigate(to: CallbackDestinations.pushed(value, .init {
                                 value = $0
                                 navigator.returnToCheckpoint(.home)
                             }))
-                        }
-                    )
+                        })
                 }
                 Section {
                     Button("Dismiss Example") {
@@ -103,18 +100,18 @@ struct CallbackReturnView: View {
                 Slider(value: $value, in: 1...10, step: 1)
             }
             Section {
-                ExampleListItem(
+                ExampleListButton(
                     title: "Callback With Value: \(Int(value))",
-                    description: "Calls passed callback handler with current value.",
-                    action: { handler(value) }
-                )
-                ExampleListItem(
+                    text: "Calls passed callback handler with current value.",
+                    action: {
+                        handler(value)
+                    })
+                ExampleListButton(
                     title: "Return To Checkpoint With Value: \(Int(value))",
-                    description: "Demonstrates bypassing the callback handler with returnToCheckpoint(:value:).",
+                    text: "Demonstrates bypassing the callback handler with returnToCheckpoint(:value:).",
                     action: {
                         navigator.returnToCheckpoint(.home, value: value)
-                    }
-                )
+                    })
             }
             Section {
                 Button("Dismiss") {

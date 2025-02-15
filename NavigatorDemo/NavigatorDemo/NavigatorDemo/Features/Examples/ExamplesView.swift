@@ -13,7 +13,7 @@ struct ExamplesView: View {
         ManagedNavigationStack(name: RootTabs.examples.id) { navigator in
             List {
                 ForEach(ExampleDestinations.allCases) { example in
-                    ExampleListItem(title: example.title, description: example.description) {
+                    ExampleListButton(title: example.title, text: example.description) {
                         navigator.navigate(to: example)
                     }
                 }
@@ -23,16 +23,16 @@ struct ExamplesView: View {
     }
 }
 
-struct ExampleListItem: View {
+struct ExampleListButton: View {
     var title: String
-    var description: String
+    var text: String
     var action: () -> Void
     var body: some View {
         VStack(alignment: .leading) {
             Button(title) {
                 action()
             }
-            Text(description)
+            Text(text)
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }

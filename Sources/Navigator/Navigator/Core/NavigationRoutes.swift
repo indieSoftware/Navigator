@@ -12,7 +12,7 @@ public protocol NavigationRoutes: Hashable {}
 extension Navigator {
     @MainActor
     public func perform<R: NavigationRoutes>(route: R) {
-        send(value: route)
+        send(route)
     }
 }
 

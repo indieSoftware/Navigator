@@ -33,7 +33,7 @@ extension Navigator {
             push(destination)
 
         case .send:
-            send(value: destination)
+            send(destination)
 
         case .sheet, .managedSheet:
             guard state.sheet?.id != destination.id else { return }

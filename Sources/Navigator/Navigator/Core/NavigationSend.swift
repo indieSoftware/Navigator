@@ -68,7 +68,7 @@ extension Navigator {
     }
 
     @MainActor
-    public func send(values values: [any Hashable]) {
+    public func send(values: [any Hashable]) {
         guard let value: any Hashable = values.first else {
             return
         }
@@ -267,7 +267,7 @@ private struct NavigationSendValueModifier<T: Hashable & Equatable>: ViewModifie
         content
             .onChange(of: item) { item in
                 if let item {
-                    navigator.send(value: item)
+                    navigator.send(item)
                     self.item = nil
                 }
             }
