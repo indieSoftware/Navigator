@@ -3,6 +3,9 @@
 ### 0.9.21
 
 * Adds default identifier to Callback handler
+* Update callback handler demo code
+* Adds options managedSheet and managedCover to NavigationMethod
+* Fix checkpoint issue where returnToCheckpoint(:value:) was looking for an optional value
 
 ### 0.9.20
 
