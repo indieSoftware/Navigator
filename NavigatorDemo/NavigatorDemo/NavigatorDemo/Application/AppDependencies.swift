@@ -13,9 +13,10 @@ import SwiftUI
 //
 
 // Application aggregates all known module dependencies
-typealias AppDependencies = CoreDependencies
+protocol AppDependencies: CoreDependencies
     & HomeDependencies
     & SettingsDependencies
+{}
 
 // Make the application's dependency resolver
 class AppResolver: AppDependencies {
