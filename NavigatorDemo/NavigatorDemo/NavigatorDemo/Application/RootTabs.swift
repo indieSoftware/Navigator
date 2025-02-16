@@ -17,7 +17,7 @@ enum RootTabs: Int, Codable {
 extension RootTabs: Identifiable {
 
     static var tabs: [RootTabs] {
-        [.home, .examples, settings]
+        [.home, .examples, .settings]
     }
 
     static var sidebar: [RootTabs] {
