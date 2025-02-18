@@ -151,6 +151,15 @@ public struct ManagedNavigationStack<Content: View>: View {
 
 }
 
+// Navigator (Root)
+// --Tab 1 - ManagedNavigationStack (Navigator)
+// --Tab 2 - ManagedNavigationStack (Navigator)
+// --Tab 3 - ManagedNavigationStack (Navigator)
+// ----ManagedPresentationView (Navigator)
+// ------ManagedNavigationStack (w/ManagedPresentationView's Navigator)
+// --------ManagedPresentationView (Navigator)
+// ----------ManagedNavigationStack (w/ManagedPresentationView's Navigator)
+
 // RootNavigator
 // - isPresented == false
 //

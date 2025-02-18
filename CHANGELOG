@@ -1,5 +1,12 @@
 # Navigator Changelog
 
+### 0.9.22
+
+* Updated documentation on Navigation Trees
+* Update app dependencies protocol
+* Merge minor fixes from PR #28
+* Fixes some warnings in code
+
 ### 0.9.21
 
 * Adds default identifier to Callback handler

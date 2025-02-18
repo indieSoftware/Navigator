@@ -25,6 +25,7 @@ Ready to get started?
 
 ### The Basics
 
+- <doc:NavigationTree>
 - <doc:Destinations>
 - <doc:Checkpoints>
 
