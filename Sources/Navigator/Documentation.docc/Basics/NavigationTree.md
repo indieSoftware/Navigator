@@ -1,6 +1,6 @@
-# The Navigation Tree
+# Navigation Tree
 
-To get the most out of Navigator, you need to understand the navigation tree where its Navigators live.
+To get the most out of Navigator you need to understand the navigation tree where its Navigators live.
 
 ## Overview
 
@@ -8,9 +8,23 @@ NavigationStacks are managed by Navigators. Each ``ManagedNavigationStack`` used
 
 That allows *those* views to talk to *their* navigator.
 
-One exception is the "root" Navigator that's usually configured and installed in the main application. That "root" passes the configuration along to its children and also allows for communication in instances like tabs where each tab has its own ManagedNavigationStack.
+## Roots
 
-## The Navigation Tree
+One exception is the "root" Navigator that's usually configured and installed in the main application. 
+
+```swift
+func applicationNavigator() -> Navigator {
+    let configuration: NavigationConfiguration = .init(
+        restorationKey: nil, // "1.0.0",
+        executionDelay: 0.4, // 0.3 - 5.0
+        verbosity: .info
+    )
+    return Navigator(configuration: configuration)
+}
+```
+That "root" passes the configuration along to its children and also allows for communication in instances like tabs where each tab has its own ManagedNavigationStack.
+
+## Growing The Tree
 
 If you look at the code for `ManagedNavigationStack` (and `ManagedPresentationView`), you'll see where each one gets the current Navigator. That Navigator is then passed to the navigation state as its "parent", which in turn is used to build a navigation tree.
 ```swift
