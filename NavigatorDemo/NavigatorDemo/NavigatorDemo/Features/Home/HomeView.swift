@@ -134,7 +134,10 @@ struct HomePage2View: View {
             ContentPopSection()
         }
         .navigationCheckpoint(.page2)
-        .navigationCheckpoint(.duplicate)
+        // shows a checkpoint with an action handler triggered on return
+        .navigationCheckpoint(.duplicate) {
+            print("DUPLICATE ACTION")
+        }
 //        .navigationCheckpoint(.page2, position: 1)
         .navigationTitle(viewModel.title)
     }

@@ -2,8 +2,10 @@
 
 ### 0.9.22
 
+* Added support for optional action handlers to checkpoints
 * Updated documentation on Navigation Trees
 * Update app dependencies protocol
+* Merge initial unit tests PR #29
 * Merge minor fixes from PR #28
 * Fixes some warnings in code
 

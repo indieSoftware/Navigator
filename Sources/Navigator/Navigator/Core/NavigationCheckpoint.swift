@@ -177,6 +177,11 @@ extension NavigationState {
         log("Navigator returning to checkpoint: \(checkpoint.name)")
         _ = navigator.dismissAll()
         _ = navigator.pop(to: found.index)
+        // send trigger to specific action handler
+        if let identifier = found.identifier {
+            let values = NavigationSendValues(navigator: Navigator(state: self), identifier: identifier, value: CheckpointAction())
+            publisher.send(values)
+        }
     }
 
     internal func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, value: T) {
@@ -186,14 +191,14 @@ extension NavigationState {
             return
         }
         log("Navigator returning to checkpoint: \(checkpoint.name) value: \(value)")
+        // return to sender
+        _ = navigator.dismissAll()
+        _ = navigator.pop(to: found.index)
         // send value to specific receive handler
         if let identifier = found.identifier {
             let values = NavigationSendValues(navigator: Navigator(state: self), identifier: identifier, value: value)
             publisher.send(values)
         }
-        // return to sender
-        _ = navigator.dismissAll()
-        _ = navigator.pop(to: found.index)
     }
 
     internal nonisolated func canReturnToCheckpoint(_ checkpoint: NavigationCheckpoint) -> Bool {
@@ -245,7 +250,16 @@ extension View {
         self.modifier(NavigationCheckpointModifier(checkpoint: checkpoint.setting(index: position)))
     }
 
-    /// Establishes a navigation checkpoint with a completion handler.
+    /// Establishes a navigation checkpoint with an action handler fired on return.
+    public func navigationCheckpoint(
+        _ checkpoint: NavigationCheckpoint,
+        position: Int = 0,
+        action: @escaping () -> Void
+    ) -> some View {
+        self.modifier(NavigationCheckpointActionModifier(checkpoint: checkpoint.setting(index: position), action: action))
+    }
+
+    /// Establishes a navigation checkpoint with a completion handler that accepts a return value.
     public func navigationCheckpoint<T: Hashable>(
         _ checkpoint: NavigationCheckpoint,
         position: Int = 0,
@@ -290,6 +304,33 @@ private struct NavigationCheckpointModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .task { navigator.addCheckpoint(checkpoint) }
+    }
+}
+
+private struct CheckpointAction: Hashable {}
+
+private struct NavigationCheckpointActionModifier: ViewModifier {
+    @State internal var checkpoint: NavigationCheckpoint
+    internal let action: () -> Void
+    @Environment(\.navigator) private var navigator: Navigator
+    init(
+        checkpoint: NavigationCheckpoint,
+        action: @escaping () -> Void
+    ) {
+        self.checkpoint = checkpoint
+            .setting(identifier: checkpoint.identifier ?? UUID().uuidString)
+        self.action = action
+    }
+    func body(content: Content) -> some View {
+        content
+            .onReceive(navigator.state.publisher) { values in
+                if let _: CheckpointAction = values.consume(checkpoint.identifier) {
+                    navigator.log("Navigator processing checkpoint action: \(checkpoint.name)")
+                    action()
+                    values.resume(.auto)
+                }
+            }
+            .navigationCheckpoint(checkpoint)
     }
 }
 
