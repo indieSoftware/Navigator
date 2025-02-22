@@ -10,11 +10,11 @@ Advanced Navigation Support for SwiftUI.
 
 Navigator provides SwiftUI with a simple yet powerful navigation layer based on NavigationStack. 
 
-It supports...
+This is *not* just another push/pop navigation stack library. It supports...
 
 * Simple and easy navigation linking and presentation of views.
 * Coordination patterns with well-defined separation of concerns. 
-* External deep linking and internal application navigation via navigation send.
+* True deep linking and internal application navigation via navigation send.
 * Easily returning to a specific spot in the navigation tree via navigation checkpoints.
 * Returning callback values via navigation checkpoints.
 * Both Declarative and Imperative navigation and control.

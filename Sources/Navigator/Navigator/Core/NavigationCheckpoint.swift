@@ -160,13 +160,15 @@ extension NavigationState {
     // Most of the following code does recursive data manipulation best performed on the state object itself.
 
     internal func find(_ checkpoint: NavigationCheckpoint) -> (NavigationState, NavigationCheckpoint)? {
-        let checkpoints = checkpoints.values
+        let found = checkpoints.values
             .filter { $0.name == checkpoint.name && (isPresenting || $0.index < path.count) }
-            .sorted { $0.index > $1.index } // descending
-        if let found = checkpoints.first {
+            .sorted { $0.index > $1.index } // descending, which makes last...
+            .first
+        if let found {
             return (self, found)
+        } else {
+            return parent?.find(checkpoint)
         }
-        return parent?.find(checkpoint)
     }
 
     internal func returnToCheckpoint(_ checkpoint: NavigationCheckpoint) {
