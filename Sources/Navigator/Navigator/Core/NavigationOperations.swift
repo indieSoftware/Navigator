@@ -23,8 +23,11 @@ extension Navigator {
     }
 
     /// Navigates to a specific NavigationDestination overriding the destination's specified navigation method.
-    ///
-    /// This may push an item onto the stacks navigation path, or present a sheet or fullscreen cover view.
+    /// ```swift
+    /// Button("Button Present Home Page 55") {
+    ///     navigator.navigate(to: HomeDestinations.pageN(55), method: .sheet)
+    /// }
+    /// ```
     @MainActor
     public func navigate<D: NavigationDestination>(to destination: D, method: NavigationMethod) {
         log("Navigator \(id) navigating to: \(String(reflecting: destination)), via: \(method)")
@@ -60,8 +63,9 @@ extension Navigator {
     ///     navigator.push(HomeDestinations.pageN(55))
     /// }
     /// ```
+    /// Also supports plain Hashable values for better integration with existing code bases.
     @MainActor
-    public func push(_ destination: any NavigationDestination) {
+    public func push<D: Hashable>(_ destination: D) {
         if let destination = destination as? any Hashable & Codable {
             state.path.append(destination) // ensures NavigationPath knows type is Codable
         } else {
