@@ -93,9 +93,9 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
     }
 
     /// Walks up the parent tree and returns the root Navigator.
-    internal var root: NavigationState {
+    internal lazy var root: NavigationState = {
         parent?.root ?? self
-    }
+    }()
 
     /// Adds a child state to parent.
     internal func addChild(_ child: NavigationState, isPresented: Bool) {
