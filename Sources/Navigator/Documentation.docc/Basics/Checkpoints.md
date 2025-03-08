@@ -24,10 +24,13 @@ Fortunately, Navigator supports checkpoints; named points in the navigation stac
 ### Defining a Checkpoint
 Checkpoints are easy to define and use. Let's create one called "home".
 ```swift
-extension NavigationCheckpoint {
-    public static let home: NavigationCheckpoint = "myApp.home"
+struct KnownCheckpoints: NavigationCheckpoint {
+    public static var home: NavigationCheckpoint<Void> { checkpoint() }
 }
 ```
+Just conform your definitions to `NavigationCheckpoints` and specify the return type of the checkpoint (or void if none).
+
+Using `{ checkpoint() }` ensures a checkpoint definition and name that's unique. Here, that's `KnownCheckpoints.home.()`.
 
 ### Establishing a Checkpoint
 Now lets attach that checkpoint to our home view.
@@ -36,7 +39,7 @@ struct RootHomeView: View {
     var body: some View {
         ManagedNavigationStack(scene: "home") {
             HomeContentView(title: "Home Navigation")
-                .navigationCheckpoint(.home)
+                .navigationCheckpoint(KnownCheckpoints..home)
                 .navigationDestination(HomeDestinations.self)
         }
     }
@@ -47,9 +50,9 @@ struct RootHomeView: View {
 Once defined, they're easy to use.
 ```swift
 Button("Return To Checkpoint Home") {
-    navigator.returnToCheckpoint(.home)
+    navigator.returnToCheckpoint(KnownCheckpoints.home)
 }
-.disabled(!navigator.canReturnToCheckpoint(.home))
+.disabled(!navigator.canReturnToCheckpoint(KnownCheckpoints.home))
 ```
 When fired, checkpoints will dismiss any presented screens and pop any pushed views to return exactly where desired.
 
@@ -58,10 +61,17 @@ When fired, checkpoints will dismiss any presented screens and pop any pushed vi
 ### Returning values to a Checkpoint
 Checkpoints can also be used to return values to a caller.
 
-As before we establish our checkpoint, but this time we add a handler that receives a specific value type.
+As before we define our checkpoint, specifying the return value type.
+```swift
+struct KnownCheckpoints: NavigationCheckpoint {
+    public static var settings: NavigationCheckpoint<Int> { checkpoint() }
+}
+```
+
+We then establish our checkpoint, but this time we add a handler that receives our value type.
 ```swift
 // Define a checkpoint with a value handler.
-.navigationCheckpoint(.settings) { (result: Int) in
+.navigationCheckpoint(KnownCheckpoints.settings) { result in
     returnValue = result
 }
 ```
@@ -69,10 +79,12 @@ And then later on when we're ready to return we call `returnToCheckpoint` as usu
 ```swift
 // Return, passing a value.
 Button("Return to Settings Checkpoint Passing Value 5") {
-    navigator.returnToCheckpoint(.settings, value: 5)
+    navigator.returnToCheckpoint(KnownCheckpoints.settings, value: 5)
 }
 ```
-This comes in handy when enabling state restoration in our navigation system, especially since view bindings and callback closures can't be persisted to external storage.
+The value type returned must match the checkpoint definition, otherwise you'll get a compiler error.
+
+Checkpoint return values come in handy when enabling state restoration in our navigation system, especially since view bindings and callback closures can't be persisted to external storage.
 
 > Important: The value types specified in the handler and sent by the return function must match. If they don't then the handler will not be called.
 

@@ -91,9 +91,9 @@ struct SettingsView: View {
         }
         .navigationTitle(name)
         // establishes a standard checkpoint
-        .navigationCheckpoint(.settings)
+        .navigationCheckpoint(KnownCheckpoints.settings)
         // establishes a checkpoint with a return value handler
-        .navigationCheckpoint(.settings) { (result: Int) in
+        .navigationCheckpoint(KnownCheckpoints.settings) { result in
             returnValue = result
         }
     }
@@ -120,9 +120,9 @@ struct Page2SettingsView: View {
             ContentCheckpointSection()
             ContentPopSection()
         }
-        .navigationCheckpoint(.page2)
+        .navigationCheckpoint(KnownCheckpoints.page2)
         // establishes a second checkpoint with a return value handler
-        .navigationCheckpoint(.settings) { (result: Int) in
+        .navigationCheckpoint(KnownCheckpoints.settings) { result in
             returnValue = result
         }
         .navigationTitle("Page 2")
@@ -145,14 +145,15 @@ struct SettingsSheetView: View {
             Section("Checkpoint Actions") {
                 WithNavigator { navigator in
                     Button("Return to Settings Checkpoint Value 5") {
-                        navigator.returnToCheckpoint(.settings, value: 5)
+                        navigator.returnToCheckpoint(KnownCheckpoints.settings, value: 5)
                     }
                     Button("Return to Settings Checkpoint Value 0") {
-                        navigator.returnToCheckpoint(.settings, value: 0)
+                        navigator.returnToCheckpoint(KnownCheckpoints.settings, value: 0)
                     }
-                    Button("Return to Missing Settings Handler 0.0") {
-                        navigator.returnToCheckpoint(.settings, value: 0.0)
-                    }
+                    // Button("Return to Missing Settings Handler 0.0") {
+                        // Cannot convert value of type 'Double' to expected argument type 'Int'
+                        // navigator.returnToCheckpoint(KnownCheckpoints.settings, value: 0.0)
+                    // }
                 }
             }
             Section("Send Actions") {

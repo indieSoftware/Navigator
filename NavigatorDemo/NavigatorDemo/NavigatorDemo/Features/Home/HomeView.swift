@@ -27,7 +27,7 @@ struct HomeRootView: View {
     var body: some View {
         ManagedNavigationStack(scene: RootTabs.home.id) {
             HomeContentView(viewModel: HomeContentViewModel(resolver: viewModel.resolver, title: "Home Navigation"))
-                .navigationCheckpoint(.home)
+                .navigationCheckpoint(KnownCheckpoints.home)
                 .navigationDestination(HomeDestinations.self)
                 .onNavigationReceive { (destination: HomeDestinations, navigator) in
                     navigator.navigate(to: destination)
@@ -84,7 +84,7 @@ struct HomeContentView: View {
             }
         }
         .navigationTitle(viewModel.title)
-        .navigationCheckpoint(.duplicate)
+        .navigationCheckpoint(KnownCheckpoints.duplicate)
     }
 }
 
@@ -133,9 +133,9 @@ struct HomePage2View: View {
             ContentCheckpointSection()
             ContentPopSection()
         }
-        .navigationCheckpoint(.page2)
+        .navigationCheckpoint(KnownCheckpoints.page2)
         // shows a checkpoint with an action handler triggered on return
-        .navigationCheckpoint(.duplicate) {
+        .navigationCheckpoint(KnownCheckpoints.duplicate) {
             print("DUPLICATE ACTION")
         }
 //        .navigationCheckpoint(.page2, position: 1)

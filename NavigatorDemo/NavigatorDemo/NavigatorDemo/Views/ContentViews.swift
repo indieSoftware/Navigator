@@ -62,32 +62,27 @@ struct ContentCheckpointSection: View {
     var body: some View {
         Section("Checkpoint Actions") {
             Button("Return To Checkpoint Home") {
-                navigator.returnToCheckpoint(.home)
+                navigator.returnToCheckpoint(KnownCheckpoints.home)
             }
-            .disabled(!navigator.canReturnToCheckpoint(.home))
+            .disabled(!navigator.canReturnToCheckpoint(KnownCheckpoints.home))
 
             Button("Return To Checkpoint Page 2") {
                 returnToCheckpoint = true
             }
-            .navigationReturnToCheckpoint(trigger: $returnToCheckpoint, checkpoint: .page2)
-            .disabled(!navigator.canReturnToCheckpoint(.page2))
+            .navigationReturnToCheckpoint(trigger: $returnToCheckpoint, checkpoint: KnownCheckpoints.page2)
+            .disabled(!navigator.canReturnToCheckpoint(KnownCheckpoints.page2))
 
             Button("Return To Checkpoint Duplicate (1, 2)") {
-                navigator.returnToCheckpoint(.duplicate)
+                navigator.returnToCheckpoint(KnownCheckpoints.duplicate)
             }
-            .disabled(!navigator.canReturnToCheckpoint(.duplicate))
-
-            Button("Return To Checkpoint Settings") {
-                navigator.returnToCheckpoint(.settings)
-            }
-            .disabled(!navigator.canReturnToCheckpoint(.settings))
+            .disabled(!navigator.canReturnToCheckpoint(KnownCheckpoints.duplicate))
 
             Button("Return to Settings Checkpoint Value 9") {
-                navigator.returnToCheckpoint(.settings, value: 9)
+                navigator.returnToCheckpoint(KnownCheckpoints.settings, value: 9)
             }
 
             Button("Return To Unknown Checkpoint") {
-                navigator.returnToCheckpoint("unknown")
+                navigator.returnToCheckpoint(KnownCheckpoints.unknown)
             }
         }
     }

@@ -1,5 +1,10 @@
 # Navigator Changelog
 
+### 0.9.23
+
+* Redefines how checkpoints are defined and used in order to ensure type safety in return handlers
+* Redefines push type to be a simple Hashable 
+
 ### 0.9.22
 
 * Added support for optional action handlers to checkpoints

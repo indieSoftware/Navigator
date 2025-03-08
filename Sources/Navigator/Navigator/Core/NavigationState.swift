@@ -36,7 +36,7 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
     @Published internal var triggerDismiss: Bool = false
 
     /// Checkpoints managed by this navigation stack
-    @Published internal var checkpoints: [String: NavigationCheckpoint] = [:]
+    @Published internal var checkpoints: [String: AnyNavigationCheckpoint] = [:]
 
     /// Navigation locks, if any
     @Published internal var navigationLocks: Set<UUID> = []

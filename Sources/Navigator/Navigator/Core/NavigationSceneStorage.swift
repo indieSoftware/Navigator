@@ -13,7 +13,7 @@ internal struct NavigationSceneStorage: Codable {
     let name: String?
     let restorationKey: String
     let path: Data?
-    let checkpoints: [String: NavigationCheckpoint]
+    let checkpoints: [String: AnyNavigationCheckpoint]
     let dismissible: Bool
     let sheet: Data?
     let cover: Data?
@@ -22,7 +22,7 @@ internal struct NavigationSceneStorage: Codable {
         name: String?,
         restorationKey: String,
         path: Data?,
-        checkpoints: [String : NavigationCheckpoint] = [:],
+        checkpoints: [String : AnyNavigationCheckpoint] = [:],
         dismissible: Bool = false,
         sheet: Data?,
         cover: Data?

@@ -7,9 +7,10 @@
 
 import Navigator
 
-extension NavigationCheckpoint {
-    public static let home: NavigationCheckpoint = "myApp.home"
-    public static let page2: NavigationCheckpoint = "myApp.page2"
-    public static let duplicate: NavigationCheckpoint = "myApp.duplicate"
-    public static let settings: NavigationCheckpoint = "myApp.settings"
+struct KnownCheckpoints: NavigationCheckpoints {
+    public static var home: NavigationCheckpoint<Void> { checkpoint() }
+    public static var page2: NavigationCheckpoint<Void> { checkpoint() }
+    public static var duplicate: NavigationCheckpoint<Void> { checkpoint() }
+    public static var settings: NavigationCheckpoint<Int> { checkpoint() }
+    public static var unknown: NavigationCheckpoint<Void> { checkpoint() }
 }

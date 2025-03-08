@@ -102,8 +102,6 @@ extension Navigator {
             resume(.immediately, values: values + newValues)
         case .replacing(let newValues):
             resume(.immediately, values: newValues)
-        case .checkpoint(let checkpoint):
-            returnToCheckpoint(checkpoint)
         case .pause:
             Navigator.resumableValues = values
         case .cancel:
@@ -249,9 +247,6 @@ public enum NavigationReceiveResumeType {
 
     ///  Appends new values onto the queue
     case appending([any Hashable])
-
-    /// Indicates we should return to a named checkpoint (normally used internally)
-    case checkpoint(NavigationCheckpoint)
 
     /// Saves any remaining deep linking values for later resumption
     case pause

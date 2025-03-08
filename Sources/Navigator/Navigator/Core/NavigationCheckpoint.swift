@@ -18,7 +18,7 @@ import SwiftUI
 ///         ManagedNavigationStack {
 ///             HomeContentView(title: "Home Navigation")
 ///                 .navigationDestination(HomeDestinations.self)
-///                 .navigationCheckpoint(.home)
+///                 .navigationCheckpoint(KnowCheckpoints.home)
 ///         }
 ///     }
 /// }
@@ -27,38 +27,62 @@ import SwiftUI
 /// As is returning to one.
 /// ```swift
 /// Button("Cancel") {
-///     navigator.returnToCheckpoint(.home)
+///     navigator.returnToCheckpoint(KnowCheckpoints.home)
 /// }
 /// ```
 /// This works even if the checkpoint is in a parent Navigator.
 /// ### Defining Checkpoints
-/// While checkpoint names can be simple strings, it's usually better to predefine them as shown below.
+/// Define your checkpoints as shown below, conforming your definitions to `NavigationCheckpoints` and specifying the return type
+/// of the checkpoint (or void if none).
 /// ```swift
-/// extension NavigationCheckpoint {
-///     public static let home: NavigationCheckpoint = "myApp.home"
-///     public static let page2: NavigationCheckpoint = "myApp.page2"
-///     public static let settings: NavigationCheckpoint = "myApp.settings"
+/// struct KnowCheckpoints: NavigationCheckpoints {
+///     public static var home: NavigationCheckpoint<Void> { checkpoint() }
+///     public static var page2: NavigationCheckpoint<Void> { checkpoint() }
+///     public static var settings: NavigationCheckpoint<Int> { checkpoint() }
 /// }
 /// ```
-/// Using the same checkpoint name more than once in the same navigation tree isn't recommended.
-public struct NavigationCheckpoint: Equatable, ExpressibleByStringLiteral, Hashable, Sendable {
+/// Checkpoints are lightweight structs. Return a new instance when needed.
+///
+/// Defining with `{ checkpoint() }` ensures a unique name for each variable instance.
+public struct NavigationCheckpoint<T>: Equatable, Hashable, Sendable {
 
     public let name: String
 
     internal let identifier: String?
-    internal let index: Int
 
-    public init(stringLiteral value: String) {
-        self.name = value
+    public init(name: String) {
+        self.name = "\(name).\(T.self)"
         self.identifier = nil
-        self.index = 0
     }
 
-    public init(name: String, identifier: String? = nil) {
+    private init(name: String, identifier: String? = nil) {
         self.name = name
         self.identifier = identifier
-        self.index = 0
     }
+
+    internal func setting(index: Int) -> AnyNavigationCheckpoint {
+        AnyNavigationCheckpoint(name: name, identifier: identifier, index: index)
+    }
+
+    internal func setting(identifier: String?) -> NavigationCheckpoint {
+        NavigationCheckpoint(name: name, identifier: identifier)
+    }
+
+}
+
+public protocol NavigationCheckpoints {}
+
+extension NavigationCheckpoints {
+    public static func checkpoint<T>(_ name: String = #function) -> NavigationCheckpoint<T> {
+        NavigationCheckpoint<T>(name: "\(Self.self ).\(name)")
+    }
+}
+
+internal struct AnyNavigationCheckpoint: Hashable, Sendable {
+
+    let name: String
+    var identifier: String?
+    var index: Int
 
     internal init(name: String, identifier: String?, index: Int) {
         self.name = name
@@ -70,28 +94,20 @@ public struct NavigationCheckpoint: Equatable, ExpressibleByStringLiteral, Hasha
         "\(name).\(index)"
     }
 
-    internal func setting(index: Int) -> NavigationCheckpoint {
+    internal func setting(identifier: String?) -> AnyNavigationCheckpoint {
+        AnyNavigationCheckpoint(name: name, identifier: identifier, index: index)
+    }
+
+    internal func setting(index: Int) -> AnyNavigationCheckpoint {
         guard self.index == 0 else {
             return self
         }
-        return NavigationCheckpoint(name: name, identifier: identifier, index: index)
-    }
-
-    internal func setting<T>(type: T.Type) -> NavigationCheckpoint {
-        NavigationCheckpoint(name: name + "(\(String(describing: type)))", identifier: identifier, index: index)
-    }
-
-    internal func setting(identifier: String?) -> NavigationCheckpoint {
-        NavigationCheckpoint(name: name, identifier: identifier, index: index)
-    }
-
-    public static func == (lhs: NavigationCheckpoint, rhs: NavigationCheckpoint) -> Bool {
-        lhs.name == rhs.name && lhs.identifier == rhs.identifier
+        return AnyNavigationCheckpoint(name: name, identifier: identifier, index: index)
     }
 
 }
 
-extension NavigationCheckpoint: Codable {
+extension AnyNavigationCheckpoint: Codable {
 
     // Coding keys for encoding and decoding
     private enum CodingKeys: String, CodingKey {
@@ -127,7 +143,7 @@ extension Navigator {
     /// }
     /// ```
     @MainActor
-    public func returnToCheckpoint(_ checkpoint: NavigationCheckpoint) {
+    public func returnToCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) {
         state.returnToCheckpoint(checkpoint)
     }
 
@@ -140,16 +156,16 @@ extension Navigator {
     /// }
     /// ```
     @MainActor
-    public func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, value: T) {
+    public func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint<T>, value: T) {
         state.returnToCheckpoint(checkpoint, value: value)
     }
 
     /// Allows the code to determine if the checkpoint has been set and is known to the system.
-    public nonisolated func canReturnToCheckpoint(_ checkpoint: NavigationCheckpoint) -> Bool {
+    public nonisolated func canReturnToCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) -> Bool {
         state.canReturnToCheckpoint(checkpoint)
     }
 
-    internal func addCheckpoint(_ checkpoint: NavigationCheckpoint) {
+    internal func addCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) {
         state.addCheckpoint(checkpoint)
     }
 
@@ -159,7 +175,7 @@ extension NavigationState {
 
     // Most of the following code does recursive data manipulation best performed on the state object itself.
 
-    internal func find(_ checkpoint: NavigationCheckpoint) -> (NavigationState, NavigationCheckpoint)? {
+    internal func find<T>(_ checkpoint: NavigationCheckpoint<T>) -> (NavigationState, AnyNavigationCheckpoint)? {
         if let found = checkpoints.values
             .filter({ $0.name == checkpoint.name && (isPresenting || $0.index < path.count) })
             .sorted(by: { $0.index > $1.index }) // descending, which makes last...
@@ -169,7 +185,7 @@ extension NavigationState {
         return parent?.find(checkpoint)
     }
 
-    internal func returnToCheckpoint(_ checkpoint: NavigationCheckpoint) {
+    internal func returnToCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) {
         guard let (navigator, found) = find(checkpoint) else {
             log(type:.warning, "Navigator checkpoint not found in current navigation tree: \(checkpoint.name)")
             return
@@ -184,8 +200,7 @@ extension NavigationState {
         }
     }
 
-    internal func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint, value: T) {
-        let checkpoint = checkpoint.setting(type: T.self)
+    internal func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint<T>, value: T) {
         guard let (navigator, found) = find(checkpoint) else {
             log(type:.warning, "Navigator checkpoint value handler not found: \(checkpoint.name)")
             return
@@ -201,20 +216,20 @@ extension NavigationState {
         }
     }
 
-    internal nonisolated func canReturnToCheckpoint(_ checkpoint: NavigationCheckpoint) -> Bool {
+    internal nonisolated func canReturnToCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) -> Bool {
         find(checkpoint) != nil
     }
 
-    internal func addCheckpoint(_ checkpoint: NavigationCheckpoint) {
-        let checkpoint = checkpoint.setting(index: path.count)
-        if let found = checkpoints[checkpoint.key] {
+    internal func addCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) {
+        let entry = checkpoint.setting(index: path.count)
+        if let found = checkpoints[entry.key] {
             if checkpoint.identifier != found.identifier {
-                checkpoints[checkpoint.key] = checkpoint.setting(identifier: checkpoint.identifier)
+                checkpoints[entry.key] = entry.setting(identifier: checkpoint.identifier)
             }
             return
         }
-        checkpoints[checkpoint.key] = checkpoint
-        log("Navigator \(id) adding checkpoint: \(checkpoint.key)")
+        checkpoints[entry.key] = entry
+        log("Navigator \(id) adding checkpoint: \(entry.key)")
     }
 
     internal func cleanCheckpoints() {
@@ -246,26 +261,18 @@ extension View {
     /// }
     /// ```
     /// Here, returning to the checkpoint named `.home` will return to the root view in this navigation stack.
-    public func navigationCheckpoint(_ checkpoint: NavigationCheckpoint, position: Int = 0) -> some View {
-        self.modifier(NavigationCheckpointModifier(checkpoint: checkpoint.setting(index: position)))
+    public func navigationCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) -> some View {
+        self.modifier(NavigationCheckpointModifier(checkpoint: checkpoint))
     }
 
     /// Establishes a navigation checkpoint with an action handler fired on return.
-    public func navigationCheckpoint(
-        _ checkpoint: NavigationCheckpoint,
-        position: Int = 0,
-        action: @escaping () -> Void
-    ) -> some View {
-        self.modifier(NavigationCheckpointActionModifier(checkpoint: checkpoint.setting(index: position), action: action))
+    public func navigationCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>, action: @escaping () -> Void) -> some View {
+        self.modifier(NavigationCheckpointActionModifier(checkpoint: checkpoint, action: action))
     }
 
     /// Establishes a navigation checkpoint with a completion handler that accepts a return value.
-    public func navigationCheckpoint<T: Hashable>(
-        _ checkpoint: NavigationCheckpoint,
-        position: Int = 0,
-        completion: @escaping (T) -> Void
-    ) -> some View {
-        self.modifier(NavigationCheckpointValueModifier(checkpoint: checkpoint.setting(index: position), completion: completion))
+    public func navigationCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint<T>, completion: @escaping (T) -> Void) -> some View {
+        self.modifier(NavigationCheckpointValueModifier(checkpoint: checkpoint, completion: completion))
     }
 
     /// Declarative `returnToCheckpoint` modifier.
@@ -278,7 +285,7 @@ extension View {
     /// .navigationReturnToCheckpoint(trigger: $checkpoint)
     /// ```
     /// Note that executing the checkpoint action will reset the bound value back to nil when complete.
-    public func navigationReturnToCheckpoint(_ checkpoint: Binding<NavigationCheckpoint?>) -> some View {
+    public func navigationReturnToCheckpoint<T: Hashable>(_ checkpoint: Binding<NavigationCheckpoint<T>?>) -> some View {
         self.modifier(NavigationReturnToCheckpointModifier(checkpoint: checkpoint))
     }
 
@@ -292,15 +299,15 @@ extension View {
     /// .navigationReturnToCheckpoint(trigger: $triggerReturn, checkpoint: .home)
     /// ```
     /// Note that executing the checkpoint action will reset the trigger value back to false when complete.
-    public func navigationReturnToCheckpoint(trigger: Binding<Bool>, checkpoint: NavigationCheckpoint) -> some View {
+    public func navigationReturnToCheckpoint<T>(trigger: Binding<Bool>, checkpoint: NavigationCheckpoint<T>) -> some View {
         self.modifier(NavigationReturnToCheckpointTriggerModifier(trigger: trigger, checkpoint: checkpoint))
     }
 
 }
 
-private struct NavigationCheckpointModifier: ViewModifier {
+private struct NavigationCheckpointModifier<T>: ViewModifier {
     @Environment(\.navigator) var navigator: Navigator
-    internal let checkpoint: NavigationCheckpoint
+    internal let checkpoint: NavigationCheckpoint<T>
     func body(content: Content) -> some View {
         content
             .task { navigator.addCheckpoint(checkpoint) }
@@ -309,12 +316,12 @@ private struct NavigationCheckpointModifier: ViewModifier {
 
 private struct CheckpointAction: Hashable {}
 
-private struct NavigationCheckpointActionModifier: ViewModifier {
-    @State internal var checkpoint: NavigationCheckpoint
+private struct NavigationCheckpointActionModifier<T>: ViewModifier {
+    @State internal var checkpoint: NavigationCheckpoint<T>
     internal let action: () -> Void
     @Environment(\.navigator) private var navigator: Navigator
     init(
-        checkpoint: NavigationCheckpoint,
+        checkpoint: NavigationCheckpoint<T>,
         action: @escaping () -> Void
     ) {
         self.checkpoint = checkpoint
@@ -335,16 +342,14 @@ private struct NavigationCheckpointActionModifier: ViewModifier {
 }
 
 private struct NavigationCheckpointValueModifier<T: Hashable>: ViewModifier {
-    @State internal var checkpoint: NavigationCheckpoint
+    @State internal var checkpoint: NavigationCheckpoint<T>
     internal let completion: (T) -> Void
     @Environment(\.navigator) private var navigator: Navigator
     init(
-        checkpoint: NavigationCheckpoint,
+        checkpoint: NavigationCheckpoint<T>,
         completion: @escaping (T) -> Void
     ) {
-        self.checkpoint = checkpoint
-            .setting(type: T.self)
-            .setting(identifier: checkpoint.identifier ?? UUID().uuidString)
+        self.checkpoint = checkpoint.setting(identifier: checkpoint.identifier ?? UUID().uuidString)
         self.completion = completion
     }
     func body(content: Content) -> some View {
@@ -360,8 +365,8 @@ private struct NavigationCheckpointValueModifier<T: Hashable>: ViewModifier {
     }
 }
 
-private struct NavigationReturnToCheckpointModifier: ViewModifier {
-    @Binding internal var checkpoint: NavigationCheckpoint?
+private struct NavigationReturnToCheckpointModifier<T: Hashable>: ViewModifier {
+    @Binding internal var checkpoint: NavigationCheckpoint<T>?
     @Environment(\.navigator) internal var navigator: Navigator
     func body(content: Content) -> some View {
         content
@@ -374,9 +379,9 @@ private struct NavigationReturnToCheckpointModifier: ViewModifier {
     }
 }
 
-private struct NavigationReturnToCheckpointTriggerModifier: ViewModifier {
+private struct NavigationReturnToCheckpointTriggerModifier<T>: ViewModifier {
     @Binding internal var trigger: Bool
-    internal let checkpoint: NavigationCheckpoint
+    internal let checkpoint: NavigationCheckpoint<T>
     @Environment(\.navigator) internal var navigator: Navigator
     func body(content: Content) -> some View {
         content

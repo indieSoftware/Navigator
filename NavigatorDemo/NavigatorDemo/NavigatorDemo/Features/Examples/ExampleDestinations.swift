@@ -19,7 +19,8 @@ public enum ExampleDestinations: String, NavigationDestination, CaseIterable {
         case .binding:
             BindingExampleView()
         case .callback:
-            CallbackExampleView()
+            NotAvailableView()
+//            CallbackExampleView()
         case .transition:
             if #available(iOS 18.0, *) {
                 TransitionExampleView()
