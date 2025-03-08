@@ -155,15 +155,15 @@ Fortunately, Navigator supports checkpoints; named points in the navigation stac
 
 Checkpoints are easy to define and use. Let's create one called "home" and then use it.
 ```swift
-extension NavigationCheckpoint {
-    public static let home: NavigationCheckpoint = "home"
+struct KnownCheckpoints: NavigationCheckpoints {
+    public static var home: NavigationCheckpoint { checkpoint() }
 }
 
 struct RootHomeView: View {
     var body: some View {
         ManagedNavigationStack(scene: "home") {
             HomeContentView(title: "Home Navigation")
-                .navigationCheckpoint(.home)
+                .navigationCheckpoint(KnownCheckpoints.home)
                 .navigationDestination(HomeDestinations.self)
         }
     }
@@ -172,22 +172,27 @@ struct RootHomeView: View {
 Once defined, they're easy to use.
 ```swift
 Button("Return To Checkpoint Home") {
-    navigator.returnToCheckpoint(.home)
+    navigator.returnToCheckpoint(KnownCheckpoints.home)
 }
-.disabled(!navigator.canReturnToCheckpoint(.home))
+.disabled(!navigator.canReturnToCheckpoint(KnownCheckpoints.home))
 ```
 When fired, checkpoints will dismiss any presented screens and pop any pushed views to return *exactly* to the point desired.
 
 Checkpoints can also be used to return values to a caller.
 ```swift
-// Define a checkpoint with a value handler.
-.navigationCheckpoint(.settings) { (result: Int) in
+// Define a checkpoint with an Int value handler.
+extension KnownCheckpoints {
+    public static var settings: NavigationCheckpoint<Int> { checkpoint() }
+}
+
+// Establish the checkpoint and handler in our view
+.navigationCheckpoint(KnownCheckpoints.settings) { result in
     returnValue = result
 }
 
 // Return, passing a value.
 Button("Return to Settings Checkpoint Passing Value 5") {
-    navigator.returnToCheckpoint(.settings, value: 5)
+    navigator.returnToCheckpoint(KnownCheckpoints.settings, value: 5)
 }
 ```
 Checkpoints are a powerful tool. Use them.
