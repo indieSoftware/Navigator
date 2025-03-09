@@ -34,7 +34,7 @@ struct BindingExampleView: View {
 extension BindingExampleView {
     enum Destinations: NavigationDestination {
         case destination1(Binding<Double>)
-        var view: some View {
+        var body: some View {
             switch self {
             case .destination1(let binding):
                 PresentedBindingExampleView(value: binding)

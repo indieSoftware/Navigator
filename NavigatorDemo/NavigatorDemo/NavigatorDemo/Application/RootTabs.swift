@@ -53,7 +53,7 @@ extension RootTabs: Identifiable {
 }
 
 extension RootTabs: NavigationDestination {
-    var view: some View {
+    var body: some View {
         RootTabsViewBuilder(destination: self)
     }
 }
@@ -76,7 +76,7 @@ private struct RootTabsViewBuilder: View {
 // following exploration into persisted state
 
 //extension RootTabs: NavigationDestination {
-//    var view: some View {
+//    var body: some View {
 //        WithHomeDependencies { resolver in
 //            RootTabsViewBuilder(destination: self, resolver: resolver)
 //        }

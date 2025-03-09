@@ -18,7 +18,7 @@ public enum SettingsDestinations: Codable {
 
 extension SettingsDestinations: NavigationDestination {
     // Illustrates simple embedded mapping of destination type to views. See Home for more complex example.
-    public var view: some View {
+    public var body: some View {
         switch self {
         case .page2:
             Page2SettingsView()
@@ -55,7 +55,7 @@ public enum LoadingDestinations: Int, Codable {
 }
 
 extension LoadingDestinations: NavigationDestination {
-    public var view: some View {
+    public var body: some View {
         switch self {
         case .external:
             SettingsExternalView()

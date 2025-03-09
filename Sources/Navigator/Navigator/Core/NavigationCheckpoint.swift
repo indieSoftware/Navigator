@@ -78,60 +78,6 @@ extension NavigationCheckpoints {
     }
 }
 
-internal struct AnyNavigationCheckpoint: Hashable, Sendable {
-
-    let name: String
-    var identifier: String?
-    var index: Int
-
-    internal init(name: String, identifier: String?, index: Int) {
-        self.name = name
-        self.identifier = identifier
-        self.index = index
-    }
-
-    internal var key: String {
-        "\(name).\(index)"
-    }
-
-    internal func setting(identifier: String?) -> AnyNavigationCheckpoint {
-        AnyNavigationCheckpoint(name: name, identifier: identifier, index: index)
-    }
-
-    internal func setting(index: Int) -> AnyNavigationCheckpoint {
-        guard self.index == 0 else {
-            return self
-        }
-        return AnyNavigationCheckpoint(name: name, identifier: identifier, index: index)
-    }
-
-}
-
-extension AnyNavigationCheckpoint: Codable {
-
-    // Coding keys for encoding and decoding
-    private enum CodingKeys: String, CodingKey {
-        case name
-        case index
-    }
-
-    // Custom encoder
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(name, forKey: .name)
-        try container.encode(index, forKey: .index)
-    }
-
-    // Custom decoder
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.name = try container.decode(String.self, forKey: .name)
-        self.identifier = nil
-        self.index = try container.decode(Int.self, forKey: .index)
-    }
-
-}
-
 extension Navigator {
 
     /// Returns to a named checkpoint in the navigation system.
@@ -392,4 +338,58 @@ private struct NavigationReturnToCheckpointTriggerModifier<T>: ViewModifier {
                 }
             }
     }
+}
+
+internal struct AnyNavigationCheckpoint: Hashable, Sendable {
+
+    let name: String
+    var identifier: String?
+    var index: Int
+
+    internal init(name: String, identifier: String?, index: Int) {
+        self.name = name
+        self.identifier = identifier
+        self.index = index
+    }
+
+    internal var key: String {
+        "\(name).\(index)"
+    }
+
+    internal func setting(identifier: String?) -> AnyNavigationCheckpoint {
+        AnyNavigationCheckpoint(name: name, identifier: identifier, index: index)
+    }
+
+    internal func setting(index: Int) -> AnyNavigationCheckpoint {
+        guard self.index == 0 else {
+            return self
+        }
+        return AnyNavigationCheckpoint(name: name, identifier: identifier, index: index)
+    }
+
+}
+
+extension AnyNavigationCheckpoint: Codable {
+
+    // Coding keys for encoding and decoding
+    private enum CodingKeys: String, CodingKey {
+        case name
+        case index
+    }
+
+    // Custom encoder
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(name, forKey: .name)
+        try container.encode(index, forKey: .index)
+    }
+
+    // Custom decoder
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.identifier = nil
+        self.index = try container.decode(Int.self, forKey: .index)
+    }
+
 }

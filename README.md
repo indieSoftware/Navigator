@@ -23,6 +23,12 @@ This is *not* just another push/pop navigation stack library. It supports...
 
 Navigator is written entirely in Swift and SwiftUI, and supports iOS 16 and above.
 
+## Prerelease 
+
+Note that Navigator is still officially in prerelease status as I refine some of the code and smooth away some of the rough edges.
+
+That occasionally will entail a few breaking changes here and there. I try to be good, but I also want to release the best product possible.
+
 ## The Code
 
 ### Defining Navigation Destinations
@@ -36,10 +42,12 @@ public enum HomeDestinations {
 ```
 SwiftUI requires navigation destination values to be `Hashable`, and so do we.
 
-Next, we extend each destination with a variable that returns the correct view for each case.
+Next, we need to extend each destination with a variable that returns the correct view for each case.
+
+That's easy, since `NavigationDestination` conforms to `View`!
 ```swift
 extension HomeDestinations: NavigationDestination {
-    public var view: some View {
+    public var body: some View {
         switch self {
         case .page2:
             HomePage2View()
@@ -270,7 +278,7 @@ What if we can't construct a specific view without external dependencies or with
 Simple. Just delegate the view building to a standard SwiftUI view!
 ```swift
 extension HomeDestinations: NavigationDestination {
-    public var view: some View {
+    public var body: some View {
         HomeDestinationsView(destination: self)
     }
 }

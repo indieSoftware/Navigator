@@ -27,10 +27,12 @@ SwiftUI requires navigation destination values to be `Hashable`, and so do we. T
 conforming to the protocol NavigationDestination as shown next. 
 
 ### Defining Destination Views
-In Navigator we further extend each destination with a variable that returns the correct view for each case.
+Defining our destination views is easy, since NavigationDestination actually conforms to the View protocol! 
+
+As such, we just extend our destination with a view body that returns the correct view for each case.
 ```swift
 extension HomeDestinations: NavigationDestination {
-    public var view: some View {
+    public var body: some View {
         switch self {
         case .page2:
             HomePage2View()

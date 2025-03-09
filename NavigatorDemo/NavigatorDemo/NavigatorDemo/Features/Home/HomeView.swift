@@ -207,7 +207,7 @@ struct NestedHomeContentView: View {
     var body: some View {
         ManagedNavigationStack {
             // Demonstrates using destinations to build root views that may have dependencies.
-            HomeDestinations.home(title).view
+            HomeDestinations.home(title)
                 .navigationDestination(HomeDestinations.self)
         }
     }
@@ -217,7 +217,7 @@ struct NestedHomeContentView: View {
 #Preview {
     // Demonstrates using destinations to build root views that may have dependencies.
     // Also mocking network call results for these types.
-    RootTabs.home()
+    RootTabs.home
         .setAuthenticationRoot()
         .environment(\.homeDependencies, MockHomeResolver()
             .mock { "(M5)" }

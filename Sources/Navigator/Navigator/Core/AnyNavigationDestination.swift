@@ -15,7 +15,7 @@ public struct AnyNavigationDestination {
 
 extension AnyNavigationDestination: Identifiable {
 
-    public var id: Int { wrapped.id }
+    public nonisolated var id: Int { wrapped.id }
 
     @MainActor public func callAsFunction() -> AnyView {
         wrapped.asAnyView()

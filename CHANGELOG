@@ -1,9 +1,13 @@
 # Navigator Changelog
 
-### 0.9.23
+### 0.9.24 - BREAKING CHANGE
+
+* Updates NavigationDestination to conform to the View protocol (just rename `view` to `body` in the destination definition)
+
+### 0.9.23 - BREAKING CHANGE
 
 * Redefines how checkpoints are defined and used in order to ensure type safety in return handlers
-* Redefines push type to be a simple Hashable 
+* Redefines push type to be a simple Hashable
 
 ### 0.9.22
 

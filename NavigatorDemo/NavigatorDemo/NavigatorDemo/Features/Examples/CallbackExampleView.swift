@@ -75,7 +75,7 @@ enum CallbackDestinations: NavigationDestination {
     case presented(Double, Callback<Double>)
     case pushed(Double, Callback<Double>)
 
-    var view: some View {
+    var body: some View {
         switch self {
         case .presented(let value, let callback):
             CallbackReturnView(value: value, handler: callback.handler)

@@ -16,7 +16,7 @@ enum AppRootType: Int {
 extension AppRootType: NavigationDestination {
 
     // Provides the correct view for this type
-    var view: some View {
+    var body: some View {
         switch self {
         case .tabbed:
             RootTabView()

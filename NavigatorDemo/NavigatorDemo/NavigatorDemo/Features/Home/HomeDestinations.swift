@@ -19,7 +19,7 @@ public enum HomeDestinations: NavigationDestination, Codable {
     case presented2
 
     // Illustrates external mapping of destination type to views. See Settings for simple mapping.
-    public var view: some View {
+    public var body: some View {
         HomeDestinationsView(select: self)
     }
 

@@ -18,7 +18,7 @@ enum MockDestination: String, NavigationDestination {
     }
     
     @ViewBuilder
-    var view: some View {
+    var body: some View {
         Text("Mock View")
     }
     

@@ -14,7 +14,7 @@ public enum ExampleDestinations: String, NavigationDestination, CaseIterable {
     case callback
     case transition
 
-    public var view: some View {
+    public var body: some View {
         switch self {
         case .binding:
             BindingExampleView()

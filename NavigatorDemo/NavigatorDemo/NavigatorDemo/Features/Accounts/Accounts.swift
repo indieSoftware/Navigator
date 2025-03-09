@@ -14,7 +14,7 @@ enum AccountDestinations {
 }
 
 extension AccountDestinations: NavigationDestination {
-    public var view: some View {
+    public var body: some View {
         switch self {
         case .details(let account):
             AccountDetailsView(account: account)
@@ -36,7 +36,7 @@ struct PresentAccountDestinationsView: View {
                 presentView = .disclaimers(account)
             }
             .sheet(item: $presentView) { destination in
-                destination()
+                destination
             }
         }
     }

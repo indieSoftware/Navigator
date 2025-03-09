@@ -4,10 +4,10 @@ Building NavigationDestinations that access the environment and other use cases
 
 ## External NavigationDestinations
 
-Earlier we demonstrated how to provide ``NavigationDestination`` types with a variable that returns the correct view for that type.
+Earlier we demonstrated how to provide ``NavigationDestination`` types with a view body that returns the correct view for that type.
 ```swift
 extension HomeDestinations: NavigationDestination {
-    public var view: some View {
+    public var body: some View {
         switch self {
         case .page2:
             HomePage2View()
@@ -25,7 +25,7 @@ It's a powerful technique, but what if we can't construct a specific view withou
 Simple. Just delegate the view building to a standard SwiftUI view!
 ```swift
 extension HomeDestinations: NavigationDestination {
-    public var view: some View {
+    public var body: some View {
         HomeDestinationsView(destination: self)
     }
 }
@@ -91,13 +91,13 @@ This technique also allows us to construct and use fully functional views elsewh
 struct RootHomeView: View {
     var body: some View {
         ManagedNavigationStack {
-            HomeDestinations.home()
+            HomeDestinations.home
                 .navigationDestination(HomeDestinations.self)
         }
     }
 }
 ```
-Calling the destination enumeration as a factory function obtains a fully resolved `HomePageView` and view model from `HomeDestinationsView`, 
+Remember, our enumerated values are Views! Just drop the value into a view to obtain a fully resolved `HomePageView` and view model from `HomeDestinationsView`, 
 complete and ready to go.
 
 ## Custom Sheets using NavigationDestination
@@ -116,7 +116,7 @@ struct CustomSheetView: View {
                 showSettings = .page3
             }
             .sheet(item: $showSettings) { destination in
-                destination() // obtain view
+                destination // obtain view
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
                     .navigationDismissible()

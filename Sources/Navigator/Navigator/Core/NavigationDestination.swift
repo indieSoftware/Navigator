@@ -31,7 +31,7 @@ import SwiftUI
 /// Along with an extension that provides the correct view for a specific case.
 /// ```swift
 /// extension HomeDestinations: NavigationDestination {
-///     public var view: some View {
+///     public var body: some View {
 ///         switch self {
 ///         case .page2:
 ///             HomePage2View()
@@ -43,6 +43,8 @@ import SwiftUI
 ///     }
 /// }
 /// ```
+/// Yes, NavigationDestination's are Views!
+///
 /// Note how associated values can be used to pass parameters to views as needed.
 ///
 /// ### Using Navigation Destinations
@@ -92,26 +94,7 @@ import SwiftUI
 ///
 /// > Important: When using `NavigationLink(value:label:)` the method will be ignored and SwiftUI will push
 /// the value onto the navigation stack as it would normally.
-public protocol NavigationDestination: Hashable, Equatable, Identifiable {
-
-    associatedtype Content: View
-
-    /// Provides the correct view for a specific case.
-    /// ```swift
-    /// extension HomeDestinations: NavigationDestination {
-    ///     public var view: some View {
-    ///         switch self {
-    ///         case .page2:
-    ///             HomePage2View()
-    ///         case .page3:
-    ///             HomePage3View()
-    ///         case .pageN(let value):
-    ///             HomePageNView(number: value)
-    ///         }
-    ///     }
-    /// }
-    /// ```
-    @MainActor @ViewBuilder var view: Self.Content { get }
+public protocol NavigationDestination: Hashable, Equatable, Identifiable, View {
 
     /// Can be overridden to define a specific presentation type for each destination.
     var method: NavigationMethod { get }
@@ -124,7 +107,7 @@ public protocol NavigationDestination: Hashable, Equatable, Identifiable {
 extension NavigationDestination {
 
     /// Default implementation of Identifiable id.
-    public var id: Int {
+    public nonisolated var id: Int {
         self.hashValue
     }
 
@@ -138,19 +121,29 @@ extension NavigationDestination {
         .auto
     }
 
-    /// Convenience function returns view.
-    @MainActor public func callAsFunction() -> some View {
-        view
-    }
-
     /// Convenience function returns AnyView.
     @MainActor public func asAnyView() -> AnyView {
-        AnyView(view)
+        AnyView(body)
     }
 
     /// Equatable conformance.
-    public static func == (lhs: Self, rhs: Self) -> Bool {
+    public nonisolated static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.id == rhs.id
+    }
+
+}
+
+extension NavigationDestination {
+
+    /// Convenience functions return view.
+    @available(*, deprecated, renamed: "body", message: "Use value instead.")
+    @MainActor @ViewBuilder var view: some View {
+        body
+    }
+
+    @available(*, deprecated, message: "Use value instead.")
+    @MainActor public func callAsFunction() -> some View {
+        body
     }
 
 }
@@ -184,7 +177,7 @@ private struct NavigationDestinationModifier<D: NavigationDestination>: ViewModi
     func body(content: Content) -> some View {
         content
             .navigationDestination(for: D.self) { destination in
-                destination()
+                destination
                     // propagates environment so destination continues to use the same navigator
                     // this is primarily needed when using NavigationSplitView
                     .environment(\.navigator, navigator)
