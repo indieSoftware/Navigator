@@ -62,7 +62,7 @@ struct CallbackExampleView: View {
             // illustrates returning to named checkpoint instead of trying to pop or dismiss
             .navigationCheckpoint(KnownCheckpoints.home)
             // illustrates returning to named checkpoint with value instead of using callback handler
-            .navigationCheckpoint(KnownCheckpoints.homeReturningDouble) { (value: Double) in
+            .navigationCheckpoint(KnownCheckpoints.homeReturningDouble) { value in
                 self.value = value
             }
             .navigationTitle("Callback Example")

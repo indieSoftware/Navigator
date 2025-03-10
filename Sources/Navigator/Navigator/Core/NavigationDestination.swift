@@ -106,17 +106,12 @@ public protocol NavigationDestination: Hashable, Equatable, Identifiable, View {
 
 extension NavigationDestination {
 
-    /// Default implementation of Identifiable id.
-    public nonisolated var id: Int {
-        self.hashValue
-    }
-
     /// Default method for `.navigate(to:)`.
     public var method: NavigationMethod {
         .push
     }
 
-    /// Allows destination to override default resume behavior.
+    /// Default resume behavior.
     public var receiveResumeType: NavigationReceiveResumeType {
         .auto
     }
@@ -124,6 +119,15 @@ extension NavigationDestination {
     /// Convenience function returns AnyView.
     @MainActor public func asAnyView() -> AnyView {
         AnyView(body)
+    }
+
+}
+
+extension NavigationDestination {
+
+    /// Default implementation of Identifiable id.
+    public nonisolated var id: Int {
+        self.hashValue
     }
 
     /// Equatable conformance.
@@ -136,12 +140,12 @@ extension NavigationDestination {
 extension NavigationDestination {
 
     /// Convenience functions return view.
-    @available(*, deprecated, renamed: "body", message: "Use value instead.")
+    @available(*, deprecated, message: "Use plain value instead e.g. 'MyDestination.page2' and not 'MyDestination.page2.view'.")
     @MainActor @ViewBuilder var view: some View {
         body
     }
 
-    @available(*, deprecated, message: "Use value instead.")
+    @available(*, deprecated, message: "Use plain value instead e.g. 'MyDestination.page2' and not 'MyDestination.page2()'.")
     @MainActor public func callAsFunction() -> some View {
         body
     }

@@ -74,7 +74,8 @@ public protocol NavigationCheckpoints {}
 
 extension NavigationCheckpoints {
     public static func checkpoint<T>(_ name: String = #function) -> NavigationCheckpoint<T> {
-        NavigationCheckpoint<T>(name: "\(Self.self ).\(name)")
+        assert("\(Self.self)" != name, "Call within computed property. e.g. '{ checkpoint() }` and not `= checkpoint()'.")
+        return NavigationCheckpoint<T>(name: "\(Self.self).\(name)")
     }
 }
 

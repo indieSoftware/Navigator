@@ -71,6 +71,7 @@ internal struct HomeDestinationsView: View {
 }
 
 extension HomeDestinations {
+
     // not required but shows possibilities in predefining navigation destination types
     public var method: NavigationMethod {
         switch self {
@@ -82,4 +83,5 @@ extension HomeDestinations {
             .cover
         }
     }
+    
 }
