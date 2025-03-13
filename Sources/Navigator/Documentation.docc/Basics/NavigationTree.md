@@ -1,4 +1,4 @@
-# Navigation Tree
+# Understanding The Navigation Tree
 
 To get the most out of Navigator you need to understand the navigation tree where its Navigators live.
 
@@ -59,9 +59,9 @@ It doesn't want the view pushed onto tab 3's stack, does it?
 
 That concept extends to presented sheets and covers as shown in tab 3. Each `ManagedNavigationStack` is installing its own Navigator into the tree, each one linked back to its parent.
 
-Every `ManagedNavigationStack` creates its own `Navigator` that manages it.
+Every `ManagedNavigationStack` or `ManagedPresentationView` creates its own `Navigator` that manages it.
 
-*There are also ManagedPresentationViews, but that's another topic.*
+And presented views can have their own presented views, with their own stacks, and so on, and so on, as needed.
 
 ## Example Code
 So with all of the above in mind, consider the following example.
@@ -118,3 +118,54 @@ Here's we're also pulling from the environment, but in this case the code works 
 But what if I want to talk to a different Navigator?
 
 That's more advanced. One can `find` a named Navigator in the tree, but generally you're going to want to consider other functionality offered by Navigator, like <doc:Checkpoints>, or deep linking using `send`.
+
+## Presenting Views
+
+What if, as shown earlier, Tab3View presents a sheet using Navigator?
+
+Internal to Navigator, that sheet's view is wrapped in a  ``ManagedPresentationView``.
+```swift
+func body(content: Content) -> some View {
+    content
+        .sheet(item: $state.sheet) { destination in
+            ManagedPresentationView {
+                destination
+            }
+        }
+}
+```
+That view gets its own Navigator, which knows that it's been presented and as such is dismissible (See: <doc:Dismissible>).
+
+Be advised that if you present your own sheets or views externally from Navigator, you need to do the same so Navigator understands that your sheet or cover exists.
+
+```swift
+// wrap using ManagedPresentationView
+func body(content: Content) -> some View {
+        ...
+        .sheet(isPresenting: $showSheet) {
+            ManagedPresentationView {
+                MyView()
+            }
+        }
+}
+// or use the modifier shortcut which does the same thing
+func body(content: Content) -> some View {
+        ...
+        .sheet(isPresenting: $showSheet) {
+            MyView()
+                .managedPresentationView()
+        }
+}
+```
+You can also just use ``ManagedNavigationStack`` if navigation within the sheet is required.
+```swift
+func body(content: Content) -> some View {
+        ...
+        .sheet(isPresenting: $showSheet) {
+            ManagedNavigationStack {
+                MyView()
+            }
+        }
+}
+```
+> Important: Failure to do any of the above can hinder Navigator's ability to successfully perform in-app navigation or external deep linking.

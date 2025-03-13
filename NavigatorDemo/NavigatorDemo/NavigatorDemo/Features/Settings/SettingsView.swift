@@ -140,30 +140,27 @@ struct Page3SettingsView: View {
 }
 
 struct SettingsSheetView: View {
+    @Environment(\.navigator) var navigator: Navigator
     var body: some View {
         List {
             Section("Checkpoint Actions") {
-                WithNavigator { navigator in
-                    Button("Return to Settings Checkpoint Value 5") {
-                        navigator.returnToCheckpoint(KnownCheckpoints.settings, value: 5)
-                    }
-                    Button("Return to Settings Checkpoint Value 0") {
-                        navigator.returnToCheckpoint(KnownCheckpoints.settings, value: 0)
-                    }
-                    // Button("Return to Missing Settings Handler 0.0") {
-                        // Cannot convert value of type 'Double' to expected argument type 'Int'
-                        // navigator.returnToCheckpoint(KnownCheckpoints.settings, value: 0.0)
-                    // }
+                Button("Return to Settings Checkpoint Value 5") {
+                    navigator.returnToCheckpoint(KnownCheckpoints.settings, value: 5)
                 }
+                Button("Return to Settings Checkpoint Value 0") {
+                    navigator.returnToCheckpoint(KnownCheckpoints.settings, value: 0)
+                }
+                // Button("Return to Missing Settings Handler 0.0") {
+                // Cannot convert value of type 'Double' to expected argument type 'Int'
+                // navigator.returnToCheckpoint(KnownCheckpoints.settings, value: 0.0)
+                // }
             }
             Section("Send Actions") {
-                WithNavigator { navigator in
-                    Button("Send Tab Home") {
-                        navigator.send(
-                            NavigationAction.dismissAny,
-                            RootTabs.home
-                        )
-                    }
+                Button("Send Tab Home") {
+                    navigator.send(
+                        NavigationAction.dismissAny,
+                        RootTabs.home
+                    )
                 }
             }
             ContentSheetSection()

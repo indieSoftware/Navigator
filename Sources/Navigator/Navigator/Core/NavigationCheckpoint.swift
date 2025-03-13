@@ -138,7 +138,7 @@ extension NavigationState {
             return
         }
         log("Navigator returning to checkpoint: \(checkpoint.name)")
-        _ = navigator.dismissAll()
+        _ = navigator.dismissAnyChildren()
         _ = navigator.pop(to: found.index)
         // send trigger to specific action handler
         if let identifier = found.identifier {
@@ -154,7 +154,7 @@ extension NavigationState {
         }
         log("Navigator returning to checkpoint: \(checkpoint.name) value: \(value)")
         // return to sender
-        _ = navigator.dismissAll()
+        _ = navigator.dismissAnyChildren()
         _ = navigator.pop(to: found.index)
         // send value to specific receive handler
         if let identifier = found.identifier {

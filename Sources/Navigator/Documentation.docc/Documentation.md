@@ -28,6 +28,7 @@ Ready to get started?
 - <doc:NavigationTree>
 - <doc:Destinations>
 - <doc:Checkpoints>
+- <doc:Dismissible>
 
 ### Advanced Topics
 

@@ -1,5 +1,11 @@
 # Navigator Changelog
 
+### 0.9.25
+
+* Confusion between dismissAny and dismissAll, dismissAll is now dismissAnyChildren
+* Updated navigationDismiss modifiers accordingly
+* Removed WithNavigator view after allowing ManagedNavigationStack to obtain Navigator as a parameter
+
 ### 0.9.24 - BREAKING CHANGE
 
 * Updates NavigationDestination to conform to the View protocol (just rename `view` to `body` in the destination definition)
@@ -198,3 +204,4 @@
 ### 0.8.0
 
 * Initial Git Commit
+
