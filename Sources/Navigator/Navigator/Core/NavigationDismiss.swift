@@ -49,7 +49,7 @@ extension Navigator {
     @MainActor
     @discardableResult
     public func dismissAnyChildren() -> Bool {
-        try state.dismissAnyChildren()
+        state.dismissAnyChildren()
     }
 
     /// Returns to the root Navigator and dismisses *any* presented `ManagedNavigationStack` or `ManagedPresentationView`.

@@ -8,7 +8,7 @@ How does a presented view dismiss itself? How does a parent view dismiss its chi
 
 What if we don't have access to the state that triggered the original presentation?
 
-And what about deep-linking? Linking into a known location an application is easy when an application is launched, but what if the application's been running for awhile? What if the user's presented a sheet or fullscreen cover view and is in the middle of doing something else?
+And what about deep-linking? Linking to a known location an application is easy when an application is launched, but what if the application's been running for a while? What if the user's presented a sheet or fullscreen cover view and is in the middle of doing something else?
 
 How do you return to a known state in the application? 
 
@@ -135,7 +135,7 @@ Binding must be a boolean value and toggled to true to trigger the dismissal. Bo
 
 ## Checkpoints
 
-Keep in mind that dismissal is largely imperative and fragile. It depends on knowledge of how the app is consttucted and how the views are presented.
+Keep in mind that dismissal is largely imperative and fragile. It depends on knowledge of how the app is constructed and how the views are presented.
 
 So, again, if you're in a child view a better solution is returning to a previously established checkpoint (<doc:Checkpoints>).
 

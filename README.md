@@ -363,6 +363,8 @@ Michael was also one of Google's [Open Source Peer Reward](https://opensource.go
 
 * [Medium: Advanced Navigation Destinations in SwiftUI](https://michaellong.medium.com/advanced-navigation-destinations-in-swiftui-05c3e659f64f?sk=030440d95749f5adc6d2b43ca26baee1)
 * [Medium: Advanced Deep Linking in SwiftUI](https://michaellong.medium.com/advanced-deep-linking-in-swiftui-c0085be83e7c?sk=118d08a22cb02b21dccf9235d78dc74f)
+* [Medium: Navigation Checkpoints in SwiftUI](https://michaellong.medium.com/navigation-checkpoints-in-swiftui-345270388240?sk=a7802f5351fcb3b5cfced714d0bcfaec)
+* [Medium: SwiftUI Navigation With Dismissible](https://michaellong.medium.com/swiftui-navigation-with-dismissible-8de3cab72a4e?sk=dcb743fbb90d59c5775fed33725958b9)
 * [Medium: Now Previewing Navigator!](https://michaellong.medium.com/now-previewing-navigator-faebf290a1da?sk=88d3ff52057cf0a948279e6be4a15f75)
 * [Navigator Documentation](https://hmlongco.github.io/Navigator/documentation/navigator)
 * [Factory](https://hmlongco.github.io/Factory/)
