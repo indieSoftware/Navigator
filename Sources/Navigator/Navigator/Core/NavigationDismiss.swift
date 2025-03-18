@@ -114,7 +114,7 @@ extension NavigationState {
     internal func dismiss() -> Bool {
         if isPresented {
             triggerDismiss = true
-            log("Navigator dimsissing: \(id)")
+            log(.navigation(.dismissed))
             return true
         }
         return false
@@ -123,7 +123,7 @@ extension NavigationState {
     /// Returns to the root Navigator and dismisses *any* presented ManagedNavigationStack.
     internal func dismissAny() throws -> Bool {
         guard !isNavigationLocked else {
-            log(type: .warning, "Navigator \(id) error navigation locked")
+            log(.warning("Navigator \(id) error navigation locked"))
             throw NavigationError.navigationLocked
         }
         return root.dismissAnyChildren()

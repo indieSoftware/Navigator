@@ -30,7 +30,6 @@ extension Navigator {
     /// ```
     @MainActor
     public func navigate<D: NavigationDestination>(to destination: D, method: NavigationMethod) {
-        log("Navigator \(id) navigating to: \(String(reflecting: destination)), via: \(method)")
         switch method {
         case .push:
             push(destination)
@@ -40,10 +39,12 @@ extension Navigator {
 
         case .sheet, .managedSheet:
             guard state.sheet?.id != destination.id else { return }
+            log(.navigation(.presenting(destination)))
             state.sheet = AnyNavigationDestination(wrapped: destination, method: method)
 
         case .cover, .managedCover:
             guard state.cover?.id != destination.id else { return }
+            log(.navigation(.presenting(destination)))
             #if os(iOS)
             state.cover = AnyNavigationDestination(wrapped: destination, method: method)
             #else
@@ -66,6 +67,7 @@ extension Navigator {
     /// Also supports plain Hashable values for better integration with existing code bases.
     @MainActor
     public func push<D: Hashable>(_ destination: D) {
+        log(.navigation(.pushing(destination)))
         if let destination = destination as? any Hashable & Codable {
             state.path.append(destination) // ensures NavigationPath knows type is Codable
         } else {
@@ -77,7 +79,8 @@ extension Navigator {
     @MainActor
     @discardableResult
     public func pop(to position: Int)  -> Bool {
-        state.pop(to: position)
+        log(.navigation(.popping))
+        return state.pop(to: position)
     }
 
     /// Pops the specified number of the items from the end of a stack's navigation path.
@@ -92,6 +95,7 @@ extension Navigator {
     @discardableResult
     public func pop(last k: Int = 1) -> Bool {
         if state.path.count >= k {
+            log(.navigation(.popping))
             state.path.removeLast(k)
             return true
         }
@@ -186,7 +190,7 @@ extension NavigationState {
 
     internal func popAny() throws -> Bool {
         guard !isNavigationLocked else {
-            log(type: .warning, "Navigator \(id) error navigation locked")
+            log(.warning("Navigator \(id) error navigation locked"))
             throw NavigationError.navigationLocked
         }
         return root.recursivePopAny()

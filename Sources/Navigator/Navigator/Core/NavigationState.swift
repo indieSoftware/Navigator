@@ -77,7 +77,7 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
     internal init(configuration: NavigationConfiguration? = nil) {
         self.name = "root"
         self.configuration = configuration
-        log("Navigator configured root: \(id)")
+        log(.lifecycle(.configured))
     }
 
     /// Internal initializer used by ManagedNavigationStack and navigationDismissible modifiers.
@@ -88,7 +88,7 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
 
     /// Sentinel code removes child from parent when Navigator is dismissed or deallocated.
     deinit {
-        log("Navigator deinit: \(id)")
+        log(.lifecycle(.deinit))
         parent?.removeChild(self)
     }
 
@@ -107,11 +107,12 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
         child.parent = self
         child.publisher = publisher
         child.isPresented = isPresented
-        log("Navigator \(id) adding child: \(child.id)")
+        log(.lifecycle(.adding(child.id)))
     }
 
     /// Removes a child state from a parent.
     internal func removeChild(_ child: NavigationState) {
+        log(.lifecycle(.removing(child.id)))
         children.removeValue(forKey: child.id)
     }
 
@@ -119,16 +120,6 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
     internal func setting(_ name: String?) -> NavigationState {
         self.name = name
         return self
-    }
-
-    /// Internal logging function.
-    internal func log(type: NavigationConfiguration.Verbosity = .info, _ message: @autoclosure () -> String) {
-        #if DEBUG
-        guard let configuration, type.rawValue >= configuration.verbosity.rawValue else {
-            return
-        }
-        root.configuration?.logger?(message())
-        #endif
     }
 
 }

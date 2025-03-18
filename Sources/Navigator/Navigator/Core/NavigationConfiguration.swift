@@ -43,16 +43,20 @@ public struct NavigationConfiguration {
     /// Allows the developer to log navigation messages to the console or to their own logging system.
     ///
     /// If logger is nil then nothing is logged.
-    public let logger: ((_ message: String) -> Void)?
+    public let logger: ((_ event: NavigationEvent) -> Void)?
 
     /// Logging verbosity
-    public let verbosity: Verbosity
+    public let verbosity: NavigationEvent.Verbosity
 
     public init(
         restorationKey: String? = nil,
-        logger: ((String) -> Void)? = { print($0) },
+        logger: ((NavigationEvent) -> Void)? = {
+            #if DEBUG
+            print($0)
+            #endif
+        },
         executionDelay: TimeInterval = 0.3,
-        verbosity: Verbosity = .warning
+        verbosity: NavigationEvent.Verbosity = .warning
     ) {
         if #available(iOS 18, *) {
             self.executionDelay = min(max(0.3, executionDelay), 5.0)
@@ -62,13 +66,6 @@ public struct NavigationConfiguration {
         self.restorationKey = restorationKey
         self.logger = logger
         self.verbosity = verbosity
-    }
-
-    public enum Verbosity: Int {
-        case info
-        case warning
-        case error
-        case none
     }
 
 }

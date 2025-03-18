@@ -134,10 +134,10 @@ extension NavigationState {
 
     internal func returnToCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) {
         guard let (navigator, found) = find(checkpoint) else {
-            log(type:.warning, "Navigator checkpoint not found in current navigation tree: \(checkpoint.name)")
+            log(.warning("checkpoint not found in current navigation tree: \(checkpoint.name)"))
             return
         }
-        log("Navigator returning to checkpoint: \(checkpoint.name)")
+        log(.checkpoint(.returning(checkpoint.name)))
         _ = navigator.dismissAnyChildren()
         _ = navigator.pop(to: found.index)
         // send trigger to specific action handler
@@ -149,10 +149,10 @@ extension NavigationState {
 
     internal func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint<T>, value: T) {
         guard let (navigator, found) = find(checkpoint) else {
-            log(type:.warning, "Navigator checkpoint value handler not found: \(checkpoint.name)")
+            log(.warning("checkpoint value handler not found: \(checkpoint.name)"))
             return
         }
-        log("Navigator returning to checkpoint: \(checkpoint.name) value: \(value)")
+        log(.checkpoint(.returningWithValue(checkpoint.name, value)))
         // return to sender
         _ = navigator.dismissAnyChildren()
         _ = navigator.pop(to: found.index)
@@ -176,13 +176,15 @@ extension NavigationState {
             return
         }
         checkpoints[entry.key] = entry
-        log("Navigator \(id) adding checkpoint: \(entry.key)")
+        log(.checkpoint(.adding(checkpoint.name)))
+//        log("Navigator \(id) adding checkpoint: \(entry.key)")
     }
 
     internal func cleanCheckpoints() {
         checkpoints = checkpoints.filter {
             guard $1.index <= path.count else {
-                log("Navigator \(id) removing checkpoint: \($1.key)")
+                log(.checkpoint(.removing($1.key)))
+//                log("Navigator \(id) removing checkpoint: \($1.key)")
                 return false
             }
             return true
@@ -279,7 +281,7 @@ private struct NavigationCheckpointActionModifier<T>: ViewModifier {
         content
             .onReceive(navigator.state.publisher) { values in
                 if let _: CheckpointAction = values.consume(checkpoint.identifier) {
-                    navigator.log("Navigator processing checkpoint action: \(checkpoint.name)")
+                    navigator.log(.checkpoint(.returning(checkpoint.name)))
                     action()
                     values.resume(.auto)
                 }
@@ -303,7 +305,7 @@ private struct NavigationCheckpointValueModifier<T: Hashable>: ViewModifier {
         content
             .onReceive(navigator.state.publisher) { values in
                 if let value: T = values.consume(checkpoint.identifier) {
-                    navigator.log("Navigator processing checkpoint: \(checkpoint.name) value: \(value)")
+                    navigator.log(.checkpoint(.returningWithValue(checkpoint.name, value)))
                     completion(value)
                     values.resume(.auto)
                 }

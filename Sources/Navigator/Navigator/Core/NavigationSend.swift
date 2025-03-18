@@ -74,10 +74,10 @@ extension Navigator {
         }
         let remainingValues = Array(values.dropFirst())
         if let action = value as? NavigationAction {
-            log("Navigator \(id) executing action \(action.name)")
+            log(.send(.performing(action)))
             resume(action(self), values: remainingValues)
         } else {
-            log("Navigator \(id) sending \(value)")
+            log(.send(.sending(value)))
             state.publisher.send(NavigationSendValues(navigator: root, value: value, values: remainingValues))
         }
     }
@@ -88,11 +88,9 @@ extension Navigator {
         case .auto:
             let delay: TimeInterval = delay ?? state.executionDelay
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                // log("Navigator \(id) delay: \(delay)")
                 self.send(values: values)
             }
         case .immediately:
-            // log("Navigator \(id) immediate send")
             send(values: values)
         case .after(let interval):
             resume(.auto, values: values, delay: interval)
@@ -290,7 +288,7 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
         content
             .onReceive(navigator.state.publisher) { values in
                 if let value: T = values.consume() {
-                    navigator.log("Navigator \(navigator.id) receiving \(value)")
+                    navigator.log(.send(.receiving(value)))
                     let type = handler(value, navigator)
                     if case .auto = type, let destination = value as? any NavigationDestination {
                         values.resume(destination.receiveResumeType)
@@ -330,7 +328,7 @@ internal final class NavigationSendValues {
 
     deinit {
         if consumed == false {
-            navigator.log("Navigator missing receive handler for type: \(type(of: value))!!!")
+            navigator.log(.error("missing receive handler for type: \(type(of: value))!!!"))
         }
     }
 
@@ -338,7 +336,7 @@ internal final class NavigationSendValues {
     internal func consume<T>(_ identifier: String? = nil) -> T? {
         if let value = value as? T, self.identifier == identifier {
             if consumed {
-                navigator.log("Navigator additional receive handlers ignored for type: \(type(of: value))!!!")
+                navigator.log(.error("additional receive handlers ignored for type: \(type(of: value))!!!"))
                 return nil
             }
             consumed.toggle()

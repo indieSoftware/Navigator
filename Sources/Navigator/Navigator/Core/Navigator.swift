@@ -72,12 +72,6 @@ public struct Navigator: @unchecked Sendable {
         return Navigator(state: state)
     }
 
-    public func log(type: NavigationConfiguration.Verbosity = .info, _ message: @autoclosure () -> String) {
-        #if DEBUG
-        state.log(type: type, message())
-        #endif
-    }
-
 }
 
 extension Navigator: Hashable {
