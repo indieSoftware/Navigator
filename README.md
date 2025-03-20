@@ -46,6 +46,8 @@ Next, we need to extend each destination with a variable that returns the correc
 
 That's easy, since `NavigationDestination` conforms to `View`!
 ```swift
+import NavigatorUI
+
 extension HomeDestinations: NavigationDestination {
     public var body: some View {
         switch self {
@@ -332,6 +334,8 @@ Also see Additional Resources section below.
 Navigator supports the Swift Package Manager.
 
 Or download the source files and add the Navigator folder to your project.
+
+Then `import NavigatorUI` into your project where needed.
 
 Note that the current version of Navigator requires Swift 5.10 minimum and that the minimum version of iOS currently supported with this release is iOS 16.
 
