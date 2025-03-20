@@ -5,7 +5,7 @@
 //  Created by Michael Long on 3/9/25.
 //
 
-import Navigator
+import NavigatorUI
 import SwiftUI
 
 public enum LoadingDestinations: Int, Codable {

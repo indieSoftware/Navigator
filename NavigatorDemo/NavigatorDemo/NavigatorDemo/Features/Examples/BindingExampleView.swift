@@ -5,7 +5,7 @@
 //  Created by Michael Long on 2/12/25.
 //
 
-import Navigator
+import NavigatorUI
 import SwiftUI
 
 struct BindingExampleView: View {

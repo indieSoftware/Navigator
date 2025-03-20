@@ -5,7 +5,7 @@
 //  Created by Michael Long on 11/19/24.
 //
 
-import Navigator
+import NavigatorUI
 import SwiftUI
 
 @main

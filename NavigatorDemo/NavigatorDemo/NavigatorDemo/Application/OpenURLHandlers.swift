@@ -5,7 +5,7 @@
 //  Created by Michael Long on 11/21/24.
 //
 
-import Navigator
+import NavigatorUI
 import SwiftUI
 
 // Illustrates parsing a URL and directly sending actions to navigator

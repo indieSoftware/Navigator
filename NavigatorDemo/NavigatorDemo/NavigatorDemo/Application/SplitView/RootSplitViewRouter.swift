@@ -5,7 +5,7 @@
 //  Created by Michael Long on 1/25/25.
 //
 
-import Navigator
+import NavigatorUI
 import SwiftUI
 
 public struct RootSplitViewRouter: NavigationRouteHandling {

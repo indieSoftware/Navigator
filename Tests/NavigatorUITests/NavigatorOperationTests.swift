@@ -7,7 +7,7 @@
 
 import Testing
 import Foundation
-@testable import Navigator
+@testable import NavigatorUI
 
 struct NavigatorOperationTests {
 

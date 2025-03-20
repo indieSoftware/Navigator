@@ -5,7 +5,7 @@
 //  Created by Michael Long on 1/27/25.
 //
 
-import Navigator
+import NavigatorUI
 import SwiftUI
 
 enum RootTabs: Int, Codable {

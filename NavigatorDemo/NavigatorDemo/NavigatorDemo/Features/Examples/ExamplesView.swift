@@ -5,7 +5,7 @@
 //  Created by Michael Long on 2/4/25.
 //
 
-import Navigator
+import NavigatorUI
 import SwiftUI
 
 struct ExamplesView: View {

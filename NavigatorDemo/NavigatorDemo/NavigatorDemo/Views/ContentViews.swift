@@ -5,7 +5,7 @@
 //  Created by Michael Long on 11/10/24.
 //
 
-import Navigator
+import NavigatorUI
 import SwiftUI
 
 struct CustomContentView: View {

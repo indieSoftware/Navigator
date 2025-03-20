@@ -5,7 +5,7 @@
 //  Created by Michael Long on 1/26/25.
 //
 
-import Navigator
+import NavigatorUI
 import SwiftUI
 
 enum AppRootType: Int {

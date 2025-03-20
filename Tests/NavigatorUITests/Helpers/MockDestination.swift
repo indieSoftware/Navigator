@@ -6,14 +6,14 @@
 //
 
 import SwiftUI
-import Navigator
+import NavigatorUI
 
 enum MockDestination: String, NavigationDestination {
     case screen1
     case screen2
     case screen3
     
-    var id: String {
+    nonisolated var id: String {
         return self.rawValue
     }
     

@@ -1,8 +1,9 @@
 # Navigator Changelog
 
-### 0.9.26
+### 0.9.26 - BREAKING CHANGE
 
-* Update event logging to parseable NavigationEvents
+* Rename library import to NavigatorUI in order to avoid conflicts with Navigator itself per issue #1
+* Logging system now logging NavigationEvent information and not strings
 
 ### 0.9.25
 

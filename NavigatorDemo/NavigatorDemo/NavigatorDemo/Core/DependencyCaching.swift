@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Navigator
+import NavigatorUI
 
 public protocol DependencyCaching {
     var cache: DependencyCache { get }

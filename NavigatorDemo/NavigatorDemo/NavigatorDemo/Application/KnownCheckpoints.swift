@@ -5,7 +5,7 @@
 //  Created by Michael Long on 1/19/25.
 //
 
-import Navigator
+import NavigatorUI
 
 struct KnownCheckpoints: NavigationCheckpoints {
     public static var home: NavigationCheckpoint<Void> { checkpoint() }

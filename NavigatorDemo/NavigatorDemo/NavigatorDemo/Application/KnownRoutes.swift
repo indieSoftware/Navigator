@@ -5,7 +5,7 @@
 //  Created by Michael Long on 1/19/25.
 //
 
-import Navigator
+import NavigatorUI
 import SwiftUI
 
 public enum KnownRoutes: NavigationRoutes {

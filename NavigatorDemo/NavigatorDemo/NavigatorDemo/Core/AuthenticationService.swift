@@ -5,7 +5,7 @@
 //  Created by Michael Long on 1/11/25.
 //
 
-import Navigator
+import NavigatorUI
 import SwiftUI
 
 // Define a new action placeholder
