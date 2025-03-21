@@ -325,7 +325,7 @@ Check out the NavigatorDemo project for a more thorough example of this dependen
 
 A single README file barely scratches the surface. Fortunately, Navigator is (will be) throughly documented. 
 
-See [Navigator Documentation](https://hmlongco.github.io/Navigator/documentation/navigator).
+See [Navigator Documentation](https://hmlongco.github.io/Navigator/documentation/navigatorui).
 
 Also see Additional Resources section below.
 
