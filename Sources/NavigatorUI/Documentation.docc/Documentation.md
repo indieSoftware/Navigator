@@ -1,4 +1,4 @@
-# ``Navigator``
+# ``NavigatorUI``
 
 Managed NavigationStacks for SwiftUI.
 
