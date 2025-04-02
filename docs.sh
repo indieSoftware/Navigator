@@ -3,5 +3,5 @@ swift package \
     generate-documentation --target NavigatorUI \
     --disable-indexing \
     --transform-for-static-hosting \
-    --hosting-base-path Navigator \
+    --hosting-base-path NavigatorUI \
     --output-path ./docs
