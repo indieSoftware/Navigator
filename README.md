@@ -325,7 +325,7 @@ Check out the NavigatorDemo project for a more thorough example of this dependen
 
 A single README file barely scratches the surface. Fortunately, Navigator is (will be) throughly documented. 
 
-See [Navigator Documentation](https://hmlongco.github.io/Navigator/documentation/navigatorui).
+See [Navigator Documentation](https://hmlongco.github.io/Navigator/documentation/navigatorui/).
 
 Also see Additional Resources section below.
 
@@ -370,5 +370,5 @@ Michael was also one of Google's [Open Source Peer Reward](https://opensource.go
 * [Medium: Navigation Checkpoints in SwiftUI](https://michaellong.medium.com/navigation-checkpoints-in-swiftui-345270388240?sk=a7802f5351fcb3b5cfced714d0bcfaec)
 * [Medium: SwiftUI Navigation With Dismissible](https://michaellong.medium.com/swiftui-navigation-with-dismissible-8de3cab72a4e?sk=dcb743fbb90d59c5775fed33725958b9)
 * [Medium: Now Previewing Navigator!](https://michaellong.medium.com/now-previewing-navigator-faebf290a1da?sk=88d3ff52057cf0a948279e6be4a15f75)
-* [Navigator Documentation](https://hmlongco.github.io/Navigator/documentation/navigatorui)
+* [Navigator Documentation](https://hmlongco.github.io/Navigator/documentation/navigatorui/)
 * [Factory](https://hmlongco.github.io/Factory/)
