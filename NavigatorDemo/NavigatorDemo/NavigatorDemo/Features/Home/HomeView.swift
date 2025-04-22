@@ -34,6 +34,7 @@ struct HomeRootView: View {
                     return .auto
                 }
         }
+
     }
 }
 
@@ -85,6 +86,9 @@ struct HomeContentView: View {
         }
         .navigationTitle(viewModel.title)
         .navigationCheckpoint(KnownCheckpoints.duplicate)
+        .task {
+            print("HomeContentView")
+        }
     }
 }
 
