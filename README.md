@@ -1,4 +1,4 @@
-# Navigator
+# Navigator 1.0.0
 
 [![swift-versions](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fhmlongco%2FNavigator%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/hmlongco/Navigator)
 [![platforms](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fhmlongco%2FNavigator%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/hmlongco/Navigator)
@@ -22,12 +22,6 @@ This is *not* just another push/pop navigation stack library. It supports...
 * Event logging and debugging.
 
 Navigator is written entirely in Swift and SwiftUI, and supports iOS 16 and above.
-
-## Prerelease 
-
-Note that Navigator is still officially in prerelease status as I refine some of the code and smooth away some of the rough edges.
-
-That occasionally will entail a few breaking changes here and there. I try to be good, but I also want to release the best product possible.
 
 ## The Code
 
@@ -323,7 +317,7 @@ Check out the NavigatorDemo project for a more thorough example of this dependen
 
 ## Documentation
 
-A single README file barely scratches the surface. Fortunately, Navigator is (will be) throughly documented. 
+A single README file barely scratches the surface. Fortunately, Navigator is fairly well documented, with more to come. 
 
 See [Navigator Documentation](https://hmlongco.github.io/Navigator/documentation/navigatorui/).
 

@@ -1,5 +1,9 @@
 # Navigator Changelog
 
+### 1.0.0 - RELEASE
+
+* Navigator is officially released.
+
 ### 0.9.26 - BREAKING CHANGE
 
 * Rename library import to NavigatorUI in order to avoid conflicts with Navigator itself per issue #1
