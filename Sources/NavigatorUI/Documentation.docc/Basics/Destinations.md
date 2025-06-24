@@ -48,6 +48,8 @@ This is a powerful technique that lets Navigator easily create our views wheneve
 
 Note how associated values can be used to pass parameters to views as needed.
 
+> Important: As of 6.2 it looks like `NavigationDestination` conformance **must** be done as an extension and **not** on the original enumeration. This aligns with Swift 6.2’s requirement that protocol isolation must be explicit at the conformance site. 
+
 *To build more complex views that have external dependencies or that require access to environmental values, see <doc:AdvancedDestinations>.
 
 ### Registering Navigation Destinations

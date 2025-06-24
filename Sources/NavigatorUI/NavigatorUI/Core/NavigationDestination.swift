@@ -47,6 +47,9 @@ import SwiftUI
 ///
 /// Note how associated values can be used to pass parameters to views as needed.
 ///
+/// > Important: As of 6.2 it looks like `NavigationDestination` conformance **must** be done as an extension and **not** on the original
+/// enumeration. This aligns with Swift 6.2’s requirement that protocol isolation must be explicit at the conformance site.
+///
 /// ### Using Navigation Destinations
 /// This can be done via using a standard SwiftUI `NavigationLink(value:label:)` view.
 /// ```swift

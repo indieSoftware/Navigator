@@ -70,7 +70,7 @@ struct CallbackExampleView: View {
     }
 }
 
-enum CallbackDestinations: NavigationDestination {
+enum CallbackDestinations: @MainActor NavigationDestination {
 
     case presented(Double, Callback<Double>)
     case pushed(Double, Callback<Double>)

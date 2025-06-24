@@ -9,7 +9,7 @@ import NavigatorUI
 import SwiftUI
 
 // 1. define a standard NavigationDestination enumeration
-enum TransitionDestinations: NavigationDestination {
+enum TransitionDestinations: @MainActor NavigationDestination {
     case destination1
     var body: some View {
         TransitionDestinationView()
