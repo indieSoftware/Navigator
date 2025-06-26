@@ -9,27 +9,12 @@ import NavigatorUI
 import SwiftUI
 
 struct RootTabView : View {
-    @SceneStorage("selectedTab") var selectedTab: RootTabs = .home
     var body: some View {
-        TabView(selection: $selectedTab) {
-            ForEach(RootTabs.tabs) { tab in
-                tab
-                    .tabItem { Label(tab.title, systemImage: tab.image) }
-                    .tag(tab)
-            }
+        if #available(iOS 18.0, macOS 15.0, tvOS 18.0, *) {
+            ModernTabView()
+        } else {
+            StandardTabView()
         }
-        // setup tab switching
-        .onNavigationReceive { (tab: RootTabs) in
-            if tab == selectedTab {
-                return .immediately
-            }
-            selectedTab = tab
-            return .after(0.7) // a little extra time after tab switch
-        }
-        // set route handler for this view type
-        .onNavigationRoute(RootTabViewRouter())
-        // set authentication root from which auth dialog will be presented
-        .setAuthenticationRoot()
     }
 }
 
