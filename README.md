@@ -160,7 +160,7 @@ Fortunately, Navigator supports checkpoints; named points in the navigation stac
 Checkpoints are easy to define and use. Let's create one called "home" and then use it.
 ```swift
 struct KnownCheckpoints: NavigationCheckpoints {
-    public static var home: NavigationCheckpoint { checkpoint() }
+    public static var home: NavigationCheckpoint<Void> { checkpoint() }
 }
 
 struct RootHomeView: View {
@@ -182,7 +182,9 @@ Button("Return To Checkpoint Home") {
 ```
 When fired, checkpoints will dismiss any presented screens and pop any pushed views to return *exactly* to the point desired.
 
-Checkpoints can also be used to return values to a caller.
+One might ask why we needed to add `<Void>` to our original checkpoint definition?
+
+That's because checkpoints can also be used to return values to a caller!
 ```swift
 // Define a checkpoint with an Int value handler.
 extension KnownCheckpoints {
