@@ -20,7 +20,7 @@ struct CustomContentView: View {
 struct ContentSheetSection: View {
     @Environment(\.navigator) var navigator: Navigator
     @State var showSheet: Bool = false
-    @State var dismiss: Bool = false
+    @State var dismissFlag: Bool = false
     @State var dismissAny: Bool = false
     var body: some View {
         Section("Presentation Actions") {
@@ -40,10 +40,24 @@ struct ContentSheetSection: View {
                     .managedPresentationView()
             }
 
-            Button("Dismiss", role: .cancel) {
-                dismiss = true
+            Button("Dismiss via Navigator", role: .cancel) {
+                navigator.dismiss()
             }
-            .navigationDismiss(trigger: $dismiss)
+            .disabled(!navigator.isPresented)
+
+            Button("Dismiss via NavigationDismiss", role: .cancel) {
+                dismissFlag = true
+            }
+            .navigationDismiss(trigger: $dismissFlag)
+            .disabled(!navigator.isPresented)
+
+            Button("Dismiss w/o Animation", role: .cancel) {
+                var transaction = Transaction()
+                transaction.disablesAnimations = true
+                _ = withTransaction(transaction) {
+                    navigator.dismiss()
+                }
+            }
             .disabled(!navigator.isPresented)
 
             Button("Dismiss Any") {
@@ -79,6 +93,14 @@ struct ContentCheckpointSection: View {
 
             Button("Return to Settings Checkpoint Value 9") {
                 navigator.returnToCheckpoint(KnownCheckpoints.settings, value: 9)
+            }
+
+            Button("Return to Settings w/o Animation") {
+                var transaction = Transaction()
+                transaction.disablesAnimations = true
+                withTransaction(transaction) {
+                    navigator.returnToCheckpoint(KnownCheckpoints.settings, value: 9)
+                }
             }
 
             Button("Return To Unknown Checkpoint") {

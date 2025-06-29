@@ -49,10 +49,10 @@ public struct Navigator: @unchecked Sendable {
         self.state = state
     }
 
-    internal init(state: NavigationState, parent: Navigator, isPresented: Bool) {
+    internal init(state: NavigationState, parent: Navigator, dismissible: DismissAction?) {
         self.environmentID = state.hashValue
         self.state = state
-        parent.state.addChild(state, isPresented: isPresented)
+        parent.state.addChild(state, dismissible: dismissible)
     }
 
     public var id: UUID {

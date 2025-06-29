@@ -132,7 +132,7 @@ extension NavigationState {
         return parent?.find(checkpoint)
     }
 
-    internal func returnToCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) {
+    @MainActor internal func returnToCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) {
         guard let (navigator, found) = find(checkpoint) else {
             log(.warning("checkpoint not found in current navigation tree: \(checkpoint.name)"))
             return
@@ -147,7 +147,7 @@ extension NavigationState {
         }
     }
 
-    internal func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint<T>, value: T) {
+    @MainActor internal func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint<T>, value: T) {
         guard let (navigator, found) = find(checkpoint) else {
             log(.warning("checkpoint value handler not found: \(checkpoint.name)"))
             return

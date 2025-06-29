@@ -32,9 +32,6 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
     /// Presentation trigger for .cover navigation methods.
     @Published internal var cover: AnyNavigationDestination? = nil
 
-    /// Dismiss trigger for ManagedNavigationStack or navigationDismissible views.
-    @Published internal var triggerDismiss: Bool = false
-
     /// Checkpoints managed by this navigation stack
     @Published internal var checkpoints: [String: AnyNavigationCheckpoint] = [:]
 
@@ -68,7 +65,12 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
     internal var children: [UUID : WeakObject<NavigationState>] = [:]
 
     /// True if the current ManagedNavigationStack or navigationDismissible is presented.
-    internal var isPresented: Bool = false
+    internal var isPresented: Bool {
+        dismissAction != nil
+    }
+
+    /// Dismissible function for this particular state object.
+    internal var dismissAction: DismissAction?
 
     /// Navigation send publisher
     internal var publisher: PassthroughSubject<NavigationSendValues, Never> = .init()
@@ -98,7 +100,10 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
     }()
 
     /// Adds a child state to parent.
-    internal func addChild(_ child: NavigationState, isPresented: Bool) {
+    internal func addChild(_ child: NavigationState, dismissible: DismissAction?) {
+        // always update dismissible closure
+        child.dismissAction = dismissible
+        // exit if already addd
         guard !children.keys.contains(child.id) else {
             return
         }
@@ -106,7 +111,6 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
         child.configuration = configuration
         child.parent = self
         child.publisher = publisher
-        child.isPresented = isPresented
         log(.lifecycle(.adding(child.id)))
     }
 
@@ -114,6 +118,7 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
     internal func removeChild(_ child: NavigationState) {
         log(.lifecycle(.removing(child.id)))
         children.removeValue(forKey: child.id)
+        child.dismissAction = nil
     }
 
     /// Renames state for wrapped navigation stacks.

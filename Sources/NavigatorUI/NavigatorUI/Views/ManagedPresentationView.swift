@@ -38,6 +38,7 @@ public struct ManagedPresentationView<Content: View>: View {
 
     @Environment(\.navigator) private var parent: Navigator
     @Environment(\.isPresented) private var isPresented
+    @Environment(\.dismiss) private var dismiss
 
     @StateObject private var state: NavigationState
 
@@ -52,7 +53,7 @@ public struct ManagedPresentationView<Content: View>: View {
     public var body: some View {
         content
             .modifier(NavigationPresentationModifiers(state: state))
-            .environment(\.navigator, Navigator(state: state, parent: parent, isPresented: isPresented))
+            .environment(\.navigator, Navigator(state: state, parent: parent, dismissible: isPresented ? dismiss : nil))
     }
 
 }

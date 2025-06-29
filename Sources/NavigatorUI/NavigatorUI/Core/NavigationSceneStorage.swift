@@ -79,7 +79,6 @@ extension NavigationState {
                 checkpoints[key] = checkpoint
             }
         }
-        isPresented = storage.dismissible
         if let data = storage.sheet {
             sheet = try? NavigationState.decoder.decode(AnyNavigationDestination.self, from: data)
         } else {
