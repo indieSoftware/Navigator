@@ -260,8 +260,17 @@ struct RootTabView : View {
         TabView(selection: $selectedTab) {
             ...
         }
-        .onNavigationReceive(assign: $tab)
-        .onNavigationReceive(HomeDestinations.self) 
+        .onNavigationReceive(assign: $tab) // shortcut
+    }
+}
+
+struct RootHomeView: View {
+    var body: some View {
+        ManagedNavigationStack(scene: "home") {
+            HomeContentView(title: "Home Navigation")
+                .navigationDestination(HomeDestinations.self)
+                .onNavigationReceive(HomeDestinations.self) // shortcut
+        }
     }
 }
 ```
