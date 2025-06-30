@@ -38,9 +38,9 @@ nonisolated public enum HomeDestinations: NavigationDestination {
 ```
 SwiftUI requires navigation destination values to be `Hashable`, and so do we.
 
-Next, we need to provide each destination with a variable that returns the correct view for each case.
+Next, we need to provide each destination with a variable that returns the correct view for each case. That's easy, since `NavigationDestination` also conforms to `View`! 
 
-That's easy, since `NavigationDestination` conforms to `View`! Just provide the view body as part of the enumeration.
+Just provide the view body as part of the enumeration.
 ```swift
     ...
     case pageN(Int)
