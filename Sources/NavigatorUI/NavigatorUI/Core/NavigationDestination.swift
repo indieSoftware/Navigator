@@ -97,7 +97,7 @@ import SwiftUI
 ///
 /// > Important: When using `NavigationLink(value:label:)` the method will be ignored and SwiftUI will push
 /// the value onto the navigation stack as it would normally.
-public protocol NavigationDestination: Hashable, Equatable, Identifiable, View {
+@MainActor public protocol NavigationDestination: Hashable, Equatable, Identifiable, View {
 
     /// Can be overridden to define a specific presentation type for each destination.
     var method: NavigationMethod { get }

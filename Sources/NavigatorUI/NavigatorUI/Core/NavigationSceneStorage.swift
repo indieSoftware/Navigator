@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// Provides state restoration storage for named ManagedNavigationControllers.
-internal struct NavigationSceneStorage: Codable {
+nonisolated internal struct NavigationSceneStorage: Codable {
 
     let name: String?
     let restorationKey: String

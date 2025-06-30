@@ -28,21 +28,23 @@ Navigator is written entirely in Swift and SwiftUI, and supports iOS 16 and abov
 ### Defining Navigation Destinations
 Destinations (or routes) are typically just public lists of enumerated values, one for each view desired.
 ```swift
-public enum HomeDestinations {
+nonisolated public enum HomeDestinations: NavigationDestination {
+
     case page2
     case page3
     case pageN(Int)
+    
 }
 ```
 SwiftUI requires navigation destination values to be `Hashable`, and so do we.
 
 Next, we need to extend each destination with a variable that returns the correct view for each case.
 
-That's easy, since `NavigationDestination` conforms to `View`!
+That's easy, since `NavigationDestination` conforms to `View`! Just provide the view body as part of the enumeration.
 ```swift
-import NavigatorUI
-
-extension HomeDestinations: NavigationDestination {
+    ...
+    case pageN(Int)
+    
     public var body: some View {
         switch self {
         case .page2:
@@ -53,6 +55,7 @@ extension HomeDestinations: NavigationDestination {
             HomePageNView(number: value)
         }
     }
+    
 }
 ```
 Note how associated values can be used to pass parameters to views as needed.
@@ -115,9 +118,9 @@ the view or present the view, based on the `NavigationMethod` specified (coming 
 
 ### Navigation Methods
 
-`NavigationDestination` can be extended to provide a distinct ``NavigationMethod`` for each enumerated type.
+Your `NavigationDestination` type can be extended to provide a distinct ``NavigationMethod`` for each enumerated type.
 ```swift
-extension HomeDestinations: NavigationDestination {
+extension HomeDestinations {
     public var method: NavigationMethod {
         switch self {
         case .page3:

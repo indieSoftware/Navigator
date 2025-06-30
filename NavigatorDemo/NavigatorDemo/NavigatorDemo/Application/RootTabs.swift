@@ -52,7 +52,7 @@ extension RootTabs: Identifiable {
 
 }
 
-extension RootTabs: NavigationDestination {
+extension RootTabs: @MainActor NavigationDestination {
     var body: some View {
         RootTabsViewBuilder(destination: self)
     }

@@ -10,7 +10,7 @@ import SwiftUI
 extension Navigator {
 
     /// Returns first navigator found with given name
-    public func named(_ name: String) -> Navigator? {
+    @MainActor public func named(_ name: String) -> Navigator? {
         if let state = state.root.recursiveFind(name: name) {
             return Navigator(state: state)
         }
@@ -18,7 +18,7 @@ extension Navigator {
     }
 
     /// Returns child navigator found with given name
-    public func child(named name: String) -> Navigator? {
+    @MainActor public func child(named name: String) -> Navigator? {
         if let state = state.recursiveFind(name: name) {
             return Navigator(state: state)
         }

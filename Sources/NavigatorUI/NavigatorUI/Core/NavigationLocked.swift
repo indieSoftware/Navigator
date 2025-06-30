@@ -19,7 +19,7 @@ extension Navigator {
 extension View {
 
     /// Apply to a presented view on which you want to prevent global dismissal.
-    public func navigationLocked() -> some View {
+    @MainActor public func navigationLocked() -> some View {
         self.modifier(NavigationLockedModifier())
     }
 

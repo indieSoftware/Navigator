@@ -14,7 +14,7 @@ extension Navigator {
 }
 
 extension NavigationState {
-    internal func log(_ event: NavigationEvent.Event) {
+    nonisolated internal func log(_ event: NavigationEvent.Event) {
         guard let configuration, let logger = configuration.logger else {
             return
         }
@@ -34,7 +34,7 @@ extension NavigationState {
     }
 }
 
-public struct NavigationEvent: CustomStringConvertible {
+nonisolated public struct NavigationEvent: CustomStringConvertible {
 
     let verbosity: Verbosity
     let navigator: UUID
@@ -60,7 +60,7 @@ extension NavigationEvent {
 
 extension NavigationEvent {
 
-    public enum Event: CustomStringConvertible {
+    nonisolated public enum Event: CustomStringConvertible {
 
         case lifecycle(LifecycleEvent)
         case navigation(NavigationEvent)
@@ -71,7 +71,7 @@ extension NavigationEvent {
         case warning(String)
         case error(String)
 
-        public var description: String {
+        nonisolated public var description: String {
             switch self {
             case .lifecycle(let event):
                 return "\(event)"
@@ -90,7 +90,7 @@ extension NavigationEvent {
             }
         }
 
-        public enum LifecycleEvent {
+        nonisolated public enum LifecycleEvent {
             case configured
             case intialized
             case adding(UUID)
@@ -98,20 +98,20 @@ extension NavigationEvent {
             case `deinit`
         }
 
-        public enum NavigationEvent {
+        nonisolated public enum NavigationEvent {
             case presenting(any NavigationDestination)
             case pushing(any Hashable)
             case popping
             case dismissed
         }
 
-        public enum SendEvent {
+        nonisolated public enum SendEvent {
             case performing(any Hashable)
             case sending(any Hashable)
             case receiving(any Hashable)
         }
 
-        public enum CheckpointEvent {
+        nonisolated public enum CheckpointEvent {
             case adding(String)
             case removing(String)
             case returning(String)

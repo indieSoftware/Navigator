@@ -25,7 +25,7 @@ import SwiftUI
 ///     }
 /// }
 /// ```
-public struct NavigationConfiguration {
+nonisolated public struct NavigationConfiguration {
 
     /// Determines whether or not users should see animation steps when deep linking.
     ///

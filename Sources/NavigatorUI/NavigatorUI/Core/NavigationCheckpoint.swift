@@ -44,7 +44,7 @@ import SwiftUI
 /// Checkpoints are lightweight structs. Return a new instance when needed.
 ///
 /// Defining with `{ checkpoint() }` ensures a unique name for each variable instance.
-public struct NavigationCheckpoint<T>: Equatable, Hashable, Sendable {
+nonisolated public struct NavigationCheckpoint<T>: Equatable, Hashable, Sendable {
 
     public let name: String
 
@@ -112,6 +112,7 @@ extension Navigator {
         state.canReturnToCheckpoint(checkpoint)
     }
 
+    @MainActor 
     internal func addCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) {
         state.addCheckpoint(checkpoint)
     }
@@ -167,7 +168,7 @@ extension NavigationState {
         find(checkpoint) != nil
     }
 
-    internal func addCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) {
+    @MainActor internal func addCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) {
         let entry = checkpoint.setting(index: path.count)
         if let found = checkpoints[entry.key] {
             if checkpoint.identifier != found.identifier {

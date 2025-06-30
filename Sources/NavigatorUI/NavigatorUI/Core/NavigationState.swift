@@ -9,7 +9,7 @@ import Combine
 import SwiftUI
 
 /// Persistent storage for Navigators.
-public class NavigationState: ObservableObject, @unchecked Sendable {
+nonisolated public class NavigationState: ObservableObject, @unchecked Sendable {
 
     public enum Owner: Int {
         case application
@@ -18,25 +18,36 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
         case presenter
     }
 
+    // MARK: Internal properties
+
     /// Navigation path for the current ManagedNavigationStack
-    @Published internal var path: NavigationPath = .init() {
-        didSet {
+    internal var path: NavigationPath = .init() {
+        willSet {
+            objectWillChange.send()
             cleanCheckpoints()
             pathChangedCounter += 1
         }
     }
 
     /// Presentation trigger for .sheet navigation methods.
-    @Published internal var sheet: AnyNavigationDestination? = nil
+    internal var sheet: AnyNavigationDestination? = nil {
+        willSet { objectWillChange.send() }
+    }
 
     /// Presentation trigger for .cover navigation methods.
-    @Published internal var cover: AnyNavigationDestination? = nil
+    internal var cover: AnyNavigationDestination? = nil{
+        willSet { objectWillChange.send() }
+    }
 
     /// Checkpoints managed by this navigation stack
-    @Published internal var checkpoints: [String: AnyNavigationCheckpoint] = [:]
+    internal var checkpoints: [String: AnyNavigationCheckpoint] = [:] {
+        willSet { objectWillChange.send() }
+    }
 
     /// Navigation locks, if any
-    @Published internal var navigationLocks: Set<UUID> = []
+    internal var navigationLocks: Set<UUID> = [] {
+        willSet { objectWillChange.send() }
+    }
 
     /// Persistent id of this navigator.
     internal var id: UUID = .init()
@@ -75,6 +86,8 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
     /// Navigation send publisher
     internal var publisher: PassthroughSubject<NavigationSendValues, Never> = .init()
 
+    // MARK: Lifecycle
+
     /// Allows public initialization of root Navigators.
     internal init(configuration: NavigationConfiguration? = nil) {
         self.name = "root"
@@ -94,10 +107,12 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
         parent?.removeChild(self)
     }
 
+    // MARK: Navigation tree support
+
     /// Walks up the parent tree and returns the root Navigator.
-    internal lazy var root: NavigationState = {
+    internal var root: NavigationState {
         parent?.root ?? self
-    }()
+    }
 
     /// Adds a child state to parent.
     internal func addChild(_ child: NavigationState, dismissible: DismissAction?) {
@@ -130,6 +145,8 @@ public class NavigationState: ObservableObject, @unchecked Sendable {
 }
 
 extension NavigationState: Hashable, Equatable {
+
+    // MARK: Hashable, Equatable
 
     public func hash(into hasher: inout Hasher) {
         hasher.combine(self.id)

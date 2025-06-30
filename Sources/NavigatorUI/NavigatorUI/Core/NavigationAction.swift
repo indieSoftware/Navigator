@@ -21,7 +21,7 @@ extension Navigator {
 
 }
 
-public struct NavigationAction: Hashable {
+nonisolated public struct NavigationAction: Hashable {
 
     public let name: String
 

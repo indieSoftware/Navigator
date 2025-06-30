@@ -28,7 +28,7 @@ import SwiftUI
 /// ```swift
 /// @Environmnt(\.navigator) var navigator
 /// ```
-public struct Navigator: @unchecked Sendable {
+nonisolated public struct Navigator: @unchecked Sendable {
 
     internal let environmentID: Int
     internal let state: NavigationState

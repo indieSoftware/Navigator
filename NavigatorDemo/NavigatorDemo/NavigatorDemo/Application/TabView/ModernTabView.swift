@@ -25,7 +25,7 @@ struct ModernTabView : View {
                 return .immediately
             }
             selectedTab = tab
-            return .after(0.7) // a little extra time after tab switch
+            return .after(0.8) // a little extra time after tab switch
         }
         // set route handler for this view type
         .onNavigationRoute(RootTabViewRouter())

@@ -8,7 +8,7 @@
 import NavigatorUI
 import SwiftUI
 
-public enum KnownRoutes: NavigationRoutes {
+nonisolated public enum KnownRoutes: NavigationRoutes {
     case auth
     case home
     case homePage2

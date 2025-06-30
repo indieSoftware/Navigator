@@ -17,9 +17,6 @@ class HomeRootViewModel: ObservableObject {
         self.logger = resolver.logger
         logger.log("HomeRootViewModel initialized \(id)")
     }
-    deinit {
-        logger.log("HomeRootViewModel deinit \(id)")
-    }
 }
 
 struct HomeRootView: View {

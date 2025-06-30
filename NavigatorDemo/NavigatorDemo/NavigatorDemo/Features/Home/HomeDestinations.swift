@@ -8,7 +8,7 @@
 import NavigatorUI
 import SwiftUI
 
-public enum HomeDestinations: Codable {
+nonisolated public enum HomeDestinations: Codable, NavigationDestination {
 
     case home(String)
     case page2
@@ -17,10 +17,6 @@ public enum HomeDestinations: Codable {
     case external
     case presented1
     case presented2
-
-}
-
-extension HomeDestinations: NavigationDestination {
 
     // Illustrates external mapping of destination type to views. See Settings for simple mapping.
     public var body: some View {

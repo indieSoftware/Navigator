@@ -13,7 +13,7 @@ enum AccountDestinations {
     case disclaimers(Account)
 }
 
-extension AccountDestinations: NavigationDestination {
+extension AccountDestinations: @MainActor NavigationDestination {
     public var body: some View {
         switch self {
         case .details(let account):
