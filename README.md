@@ -280,7 +280,6 @@ Simple. Just delegate the view building to a standard SwiftUI view!
 ```swift
 nonisolated public enum HomeDestinations: NavigationDestination {
     ...
-    
     public var body: some View {
         HomeDestinationsView(destination: self)
     }
@@ -311,7 +310,7 @@ Note this technique can be used to construct and use fully functional views else
 struct RootHomeView: View {
     var body: some View {
         ManagedNavigationStack(scene: "home") {
-            HomeDestinations.home()
+            HomeDestinations.home
                 .navigationDestination(HomeDestinations.self)
         }
     }
