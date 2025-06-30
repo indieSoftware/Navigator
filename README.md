@@ -278,7 +278,9 @@ What if we can't construct a specific view without external dependencies or with
 
 Simple. Just delegate the view building to a standard SwiftUI view!
 ```swift
-extension HomeDestinations: NavigationDestination {
+nonisolated public enum HomeDestinations: NavigationDestination {
+    ...
+    
     public var body: some View {
         HomeDestinationsView(destination: self)
     }
