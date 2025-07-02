@@ -60,6 +60,9 @@ struct HomeContentView: View {
                 Button("Button Navigate to Home Page 55") {
                     navigator.navigate(to: HomeDestinations.pageN(55))
                 }
+                Button("Button Push to Home Page 56") {
+                    navigator.navigate(to: HomeDestinations.pageN(56))
+                }
             }
             Section("Send Actions") {
                 Button("Send Home Page 2, 3") {
@@ -73,6 +76,17 @@ struct HomeContentView: View {
             SendResumeAuthenticatedView()
             ContentSheetSection()
             ContentCheckpointSection()
+            Section("Navigation Errors") {
+                Button("Button Push Misplaced Registration") {
+                    navigator.push(MisplacedDestinations.misplaced)
+                }
+                Button("Button Push Missing Registration") {
+                    navigator.push(MissingDestinations.missing)
+                }
+                Button("Button Push Settings Destination") {
+                    navigator.push(SettingsDestinations.page2)
+                }
+            }
             if UIDevice.current.userInterfaceIdiom == .pad {
                 Section("Layout") {
                     Button("Toggle Root View Type") {
@@ -225,3 +239,13 @@ struct NestedHomeContentView: View {
         )
 }
 #endif
+
+nonisolated enum MisplacedDestinations: NavigationDestination {
+    case misplaced
+    var body: some View { Text("Missing Destination") }
+}
+
+nonisolated enum MissingDestinations: NavigationDestination {
+    case missing
+    var body: some View { Text("Missing Destination") }
+}

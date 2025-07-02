@@ -1,5 +1,10 @@
 # Navigator Changelog
 
+### 1.1.0
+
+* Updates for Swift 6.2, default MainActor isolation, and Approachable Concurrency
+* NavigationDestination checks and navigate(to:) checks for type registration
+
 ### 1.0.0 - RELEASE
 
 * Navigator is officially released.

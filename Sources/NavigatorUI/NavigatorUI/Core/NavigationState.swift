@@ -86,6 +86,9 @@ nonisolated public class NavigationState: ObservableObject, @unchecked Sendable 
     /// Navigation send publisher
     internal var publisher: PassthroughSubject<NavigationSendValues, Never> = .init()
 
+    /// Registered navigation destinations
+    internal var navigationDestinations: Set<ObjectIdentifier> = []
+
     // MARK: Lifecycle
 
     /// Allows public initialization of root Navigators.
