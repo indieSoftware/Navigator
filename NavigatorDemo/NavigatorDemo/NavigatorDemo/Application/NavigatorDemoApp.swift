@@ -5,57 +5,71 @@
 //  Created by Michael Long on 11/19/24.
 //
 
+import Darwin
+import Foundation
 import NavigatorUI
 import SwiftUI
 
 @main
 struct NavigatorDemoApp: App {
+    @State var initialized = false
     var body: some Scene {
         WindowGroup {
-            ApplicationRootView()
+            if initialized {
+                ApplicationRootView()
+            } else {
+                ProgressView()
+                    .task { await initialize() }
+            }
         }
+    }
+    func initialize() async {
+        checkMainThread()
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask(priority: .high) {
+                await A.task1()
+            }
+            group.addTask(priority: .medium) {
+                await A.task2()
+            }
+            group.addTask(priority: .low) {
+                await A.task3()
+            }
+        }
+        checkMainThread()
+        initialized = true
     }
 }
 
-struct ApplicationRootView: View {
-
-    // SceneStorage must exist within a view
-    @SceneStorage("appRootType") var appRootType: AppRootType = UIDevice.current.userInterfaceIdiom == .pad ? .split : .tabbed
-
-    var body: some View {
-        applicationView(AppResolver(navigator: applicationNavigator()))
+nonisolated
+class A {
+    static func task1() async {
+        for i in 0..<1_000_000 { _ = i }
+        checkMainThread()
     }
 
-    func applicationNavigator() -> Navigator {
-        let configuration: NavigationConfiguration = .init(
-            restorationKey: nil, // "1.0.0",
-            executionDelay: 0.4, // 0.3 - 5.0
-            verbosity: .info
-        )
-        return Navigator(configuration: configuration)
+    static func task2() async {
+        for i in 0..<1_000_000 { _ = i }
+        checkMainThread()
     }
 
-    func applicationView(_ resolver: AppResolver) -> some View {
-        // Remember that modifiers wrap their parent view or parent modifiers, which means that they work from the outside in.
-        // So here we're setting up dependencies first, then navigation, then url handlers.
-        appRootType
-            // setup url handlers
-            .onNavigationOpenURL(
-                SimpleURLHandler(),
-                HomeURLHandler(),
-                SettingsURLHandler()
-            )
-            // toggle root view type
-            .onNavigationReceive { (_: ToogleAppRootType) in
-                self.appRootType = appRootType == .split ? .tabbed : .split
-                return .auto
-            }
-            // setup navigation environment root
-            .environment(\.navigator, resolver.navigator)
-            // provide application dependencies
-            .environment(\.coreDependencies, resolver)
-            .environment(\.homeDependencies, resolver)
-            .environment(\.settingsDependencies, resolver)
+    static func task3() async {
+        await task4()
+        checkMainThread()
     }
 
+    @MainActor static func task4() async {
+        for i in 0..<1_000_000 { _ = i }
+        checkMainThread()
+    }
+}
+
+nonisolated func checkMainThread(_ location: String = #function) {
+    print(Thread.isMainThread ? "\(location): Main Thread" : "\(location): Thread \(currentThreadID())")
+}
+
+nonisolated func currentThreadID() -> UInt64 {
+    let pthread = pthread_self()
+    let machThreadID = pthread_mach_thread_np(pthread)
+    return UInt64(machThreadID)
 }

@@ -24,6 +24,8 @@ nonisolated public class NavigationState: ObservableObject, @unchecked Sendable 
     internal var path: NavigationPath = .init() {
         willSet {
             objectWillChange.send()
+        }
+        didSet {
             cleanCheckpoints()
             pathChangedCounter += 1
         }
