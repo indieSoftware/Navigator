@@ -19,12 +19,15 @@ struct NavigatorDemoApp: App {
                 ApplicationRootView()
             } else {
                 ProgressView()
-                    .task { await initialize() }
+                    .task {
+                        await initialize()
+                    }
             }
         }
     }
     func initialize() async {
         checkMainThread()
+        // one might need to split high priority tasks into it's own await if other tasks are dependent on the results
         await withTaskGroup(of: Void.self) { group in
             group.addTask(priority: .high) {
                 await A.task1()
