@@ -12,10 +12,15 @@ import SwiftUI
 
 @main
 struct NavigatorDemoApp: App {
-    @State var initialized = false
+    enum InitializationState {
+        case required
+        case initializing
+        case initialized
+    }
+    @State var state: InitializationState = .required
     var body: some Scene {
         WindowGroup {
-            if initialized {
+            if state == .initialized {
                 ApplicationRootView()
             } else {
                 ProgressView()
@@ -25,46 +30,60 @@ struct NavigatorDemoApp: App {
             }
         }
     }
-    func initialize() async {
-        checkMainThread()
-        // one might need to split high priority tasks into it's own await if other tasks are dependent on the results
-        await withTaskGroup(of: Void.self) { group in
-            group.addTask(priority: .high) {
-                await A.task1()
-            }
-            group.addTask(priority: .medium) {
-                await A.task2()
-            }
-            group.addTask(priority: .low) {
-                await A.task3()
-            }
-        }
-        checkMainThread()
-        initialized = true
-    }
 }
 
-nonisolated
-class A {
-    static func task1() async {
-        for i in 0..<1_000_000 { _ = i }
-        checkMainThread()
+extension NavigatorDemoApp{
+
+    func initialize() async {
+        guard state == .required else {
+            return
+        }
+        state = .initializing
+        await withTaskGroup(of: Void.self) { group in
+            for task in Self.tasks {
+                group.addTask(priority: task.priority, operation: task.operation)
+            }
+        }
+        state = .initialized
     }
 
-    static func task2() async {
-        for i in 0..<1_000_000 { _ = i }
-        checkMainThread()
+    nonisolated struct InitializationTask {
+        let priority: TaskPriority
+        let operation: @Sendable () async -> Void
     }
 
-    static func task3() async {
-        await task4()
-        checkMainThread()
-    }
+    nonisolated static let tasks: [InitializationTask] = [
+        .init(priority: .high, operation: task1),
+        .init(priority: .high, operation: task2),
+        .init(priority: .low, operation: task3),
+        .init(priority: .medium, operation: task4),
+    ]
 
-    @MainActor static func task4() async {
-        for i in 0..<1_000_000 { _ = i }
-        checkMainThread()
-    }
+}
+
+nonisolated func task1() async {
+    for i in 0..<1_000_000 { _ = i }
+    checkMainThread()
+}
+
+nonisolated func task2() async {
+    for i in 0..<1_000_000 { _ = i }
+    checkMainThread()
+}
+
+nonisolated func task3() async {
+    for i in 0..<1_000_000 { _ = i }
+    checkMainThread()
+}
+
+nonisolated func task4() async {
+    await subtask()
+    checkMainThread()
+}
+
+@MainActor func subtask() async {
+    for i in 0..<100_000 { _ = i }
+    checkMainThread()
 }
 
 nonisolated func checkMainThread(_ location: String = #function) {
