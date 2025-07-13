@@ -5,6 +5,7 @@
 * Updates for Swift 6.2, default MainActor isolation, and Approachable Concurrency
 * NavigationDestination checks for type registration within ManagedNavigationStack
 * Navigator navigate(to:) checks to ensure you're issuing navigation commands to the correct Navigator and ManagedNavigationStack
+* Fix navigate(to:) modifier issue #52
 
 ### 1.0.0 - RELEASE
 
