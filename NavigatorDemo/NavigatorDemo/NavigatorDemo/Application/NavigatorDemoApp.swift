@@ -12,11 +12,6 @@ import SwiftUI
 
 @main
 struct NavigatorDemoApp: App {
-    enum InitializationState {
-        case required
-        case initializing
-        case initialized
-    }
     @State var state: InitializationState = .required
     var body: some Scene {
         WindowGroup {
@@ -47,6 +42,12 @@ extension NavigatorDemoApp{
         state = .initialized
     }
 
+    enum InitializationState {
+        case required
+        case initializing
+        case initialized
+    }
+
     nonisolated struct InitializationTask {
         let priority: TaskPriority
         let operation: @Sendable () async -> Void
@@ -61,18 +62,20 @@ extension NavigatorDemoApp{
 
 }
 
+private nonisolated let iterations = 100_000
+
 nonisolated func task1() async {
-    for i in 0..<1_000_000 { _ = i }
+    for i in 0..<iterations { _ = i }
     checkMainThread()
 }
 
 nonisolated func task2() async {
-    for i in 0..<1_000_000 { _ = i }
+    for i in 0..<iterations { _ = i }
     checkMainThread()
 }
 
 nonisolated func task3() async {
-    for i in 0..<1_000_000 { _ = i }
+    for i in 0..<iterations { _ = i }
     checkMainThread()
 }
 
@@ -82,7 +85,7 @@ nonisolated func task4() async {
 }
 
 @MainActor func subtask() async {
-    for i in 0..<100_000 { _ = i }
+    for i in 0..<iterations { _ = i }
     checkMainThread()
 }
 

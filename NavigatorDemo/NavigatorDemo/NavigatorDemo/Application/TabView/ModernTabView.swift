@@ -21,10 +21,11 @@ struct ModernTabView : View {
             }
         }
         // setup tab switching
-        .onNavigationReceive { (tab: RootTabs) in
+        .onNavigationReceive { (tab: RootTabs, navigator: Navigator) in
             if tab == selectedTab {
                 return .immediately
             }
+            navigator.log(.message("selecting tab(\(tab))"))
             selectedTab = tab
             return .after(0.8) // a little extra time after tab switch
         }

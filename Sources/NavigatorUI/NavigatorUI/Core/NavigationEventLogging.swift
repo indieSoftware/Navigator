@@ -8,7 +8,7 @@
 import Foundation
 
 extension Navigator {
-    internal func log(_ event: NavigationEvent.Event) {
+    public func log(_ event: NavigationEvent.Event) {
         state.log(event)
     }
 }
