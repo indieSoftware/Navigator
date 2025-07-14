@@ -32,7 +32,7 @@ struct BindingExampleView: View {
 }
 
 extension BindingExampleView {
-    enum Destinations: @MainActor NavigationDestination {
+    nonisolated enum Destinations: NavigationDestination {
         case destination1(Binding<Double>)
         var body: some View {
             switch self {

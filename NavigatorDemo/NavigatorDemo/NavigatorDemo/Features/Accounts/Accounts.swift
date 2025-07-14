@@ -13,7 +13,7 @@ enum AccountDestinations {
     case disclaimers(Account)
 }
 
-extension AccountDestinations: @MainActor NavigationDestination {
+nonisolated extension AccountDestinations: NavigationDestination {
     public var body: some View {
         switch self {
         case .details(let account):
@@ -69,4 +69,6 @@ struct AccountDisclaimersView: View {
     }
 }
 
-struct Account: Hashable {}
+nonisolated struct Account: Identifiable, Hashable {
+    let id: UUID = .init()
+}

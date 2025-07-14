@@ -56,12 +56,12 @@ extension EnvironmentValues {
 }
 
 // Demonstration of external routes that the home feature wants to trigger
-public enum HomeExternalRoutes: @MainActor NavigationRoutes {
+nonisolated public enum HomeExternalRoutes: NavigationRoutes {
     case settingsPage2
     case settingsPage3
 }
 
 // Demonstration of external views that the home feature needs from somewhere
-public enum HomeExternalViews: @MainActor NavigationViews {
+nonisolated public enum HomeExternalViews: NavigationViews {
     case external
 }
