@@ -22,13 +22,25 @@ struct ContentSheetSection: View {
     @State var showSheet: Bool = false
     @State var dismissFlag: Bool = false
     @State var dismissAny: Bool = false
+    @State var presentSheet: HomeDestinations?
+    @State var presentCover: HomeDestinations?
     var body: some View {
         Section("Presentation Actions") {
-            Button("Present Navigation View via Sheet") {
+            Button("Present Sheet (Programatic)") {
                 navigator.navigate(to: HomeDestinations.presented1)
             }
 
-            Button("Present Locked Navigation View via Cover") {
+            Button("Present Sheet (Binding)") {
+                presentSheet = HomeDestinations.presented1
+            }
+            .navigate(to: $presentSheet)
+
+            Button("Present Sheet as Cover (Binding)") {
+                presentCover = HomeDestinations.presented1
+            }
+            .navigate(to: $presentCover, method: .cover)
+
+            Button("Present Locked Cover (Programatic)") {
                 navigator.navigate(to: HomeDestinations.presented2)
             }
 
