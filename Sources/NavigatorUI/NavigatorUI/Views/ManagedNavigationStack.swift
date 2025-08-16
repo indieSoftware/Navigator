@@ -129,9 +129,10 @@ public struct ManagedNavigationStack<Content: View>: View {
     
         @Environment(\.navigator) private var parent
         @Environment(\.isPresented) private var isPresented
+        @Environment(\.dismiss) private var dismiss
 
         var body: some View {
-            let navigator = Navigator(state: state, parent: parent, isPresented: isPresented)
+            let navigator = Navigator(state: state, parent: parent, dismissible: isPresented ? dismiss : nil)
             NavigationStackContentView(state: state, content: content(navigator))
                 .modifier(NavigationPresentationModifiers(state: state))
                 .modifier(NavigationSceneStorageModifier(state: state, name: name))

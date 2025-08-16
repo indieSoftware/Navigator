@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public protocol NavigationRoutes: Hashable {}
+nonisolated public protocol NavigationRoutes: Hashable {}
 
 extension Navigator {
     @MainActor
@@ -18,7 +18,8 @@ extension Navigator {
 
 public protocol NavigationRouteHandling {
     associatedtype Route: NavigationRoutes
-    @MainActor func route(to route: Route, with navigator: Navigator)
+    @MainActor
+    func route(to route: Route, with navigator: Navigator)
 }
 
 extension View {

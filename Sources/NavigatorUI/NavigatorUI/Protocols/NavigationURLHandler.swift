@@ -66,12 +66,17 @@ private struct OnNavigationOpenURLModifier: ViewModifier {
     @Environment(\.navigator) var navigator: Navigator
     func body(content: Content) -> some View {
         content
-            .onOpenURL { url in
-                for handler in handlers {
-                    if handler.handles(url, with: navigator) {
-                        break
-                    }
-                }
+            .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) {
+                handleOpenURL($0.webpageURL)
             }
+            .onOpenURL {
+                handleOpenURL($0)
+            }
+    }
+    func handleOpenURL(_ url: URL?) {
+        guard let url else { return }
+        _ = handlers.first {
+            $0.handles(url, with: navigator)
+        }
     }
 }

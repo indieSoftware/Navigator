@@ -8,8 +8,8 @@
 import NavigatorUI
 import SwiftUI
 
-public enum HomeDestinations: NavigationDestination, Codable {
-    
+nonisolated public enum HomeDestinations: Codable, NavigationDestination {
+
     case home(String)
     case page2
     case page3

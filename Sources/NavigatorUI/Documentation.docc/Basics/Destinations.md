@@ -17,7 +17,7 @@ They’re one of the core elements that make Navigator possible, and they give u
 ### Defining Navigation Destinations
 Destinations (or routes) are typically just public lists of enumerated values, one for each view desired.
 ```swift
-public enum HomeDestinations {
+nonisolated public enum HomeDestinations {
     case page2
     case page3
     case pageN(Int)
@@ -29,9 +29,14 @@ conforming to the protocol NavigationDestination as shown next.
 ### Defining Destination Views
 Defining our destination views is easy, since NavigationDestination actually conforms to the View protocol! 
 
-As such, we just extend our destination with a view body that returns the correct view for each case.
+As such, we just provide our enumeration with a view body that returns the correct view for each case.
 ```swift
-extension HomeDestinations: NavigationDestination {
+nonisolated public enum HomeDestinations: NavigationDestination {
+
+    case page2
+    case page3
+    case pageN(Int)
+
     public var body: some View {
         switch self {
         case .page2:
@@ -42,11 +47,14 @@ extension HomeDestinations: NavigationDestination {
             HomePageNView(number: value)
         }
     }
+
 }
 ```
 This is a powerful technique that lets Navigator easily create our views whenever or wherever needed. That could be via `NavigationLink(value:label)`, or presented via a sheet or fullscreen cover.
 
 Note how associated values can be used to pass parameters to views as needed.
+
+> Important: As of 6.2 it looks like `NavigationDestination` must be defined as shown above, with the enumeration itself marked as `nonisolated`. 
 
 *To build more complex views that have external dependencies or that require access to environmental values, see <doc:AdvancedDestinations>.
 

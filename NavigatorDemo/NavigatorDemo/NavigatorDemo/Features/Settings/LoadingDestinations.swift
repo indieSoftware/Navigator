@@ -8,21 +8,15 @@
 import NavigatorUI
 import SwiftUI
 
-public enum LoadingDestinations: Int, Codable {
-    case external
-}
+nonisolated public enum LoadingDestinations: Int, Codable, NavigationDestination {
 
-extension LoadingDestinations: NavigationDestination {
+    case external
+
     public var body: some View {
         switch self {
         case .external:
             SettingsExternalView()
         }
     }
-//    public var method: NavigationMethod {
-//        switch self {
-//        case .external:
-//            .sheet
-//        }
-//    }
+
 }

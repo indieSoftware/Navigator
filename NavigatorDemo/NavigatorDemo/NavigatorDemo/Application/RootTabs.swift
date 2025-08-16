@@ -8,13 +8,11 @@
 import NavigatorUI
 import SwiftUI
 
-enum RootTabs: Int, Codable {
+nonisolated enum RootTabs: Int, Codable, Identifiable, NavigationDestination {
+
     case home
     case examples
     case settings
-}
-
-extension RootTabs: Identifiable {
 
     static var tabs: [RootTabs] {
         [.home, .examples, .settings]
@@ -50,12 +48,10 @@ extension RootTabs: Identifiable {
         }
     }
 
-}
-
-extension RootTabs: NavigationDestination {
     var body: some View {
         RootTabsViewBuilder(destination: self)
     }
+    
 }
 
 private struct RootTabsViewBuilder: View {

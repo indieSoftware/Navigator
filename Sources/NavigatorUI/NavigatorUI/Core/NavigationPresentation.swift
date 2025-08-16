@@ -94,7 +94,6 @@ extension NavigationState {
 internal struct NavigationPresentationModifiers: ViewModifier {
 
     @ObservedObject internal var state: NavigationState
-    @Environment(\.dismiss) private var dismiss: DismissAction
 
     func body(content: Content) -> some View {
         content
@@ -106,11 +105,6 @@ internal struct NavigationPresentationModifiers: ViewModifier {
                 managedView(for: destination)
             }
             #endif
-            .onChange(of: state.triggerDismiss) { trigger in
-                if trigger {
-                    dismiss()
-                }
-            }
     }
 
     @ViewBuilder func managedView(for destination: AnyNavigationDestination) -> some View {

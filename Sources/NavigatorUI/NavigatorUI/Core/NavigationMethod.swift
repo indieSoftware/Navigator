@@ -32,7 +32,7 @@
 ///
 /// > Important: When using `NavigationLink(value:label:)` the method will be ignored and SwiftUI will push
 /// the value onto the navigation stack as it would normally.
-public enum NavigationMethod: Int, Codable {
+nonisolated public enum NavigationMethod: Int, Codable {
     /// Pushes the destination onto the navigation stack path.
     case push
 

@@ -8,17 +8,14 @@
 import NavigatorUI
 import SwiftUI
 
-public enum SettingsDestinations: Codable {
+nonisolated public enum SettingsDestinations: Codable, NavigationDestination {
+
     case page2
     case page3
     case sheet
     case external
     case presentLoading
-}
 
-extension SettingsDestinations: NavigationDestination {
-
-    // Illustrates simple embedded mapping of destination type to views. See Home for more complex example.
     public var body: some View {
         switch self {
         case .page2:

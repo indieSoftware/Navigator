@@ -47,6 +47,9 @@ import SwiftUI
 ///
 /// Note how associated values can be used to pass parameters to views as needed.
 ///
+/// > Important: As of 6.2 it looks like `NavigationDestination` conformance **must** be done as an extension and **not** on the original
+/// enumeration. This aligns with Swift 6.2’s requirement that protocol isolation must be explicit at the conformance site.
+///
 /// ### Using Navigation Destinations
 /// This can be done via using a standard SwiftUI `NavigationLink(value:label:)` view.
 /// ```swift
@@ -94,7 +97,7 @@ import SwiftUI
 ///
 /// > Important: When using `NavigationLink(value:label:)` the method will be ignored and SwiftUI will push
 /// the value onto the navigation stack as it would normally.
-public protocol NavigationDestination: Hashable, Equatable, Identifiable, View {
+@MainActor public protocol NavigationDestination: Hashable, Equatable, Identifiable, View {
 
     /// Can be overridden to define a specific presentation type for each destination.
     var method: NavigationMethod { get }
@@ -179,6 +182,7 @@ private struct NavigationDestinationModifier<D: NavigationDestination>: ViewModi
     let destination: D.Type
     @Environment(\.navigator) var navigator
     func body(content: Content) -> some View {
+        let _ = navigator.register(D.self)
         content
             .navigationDestination(for: D.self) { destination in
                 destination
@@ -187,4 +191,31 @@ private struct NavigationDestinationModifier<D: NavigationDestination>: ViewModi
                     .environment(\.navigator, navigator)
             }
     }
+}
+
+extension Navigator {
+
+    public func register<D: NavigationDestination>(_ destination: D.Type) -> Void {
+        #if DEBUG
+        state.register(destination)
+        #endif
+    }
+    
+}
+
+extension NavigationState {
+
+    /// Checks for known navigation destination
+    internal func known<D: NavigationDestination>(destination: D) -> Bool {
+        navigationDestinations.contains(ObjectIdentifier(D.self))
+    }
+
+    /// Register the specified navigation destination type with the current navigation state.
+    internal func register<D: NavigationDestination>(_ type: D.Type) -> Void {
+        if owner != .stack {
+            log(.warning("\(D.self) registration not within a ManagedNavigationStack"))
+        }
+        navigationDestinations.insert(ObjectIdentifier(D.self))
+    }
+
 }

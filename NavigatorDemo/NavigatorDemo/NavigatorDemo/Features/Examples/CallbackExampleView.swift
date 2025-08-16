@@ -70,7 +70,7 @@ struct CallbackExampleView: View {
     }
 }
 
-enum CallbackDestinations: NavigationDestination {
+nonisolated enum CallbackDestinations: NavigationDestination {
 
     case presented(Double, Callback<Double>)
     case pushed(Double, Callback<Double>)
@@ -92,6 +92,7 @@ enum CallbackDestinations: NavigationDestination {
             return .push
         }
     }
+    
 }
 
 struct CallbackReturnView: View {

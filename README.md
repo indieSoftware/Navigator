@@ -28,21 +28,23 @@ Navigator is written entirely in Swift and SwiftUI, and supports iOS 16 and abov
 ### Defining Navigation Destinations
 Destinations (or routes) are typically just public lists of enumerated values, one for each view desired.
 ```swift
-public enum HomeDestinations {
+nonisolated public enum HomeDestinations: NavigationDestination {
+
     case page2
     case page3
     case pageN(Int)
+    
 }
 ```
 SwiftUI requires navigation destination values to be `Hashable`, and so do we.
 
-Next, we need to extend each destination with a variable that returns the correct view for each case.
+Next, we need to provide each destination with a variable that returns the correct view for each case. That's easy, since `NavigationDestination` also conforms to `View`! 
 
-That's easy, since `NavigationDestination` conforms to `View`!
+Just provide the view body as part of the enumeration.
 ```swift
-import NavigatorUI
-
-extension HomeDestinations: NavigationDestination {
+    ...
+    case pageN(Int)
+    
     public var body: some View {
         switch self {
         case .page2:
@@ -53,6 +55,7 @@ extension HomeDestinations: NavigationDestination {
             HomePageNView(number: value)
         }
     }
+    
 }
 ```
 Note how associated values can be used to pass parameters to views as needed.
@@ -115,9 +118,9 @@ the view or present the view, based on the `NavigationMethod` specified (coming 
 
 ### Navigation Methods
 
-`NavigationDestination` can be extended to provide a distinct ``NavigationMethod`` for each enumerated type.
+Your `NavigationDestination` type can be extended to provide a distinct ``NavigationMethod`` for each enumerated type.
 ```swift
-extension HomeDestinations: NavigationDestination {
+extension HomeDestinations {
     public var method: NavigationMethod {
         switch self {
         case .page3:
@@ -160,7 +163,7 @@ Fortunately, Navigator supports checkpoints; named points in the navigation stac
 Checkpoints are easy to define and use. Let's create one called "home" and then use it.
 ```swift
 struct KnownCheckpoints: NavigationCheckpoints {
-    public static var home: NavigationCheckpoint { checkpoint() }
+    public static var home: NavigationCheckpoint<Void> { checkpoint() }
 }
 
 struct RootHomeView: View {
@@ -182,7 +185,9 @@ Button("Return To Checkpoint Home") {
 ```
 When fired, checkpoints will dismiss any presented screens and pop any pushed views to return *exactly* to the point desired.
 
-Checkpoints can also be used to return values to a caller.
+One might ask why we needed to add `<Void>` to our original checkpoint definition?
+
+That's because checkpoints can also be used to return values to a caller!
 ```swift
 // Define a checkpoint with an Int value handler.
 extension KnownCheckpoints {
@@ -274,6 +279,7 @@ struct RootHomeView: View {
     }
 }
 ```
+
 Both of the above perform identically to the examples shown previously.
 
 ### Advanced Destinations
@@ -282,7 +288,8 @@ What if we can't construct a specific view without external dependencies or with
 
 Simple. Just delegate the view building to a standard SwiftUI view!
 ```swift
-extension HomeDestinations: NavigationDestination {
+nonisolated public enum HomeDestinations: NavigationDestination {
+    ...
     public var body: some View {
         HomeDestinationsView(destination: self)
     }
@@ -313,7 +320,7 @@ Note this technique can be used to construct and use fully functional views else
 struct RootHomeView: View {
     var body: some View {
         ManagedNavigationStack(scene: "home") {
-            HomeDestinations.home()
+            HomeDestinations.home
                 .navigationDestination(HomeDestinations.self)
         }
     }

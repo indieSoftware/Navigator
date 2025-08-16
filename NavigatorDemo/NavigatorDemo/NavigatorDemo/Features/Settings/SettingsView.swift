@@ -52,10 +52,13 @@ struct SettingsView: View {
                     triggerPage3.toggle()
                 }
                 .navigate(trigger: $triggerPage3, destination: SettingsDestinations.page3)
-//                Button("Navigator Push 2, 3 (error)") {
-//                    navigator.push(SettingsDestinations.page2)
-//                    navigator.push(SettingsDestinations.page3)
-//                }
+                Button("Button Push Missing Registration") {
+                    navigator.push(MissingDestinations.missing)
+                }
+                //                Button("Navigator Push 2, 3 (error)") {
+                //                    navigator.push(SettingsDestinations.page2)
+                //                    navigator.push(SettingsDestinations.page3)
+                //                }
             }
 
             Section("Send Actions") {
@@ -180,15 +183,15 @@ struct SettingsExternalView: View {
 }
 
 struct PresentLoadingView: View {
-    @State var Loading: Bool = true
+    @State var loading: Bool = true
     var body: some View {
         ManagedNavigationStack {
             List {
-                if Loading {
+                if loading {
                     Text("Loading...")
                         .task {
                             try? await Task.sleep(for: .seconds(3))
-                            self.Loading = false
+                            self.loading = false
                         }
                 } else {
                     Text("Loaded...")
