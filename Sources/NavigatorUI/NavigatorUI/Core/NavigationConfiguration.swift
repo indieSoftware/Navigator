@@ -11,17 +11,18 @@ import SwiftUI
 ///
 /// Allows the developer to modify some of Navigator's basic behavior by configuring and installing a
 /// root Navigator in the application's navigation tree.
+///
+/// The root navigator is managed and can present sheets and covers from the root view if needed.
 /// ```swift
 /// @main
 /// struct NavigatorDemoApp: App {
+///     let navigator = Navigator(configuration: .init(restorationKey: "1.0.0", verbosity: .info)
 ///     var body: some Scene {
 ///         WindowGroup {
 ///             RootTabView()
-///                 .environment(\.navigator, Navigator(configuration: configuration))
+///                 .navigationAutoReceive(AppRootDestinations.self)
+///                 .navigationRoot(navigator)
 ///         }
-///     }
-///     var configuration: NavigationConfiguration {
-///         .init(restorationKey: "1.0.0", verbosity: .info)
 ///     }
 /// }
 /// ```
@@ -66,6 +67,41 @@ nonisolated public struct NavigationConfiguration {
         self.restorationKey = restorationKey
         self.logger = logger
         self.verbosity = verbosity
+    }
+
+}
+
+extension View {
+    /// Allows the developer to modify some of Navigator's basic behavior by configuring and installing a
+    /// root Navigator in the application's navigation tree.
+    ///
+    /// This modifier is managed and can present sheets and covers from the root view if needed.
+    /// ```swift
+    /// @main
+    /// struct NavigatorDemoApp: App {
+    ///     let navigator = Navigator(configuration: .init(restorationKey: "1.0.0", verbosity: .info)
+    ///     var body: some Scene {
+    ///         WindowGroup {
+    ///             RootTabView()
+    ///                 .navigationAutoReceive(AppRootDestinations.self)
+    ///                 .navigationRoot(navigator)
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    public func navigationRoot(_ navigator: Navigator) -> some View {
+        self.modifier(NavigationRootModifier(state: navigator.state))
+    }
+}
+
+private struct NavigationRootModifier: ViewModifier {
+
+    @StateObject var state: NavigationState
+
+    public func body(content: Content) -> some View {
+        content
+            .modifier(NavigationPresentationModifiers(state: state))
+            .environment(\.navigator, Navigator(state: state, parent: nil, dismissible: nil))
     }
 
 }

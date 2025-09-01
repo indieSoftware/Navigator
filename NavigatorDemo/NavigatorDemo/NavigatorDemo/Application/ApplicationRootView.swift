@@ -41,8 +41,10 @@ struct ApplicationRootView: View {
                 self.appRootType = appRootType == .split ? .tabbed : .split
                 return .auto
             }
-            // setup navigation environment root
-            .environment(\.navigator, resolver.navigator)
+            // enable presentation options on the navigation root (this must be *inside* the root navigator)
+            .navigationAutoReceive(AppRootDestinations.self)
+            // setup managed navigation root
+            .navigationRoot(resolver.navigator)
             // provide application dependencies
             .environment(\.coreDependencies, resolver)
             .environment(\.homeDependencies, resolver)

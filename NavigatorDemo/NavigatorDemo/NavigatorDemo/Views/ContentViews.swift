@@ -52,6 +52,10 @@ struct ContentSheetSection: View {
                     .managedPresentationView()
             }
 
+            Button("Present Root Sheet") {
+                navigator.send(AppRootDestinations.demo)
+            }
+
             Button("Dismiss via Navigator", role: .cancel) {
                 navigator.dismiss()
             }
