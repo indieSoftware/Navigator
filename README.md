@@ -274,7 +274,7 @@ struct RootHomeView: View {
         ManagedNavigationStack(scene: "home") {
             HomeContentView(title: "Home Navigation")
                 .navigationDestination(HomeDestinations.self)
-                .onNavigationReceive(HomeDestinations.self) // shortcut
+                .navigationAutoReceive(HomeDestinations.self) // shortcut
         }
     }
 }
