@@ -6,7 +6,7 @@
 
 Advanced Navigation Support for SwiftUI.
 
-## Navigator 1.1.0
+## Navigator 1.2.0
 
 Navigator provides SwiftUI with a simple yet powerful navigation layer based on NavigationStack. 
 
@@ -63,28 +63,31 @@ Note how associated values can be used to pass parameters to views as needed.
 *To build views that have external dependencies or that require access to environmental values, see ``Advanced Destinations`` below.*
 
 ### Registering Navigation Destinations
-Like traditional `NavigationStack` destination types, `NavigationDestination` types need to be registered with the enclosing
-navigation stack in order for `navigate(to:)` presentations and standard `NavigationLink(value:label:)` transitions 
-to work correctly.
 
-But since each `NavigationDestination` already defines the views to be provided, registering destination types can be done
-using a simple one-line view modifier.
-```swift
-ManagedNavigationStack {
-    HomeView()
-        .navigationDestination(HomeDestinations.self)
-}
-```
-This can also make using the same destination type with more than one navigation stack a lot easier.
+There's no need. Seriously.
 
-### Using Navigation Destinations
-With that out of the way, Navigation Destinations can be dispatched using a standard SwiftUI `NavigationLink(value:label:)` view.
+As you're no doubt aware, SwiftUI's `NavigationStack` requires destination types to be registered in order 
+for `NavigationLink(value:label:)` transitions to work correctly.
+
+But that seems redundant, doesn't it? Since each `NavigationDestination` *already* defines the views to be provided, why is registration needed? 
+
+It's not! Just import NavigatorUI.
+
 ```swift
+import NavigatorUI
+
 NavigationLink(value: HomeDestinations.page3) {
     Text("Link to Home Page 3!")
 }
 ```
-Or they can be dispatched declaratively using modifiers.
+So what black magic is this? Simple. Navigator provides an override for `NavigationLink(value:label:)` that looks for `NavigationDestination` types behind the scenes and dispatches them accordingly.
+
+This small change eliminates *dozens* upon *dozens* of problems trying to use and define multiple destination types within the same navigation stack.
+
+*Note: This is a potentially breaking change as of Navigator 1.2. If you don't want to use it just set `autoDestinationMode` to false in your navigation configuration settings and continue to use `navigationDestination` just as you did before.*
+
+### Programatic Navigation Destinations
+Navigation Destinations can also be dispatched programmatically via Navigator, or declaratively using modifiers.
 ```swift
 // Sample using optional destination
 @State var page: SettingsDestinations?
@@ -171,7 +174,6 @@ struct RootHomeView: View {
         ManagedNavigationStack(scene: "home") {
             HomeContentView(title: "Home Navigation")
                 .navigationCheckpoint(KnownCheckpoints.home)
-                .navigationDestination(HomeDestinations.self)
         }
     }
 }
@@ -273,7 +275,6 @@ struct RootHomeView: View {
     var body: some View {
         ManagedNavigationStack(scene: "home") {
             HomeContentView(title: "Home Navigation")
-                .navigationDestination(HomeDestinations.self)
                 .navigationAutoReceive(HomeDestinations.self) // shortcut
         }
     }
@@ -321,7 +322,6 @@ struct RootHomeView: View {
     var body: some View {
         ManagedNavigationStack(scene: "home") {
             HomeDestinations.home
-                .navigationDestination(HomeDestinations.self)
         }
     }
 }

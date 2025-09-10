@@ -91,6 +91,14 @@ nonisolated public class NavigationState: ObservableObject, @unchecked Sendable 
     /// Registered navigation destinations
     internal var navigationDestinations: Set<ObjectIdentifier> = []
 
+    /// Use AnyNavigationDestination for all pushed NavigationDestination values, avoiding need to register destinations
+    internal var autoDestinationMode: Bool {
+        autoDestinationModeOverride ?? configuration?.autoDestinationMode ?? false
+    }
+
+    /// set by NavigationAutoDestinationModeModifier
+    internal var autoDestinationModeOverride: Bool?
+
     // MARK: Lifecycle
 
     /// Allows public initialization of root Navigators.

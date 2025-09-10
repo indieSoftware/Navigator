@@ -30,10 +30,6 @@ extension Navigator {
     /// ```
     @MainActor
     public func navigate<D: NavigationDestination>(to destination: D, method: NavigationMethod) {
-        #if DEBUG
-        checkKnown(destination: destination)
-        #endif
-
         switch method {
         case .push:
             state.push(destination)
@@ -70,9 +66,6 @@ extension Navigator {
     /// Also supports plain Hashable values for better integration with existing code bases.
     @MainActor
     public func push<D: Hashable>(_ destination: D) {
-        #if DEBUG
-        checkKnown(destination: destination)
-        #endif
         state.push(destination)
     }
 
@@ -152,32 +145,6 @@ extension Navigator {
 
 }
 
-extension Navigator {
-
-    // Check to see if destination type known to this navigation node.
-    internal func checkKnown(destination: Any) {
-        #if DEBUG
-        guard let destination = destination as? NavigationDestination, state.known(destination: destination) == false else {
-            return
-        }
-        if let parent = state.recursiveFindParent({ $0.known(destination: destination) }) {
-            // type registered to a parent navigation node, check to see if you're talking to the correct navigator
-            log(.warning("\(type(of: destination)) registered in parent navigator \(parent.id)"))
-        } else if let child = state.recursiveFindChild({ $0.known(destination: destination) }) {
-            // type registered to a child navigation node, check to see if you're talking to the correct navigator
-            log(.warning("\(type(of: destination)) registered in child navigator \(child.id)"))
-        } else if let node = state.root.recursiveFindChild({ $0.known(destination: destination) }) {
-            // type registered to an adjacent navigation node (tab?), check to see if you're talking to the correct navigator
-            log(.warning("\(type(of: destination)) registered in adjacent navigator \(node.id)"))
-        } else {
-            // if warning then type not registered using navigationDestination(T.self) and/or not known to any node
-            log(.warning("\(type(of: destination)) registration missing"))
-        }
-        #endif
-    }
-
-}
-
 extension View {
 
     public func navigate(to destination: Binding<(some NavigationDestination)?>) -> some View {
@@ -200,8 +167,34 @@ extension View {
 
 extension NavigationState {
 
+    @MainActor
     func push<D: Hashable>(_ destination: D) {
         log(.navigation(.pushing(destination)))
+        if autoDestinationMode {
+            if let destination = destination as? AnyNavigationDestination {
+                if known(destination: destination.wrapped) {
+                    path.append(destination.wrapped)
+                } else {
+                    path.append(destination)
+                }
+            } else if let destination = destination as? any NavigationDestination {
+                if known(destination: destination) {
+                    push(raw: destination)
+                } else {
+                    path.append(AnyNavigationDestination(destination))
+                }
+            } else {
+                push(raw: destination)
+            }
+        } else {
+            #if DEBUG
+            checkKnown(destination: destination)
+            #endif
+            push(raw: destination)
+        }
+    }
+
+    internal func push<D: Hashable>(raw destination: D) {
         if let destination = destination as? any Hashable & Codable {
             path.append(destination) // ensures NavigationPath knows type is Codable
         } else {
@@ -242,6 +235,27 @@ extension NavigationState {
         return popped
     }
 
+    // Check to see if destination type known to this navigation node.
+    internal func checkKnown(destination: Any) {
+        #if DEBUG
+        guard let destination = destination as? NavigationDestination, known(destination: destination) == false else {
+            return
+        }
+        if let parent = recursiveFindParent({ $0.known(destination: destination) }) {
+            // type registered to a parent navigation node, check to see if you're talking to the correct navigator
+            log(.warning("\(type(of: destination)) registered in parent navigator \(parent.id)"))
+        } else if let child = recursiveFindChild({ $0.known(destination: destination) }) {
+            // type registered to a child navigation node, check to see if you're talking to the correct navigator
+            log(.warning("\(type(of: destination)) registered in child navigator \(child.id)"))
+        } else if let node = root.recursiveFindChild({ $0.known(destination: destination) }) {
+            // type registered to an adjacent navigation node (tab?), check to see if you're talking to the correct navigator
+            log(.warning("\(type(of: destination)) registered in adjacent navigator \(node.id)"))
+        } else {
+            // if warning then type not registered using navigationDestination(T.self) and/or not known to any node
+            log(.warning("\(type(of: destination)) registration missing"))
+        }
+        #endif
+    }
 }
 
 private struct NavigateToModifier<T: NavigationDestination>: ViewModifier {

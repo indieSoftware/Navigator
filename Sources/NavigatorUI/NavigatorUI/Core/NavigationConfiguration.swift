@@ -16,7 +16,7 @@ import SwiftUI
 /// ```swift
 /// @main
 /// struct NavigatorDemoApp: App {
-///     let navigator = Navigator(configuration: .init(restorationKey: "1.0.0", verbosity: .info)
+///     let navigator = Navigator(configuration: .init(restorationKey: "1.0.0", autoDestinationMode: true)
 ///     var body: some Scene {
 ///         WindowGroup {
 ///             RootTabView()
@@ -49,6 +49,9 @@ nonisolated public struct NavigationConfiguration {
     /// Logging verbosity
     public let verbosity: NavigationEvent.Verbosity
 
+    /// AutoDestinationMode
+    public let autoDestinationMode: Bool
+
     public init(
         restorationKey: String? = nil,
         logger: ((NavigationEvent) -> Void)? = {
@@ -57,7 +60,8 @@ nonisolated public struct NavigationConfiguration {
             #endif
         },
         executionDelay: TimeInterval = 0.3,
-        verbosity: NavigationEvent.Verbosity = .warning
+        verbosity: NavigationEvent.Verbosity = .warning,
+        autoDestinationMode: Bool = true
     ) {
         if #available(iOS 18, *) {
             self.executionDelay = min(max(0.3, executionDelay), 5.0)
@@ -67,6 +71,7 @@ nonisolated public struct NavigationConfiguration {
         self.restorationKey = restorationKey
         self.logger = logger
         self.verbosity = verbosity
+        self.autoDestinationMode = autoDestinationMode
     }
 
 }

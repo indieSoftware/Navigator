@@ -1,5 +1,11 @@
 # Navigator Changelog
 
+### 1.2.0 - BREAKING CHANGE
+
+* Eliminates the need for `navigationDestination` registrations!
+* Adds `navigationAutoDestinationMode()` modifier
+* Adds `autoDestinationMode` configuration option
+
 ### 1.1.1
 
 * Add navigationRoot option for managed navigation configuration options

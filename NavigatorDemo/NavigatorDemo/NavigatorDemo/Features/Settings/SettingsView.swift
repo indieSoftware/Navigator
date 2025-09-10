@@ -20,7 +20,8 @@ struct SettingsRootView: View {
     var body: some View {
         ManagedNavigationStack(scene: RootTabs.settings.id) {
             SettingsView(name: "Root Settings")
-                .navigationDestinationAutoReceive(SettingsDestinations.self)
+                .navigationTitle("Settings")
+                .navigationAutoReceive(SettingsDestinations.self)
         }
     }
 }
@@ -59,6 +60,18 @@ struct SettingsView: View {
                 //                    navigator.push(SettingsDestinations.page2)
                 //                    navigator.push(SettingsDestinations.page3)
                 //                }
+            }
+
+            Section("Unregistered Destination Actions") {
+                NavigationLink(value: UnregisteredDestinations.page1) {
+                    Text("Link to Unregistered Page 1!")
+                }
+                Button("Button Push to Unregistered Page 2!") {
+                    navigator.navigate(to: UnregisteredDestinations.page2)
+                }
+                Button("Button Present Unregistered Page 2!") {
+                    navigator.navigate(to: UnregisteredDestinations.page2, method: .sheet)
+                }
             }
 
             Section("Send Actions") {

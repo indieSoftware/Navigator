@@ -11,6 +11,17 @@ import SwiftUI
 public struct AnyNavigationDestination {
     public var wrapped: any NavigationDestination
     public var method: NavigationMethod
+
+    @MainActor
+    init<D: NavigationDestination>(_ destination: D) {
+        self.wrapped = destination
+        self.method = destination.method
+    }
+
+    init(wrapped: any NavigationDestination, method: NavigationMethod) {
+        self.wrapped = wrapped
+        self.method = method
+    }
 }
 
 extension AnyNavigationDestination: Identifiable {
@@ -33,6 +44,79 @@ extension AnyNavigationDestination: Hashable, Equatable {
         lhs.id == rhs.id
     }
 
+}
+
+extension View {
+
+    /// Enables/disables auto destination mode.
+    /// ```swift
+    /// // auto destination mode allows this..
+    /// struct SettingsTabView: View {
+    ///     var body: some View {
+    ///         ManagedNavigationStack {
+    ///             SettingsView()
+    ///         }
+    ///     }
+    /// }
+    ///
+    /// // verses this...
+    /// struct SettingsTabView: View {
+    ///     var body: some View {
+    ///         ManagedNavigationStack {
+    ///             SettingsView()
+    ///                 .navigationDestination(SettingsDestinations.self)
+    ///                 .navigationDestination(ProfileDestinations.self)
+    ///                 .navigationDestination(OptionsDestinations.self)
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    /// When enabled, explicit navigationDestination registrations are not required for any `NavigationDestination` type. Just navigate to
+    /// that value.
+    /// ```swift
+    /// Button("Button Navigate to Page 55") {
+    ///     navigator.navigate(to: UnregisteredDestination.pageN(55))
+    /// }
+    /// ```
+    /// This even works with `NavigationLink(value:label)`!
+    /// ```swift
+    /// import NavigatorUI
+    ///
+    /// NavigationLink(value: UnregisteredDestination.page3) {
+    ///     Text("Link to Page 3!")
+    /// }
+    /// ```
+    /// Just make sure you import NavigatorUI in your code.
+    /// 
+    /// You can also enable/disable auto destination mode for all managed navigation stacks in the configuration settings.
+    /// ```swift
+    /// @main
+    /// struct NavigatorDemoApp: App {
+    ///     let navigator = Navigator(configuration: .init(restorationKey: "1.0.0", autoDestinationMode: true)
+    ///     var body: some Scene {
+    ///         WindowGroup {
+    ///             RootTabView()
+    ///                 .navigationRoot(navigator)
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    @MainActor
+    public func navigationAutoDestinationMode(_ enabled: Bool) -> some View {
+        self.modifier(NavigationAutoDestinationModeModifier(enabled: enabled))
+    }
+
+}
+
+private struct NavigationAutoDestinationModeModifier: ViewModifier {
+    @Environment(\.navigator) private var navigator
+    var enabled: Bool
+    public func body(content: Content) -> some View {
+        content
+            .onAppear {
+                navigator.state.autoDestinationModeOverride = enabled
+            }
+    }
 }
 
 extension AnyNavigationDestination: Codable {

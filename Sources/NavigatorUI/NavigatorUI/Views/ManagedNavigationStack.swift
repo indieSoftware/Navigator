@@ -145,6 +145,9 @@ public struct ManagedNavigationStack<Content: View>: View {
             var body: some View {
                 NavigationStack(path: $state.path) {
                     content
+                        .navigationDestination(for: AnyNavigationDestination.self) { destination in
+                            destination()
+                        }
                 }
             }
         }
