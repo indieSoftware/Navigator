@@ -20,8 +20,9 @@ This is *not* just another push/pop navigation stack library. It supports...
 * Both Declarative and Imperative navigation and control.
 * Navigation state restoration.
 * Event logging and debugging.
-
 * No navigationDestination registration operations are required.
+
+You might want to reread that last bullet point again...
 
 Navigator is written entirely in Swift and SwiftUI, and supports iOS 16 and above.
 
@@ -30,7 +31,7 @@ Navigator is written entirely in Swift and SwiftUI, and supports iOS 16 and abov
 ### Defining Navigation Destinations
 Destinations (or routes) are typically just public lists of enumerated values, one for each view desired.
 ```swift
-nonisolated public enum HomeDestinations: NavigationDestination {
+public enum HomeDestinations: NavigationDestination {
 
     case page2
     case page3
@@ -67,10 +68,6 @@ Note how associated values can be used to pass parameters to views as needed.
 ### Managed Navigation Stacks
 
 The next step is to use `ManagedNavigationStack` when you once used `NavigationStack` in your code.
-
-ManagedNavigationStack creates a NavigationStack and installs the associated Navigator that "manages" the stack. It also provides key support for navigation options like automatically presenting sheets and fullScreenCovers.
-
-Using ManagedNavigationStack is easy. Just use it where you'd normally used a `NavigationStack`.
 ```swift
 struct RootView: View {
     var body: some View {
@@ -86,7 +83,9 @@ struct RootView: View {
 ```
 It's that simple.
 
-Those with sharp eyes might have noticed something missing in the above code. We're using `NavigationLink` with a value, but where's the `.navigationDestination(for: HomeDestinations.self) { ... )` modifier?
+ManagedNavigationStack creates a NavigationStack for you and installs the associated Navigator environment variable that "manages" the stack. It also provides support for navigation options like automatically presenting sheets and fullScreenCovers.
+
+Those with sharp eyes might have noticed something missing in the above code. We're using `NavigationLink` with a destination value, but where's the `.navigationDestination(for: HomeDestinations.self) { ... )` modifier?
 
 Or, as done in earlier versions of Navigator, the `.navigationDestination(HomeDestinations.self)` modifier?
 
@@ -97,7 +96,7 @@ There's no need. Seriously.
 As you're no doubt aware, SwiftUI's `NavigationStack` requires destination types to be registered in order 
 for `NavigationLink(value:label:)` transitions to work correctly.
 
-But that seems redundant, doesn't it? Since each `NavigationDestination` *already* defines the views to be provided, why is registration needed? 
+But that seems redundant, doesn't it? Our NavigationDestination enumerations *already* define the views to be provided, so why is registration needed? 
 
 Turns out that it's not! 
 
