@@ -80,8 +80,10 @@ Just use `NavigationLink(to:label)` instead of `NavigationLink(value:label)` in 
 ```swift
 import NavigatorUI
 
-NavigationLink(to: HomeDestinations.page3) {
-    Text("Link to Home Page 3!")
+List {
+    NavigationLink(to: HomeDestinations.page3) {
+        Text("Link to Home Page 3!")
+    }
 }
 ```
 So what black magic is this? Simple. Navigator provides an initializer for `NavigationLink` that looks for `NavigationDestination` types behind the scenes and dispatches them accordingly.
@@ -90,7 +92,7 @@ This small change eliminates *dozens* upon *dozens* of problems trying to use an
 
 Note that this is a potentially a breaking change as of Navigator 1.2. 
 
-If you don't want to use it just set `autoDestinationMode` to false in your navigation configuration settings and continue to use `NavigationLink(value:label:)` and `navigationDestination` just as you did before.
+If for some reason you prefer the old mechanism just set `autoDestinationMode` to false in your navigation configuration settings and continue to use `NavigationLink(value:label:)` and `navigationDestination` just as you did before.
 
 ### Programatic Navigation Destinations
 Navigation Destinations can also be dispatched programmatically via Navigator, or declaratively using modifiers.
