@@ -43,7 +43,7 @@ struct SettingsView: View {
             }
 
             Section("Navigation Actions") {
-                NavigationLink(value: SettingsDestinations.page2) {
+                NavigationLink(to: SettingsDestinations.page2) {
                     Text("Link to Settings Page 2!")
                 }
                 Button("Navigator Push to Settings Page 3!") {
@@ -63,7 +63,7 @@ struct SettingsView: View {
             }
 
             Section("Unregistered Destination Actions") {
-                NavigationLink(value: UnregisteredDestinations.page1) {
+                NavigationLink(to: UnregisteredDestinations.page1) {
                     Text("Link to Unregistered Page 1!")
                 }
                 Button("Button Push to Unregistered Page 2!") {
@@ -128,7 +128,7 @@ struct Page2SettingsView: View {
                     .foregroundStyle(.secondary)
             }
             Section("Navigation Actions") {
-                NavigationLink(value: SettingsDestinations.page3) {
+                NavigationLink(to: SettingsDestinations.page3) {
                     Text("Link to Test Page 3!")
                 }
             }
@@ -211,7 +211,7 @@ struct PresentLoadingView: View {
                         .navigationResume() // resume when this view appears
                 }
             }
-            .navigationDestinationAutoReceive(LoadingDestinations.self)
+            .navigationAutoReceive(LoadingDestinations.self)
             .navigationTitle("Presented View")
         }
     }

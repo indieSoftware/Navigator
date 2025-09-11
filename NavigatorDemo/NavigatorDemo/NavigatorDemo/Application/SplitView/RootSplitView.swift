@@ -31,7 +31,7 @@ private struct SidebarView: View {
         List(selection: $selectedTab) {
             Section("Menu") {
                 ForEach(RootTabs.sidebar) { tab in
-                    NavigationLink(value: tab) {
+                    NavigationLink(to: tab) {
                         Label(tab.title, systemImage: tab.image)
                     }
                 }

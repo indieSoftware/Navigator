@@ -114,10 +114,12 @@ public struct ManagedNavigationStack<Content: View>: View {
         var body: some View {
             NavigationStack(path: $state.path) {
                 content
+                    .navigationDestination(for: AnyNavigationDestination.self) { destination in
+                        destination()
+                    }
             }
             .modifier(NavigationSceneStorageModifier(state: state, name: name))
         }
-
     }
 
     // Allow NavigationStack to create and manage its own Navigator and NavigationState

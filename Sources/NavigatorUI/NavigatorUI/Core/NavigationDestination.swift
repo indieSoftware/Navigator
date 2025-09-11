@@ -163,13 +163,18 @@ extension View {
     ///         .navigationDestination(HomeDestinations.self)
     /// }
     /// ```
-    /// This also makes using the same destination type with more than one navigation stack a lot easier.
-    ///
-    /// Important: NavigationDestination must be registered using this function!
+    /// As of Navigator 1.2 the preferred mechanism is to use `navigate(to:)` and `NavigationLink(to:label)` and avoid the
+    /// need for registration altogether.
+    /// ```swift
+    /// ManagedNavigationStack {
+    ///     HomeView()
+    /// }
+    /// ```
     public func navigationDestination<D: NavigationDestination>(_ destination: D.Type) -> some View {
         self.modifier(NavigationDestinationModifier(destination: destination))
     }
 
+    /// Deprecated variant of `navigationDestination` and `navigationAutoReceive`.
     public func navigationDestinationAutoReceive<D: NavigationDestination>(_ destination: D.Type) -> some View {
         self
             .modifier(NavigationDestinationModifier(destination: destination))

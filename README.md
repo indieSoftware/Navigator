@@ -71,20 +71,26 @@ for `NavigationLink(value:label:)` transitions to work correctly.
 
 But that seems redundant, doesn't it? Since each `NavigationDestination` *already* defines the views to be provided, why is registration needed? 
 
-It's not! Just import NavigatorUI.
+It's not! 
+
+### Introducing NavigationLink(to:label)
+
+Just use `NavigationLink(to:label)` instead of `NavigationLink(value:label)` in your code and let Navigator handle the rest:
 
 ```swift
 import NavigatorUI
 
-NavigationLink(value: HomeDestinations.page3) {
+NavigationLink(to: HomeDestinations.page3) {
     Text("Link to Home Page 3!")
 }
 ```
-So what black magic is this? Simple. Navigator provides an override for `NavigationLink(value:label:)` that looks for `NavigationDestination` types behind the scenes and dispatches them accordingly.
+So what black magic is this? Simple. Navigator provides an initializer for `NavigationLink` that looks for `NavigationDestination` types behind the scenes and dispatches them accordingly.
 
 This small change eliminates *dozens* upon *dozens* of problems trying to use and define multiple destination types within the same navigation stack.
 
-*Note: This is a potentially breaking change as of Navigator 1.2. If you don't want to use it just set `autoDestinationMode` to false in your navigation configuration settings and continue to use `navigationDestination` just as you did before.*
+Note that this is a potentially a breaking change as of Navigator 1.2. 
+
+If you don't want to use it just set `autoDestinationMode` to false in your navigation configuration settings and continue to use `NavigationLink(value:label:)` and `navigationDestination` just as you did before.
 
 ### Programatic Navigation Destinations
 Navigation Destinations can also be dispatched programmatically via Navigator, or declaratively using modifiers.

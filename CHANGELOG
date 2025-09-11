@@ -2,7 +2,7 @@
 
 ### 1.2.0 - BREAKING CHANGE
 
-* Eliminates the need for `navigationDestination` registrations!
+* Introduces `NavigationLink(to:label)` and eliminates the need for `navigationDestination` registrations!
 * Adds `navigationAutoDestinationMode()` modifier
 * Adds `autoDestinationMode` configuration option
 

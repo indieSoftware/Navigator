@@ -34,17 +34,18 @@ struct TransitionListView: View {
     var body: some View {
         List {
             Section {
-                NavigationLink(value: TransitionDestinations.destination1) {
+               // 3. use old NavigationLink(value:label:) call
+               NavigationLink(value: TransitionDestinations.destination1) {
                     Text("Trigger Transition")
                 }
-                // 3. define source
+                // 4. define source
                 .matchedTransitionSource(id: "zoom", in: namespace)
             }
             Button("Dismiss Example") {
                 navigator.dismiss()
             }
         }
-        // 4. use a standard navigationDestination modifier to wrap our destination
+        // 5. use a standard navigationDestination modifier to wrap our destination
         .navigationDestination(for: TransitionDestinations.self) { destination in
             switch destination {
             case .destination1:
