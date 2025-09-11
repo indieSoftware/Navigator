@@ -1,6 +1,6 @@
 # Navigator Changelog
 
-### 1.2.0 - BREAKING CHANGE
+### 1.2.0
 
 * Introduces `NavigationLink(to:label)` and eliminates the need for `navigationDestination` registrations!
 * Adds `navigationAutoDestinationMode()` modifier

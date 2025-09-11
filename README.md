@@ -92,7 +92,7 @@ This small change eliminates *dozens* upon *dozens* of problems trying to use an
 
 Note that this is a potentially a breaking change as of Navigator 1.2. 
 
-If for some reason you prefer the old mechanism just set `autoDestinationMode` to false in your navigation configuration settings and continue to use `NavigationLink(value:label:)` and `navigationDestination` just as you did before.
+*If for some reason you prefer the old mechanism just set `autoDestinationMode` to false in your navigation configuration settings and continue to use `NavigationLink(value:label:)` and `navigationDestination` just as you did before.*
 
 ### Programatic Navigation Destinations
 Navigation Destinations can also be dispatched programmatically via Navigator, or declaratively using modifiers.
