@@ -89,9 +89,11 @@ Those with sharp eyes might have noticed something missing in the above code. We
 
 Or, as done in earlier versions of Navigator, the `.navigationDestination(HomeDestinations.self)` modifier?
 
-### Eliminating Navigation Destination Registrations
+As of Navigator 1.2.0, there's no need for them. 
 
-There's no need. Seriously.
+Seriously.
+
+### Eliminating Navigation Destination Registrations
 
 As you're no doubt aware, SwiftUI's `NavigationStack` requires destination types to be registered in order 
 for `NavigationLink(value:label:)` transitions to work correctly.
@@ -99,8 +101,6 @@ for `NavigationLink(value:label:)` transitions to work correctly.
 But that seems redundant, doesn't it? Our NavigationDestination enumerations *already* define the views to be provided, so why is registration needed? 
 
 Turns out that it's not! 
-
-### Introducing NavigationLink(to:label)
 
 Just use `NavigationLink(to:label)` instead of `NavigationLink(value:label)` in your code and let Navigator handle the rest:
 
@@ -138,7 +138,7 @@ Use `NavigationLink(value:label)` without defining the destination and navigatio
 
 Use `NavigationLink(to:label)` and you'll be fine.
 
-*If you prefer or need the old mechanism don't worry. Just continue to use `NavigationLink(value:label:)` and `navigationDestination` registrations just like you did before.*
+*If you prefer or need the registration mechanism to support older code, don't worry. Just continue to use `NavigationLink(value:label:)` and `navigationDestination` registrations just like you did before.*
 
 ### Programatic Navigation Destinations
 Navigation Destinations can also be dispatched programmatically via Navigator, or declaratively using modifiers.
