@@ -127,7 +127,7 @@ struct SettingsTabView: View {
     }
 }
 ```
-Where we use three different NavigationDestination types, but provide no registrations.
+Here we use three different NavigationDestination types, but provide no registrations.
 
 So what black magic is this? Simple. Navigator provides an initializer for `NavigationLink` that looks for `NavigationDestination` types behind the scenes and dispatches them accordingly.
 
