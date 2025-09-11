@@ -15,7 +15,6 @@ import SwiftUI
 ///     var body: some View {
 ///         ManagedNavigationStack {
 ///             HomeView()
-///                 .navigationDestination(HomeDestinations.self)
 ///         }
 ///     }
 /// }

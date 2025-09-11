@@ -21,6 +21,8 @@ This is *not* just another push/pop navigation stack library. It supports...
 * Navigation state restoration.
 * Event logging and debugging.
 
+* No navigationDestination registration operations are required.
+
 Navigator is written entirely in Swift and SwiftUI, and supports iOS 16 and above.
 
 ## The Code
@@ -62,7 +64,33 @@ Note how associated values can be used to pass parameters to views as needed.
 
 *To build views that have external dependencies or that require access to environmental values, see ``Advanced Destinations`` below.*
 
-### Registering Navigation Destinations
+### Managed Navigation Stacks
+
+The next step is to use `ManagedNavigationStack` when you once used `NavigationStack` in your code.
+
+ManagedNavigationStack creates a NavigationStack and installs the associated Navigator that "manages" the stack. It also provides key support for navigation options like automatically presenting sheets and fullScreenCovers.
+
+Using ManagedNavigationStack is easy. Just use it where you'd normally used a `NavigationStack`.
+```swift
+struct RootView: View {
+    var body: some View {
+        ManagedNavigationStack {
+            List {
+                NavigationLink(to: HomeDestinations.page3) {
+                    Text("Link to Page 3!")
+                }
+            }
+        }
+    }
+}
+```
+It's that simple.
+
+Those with sharp eyes might have noticed something missing in the above code. We're using `NavigationLink` with a value, but where's the `.navigationDestination(for: HomeDestinations.self) { ... )` modifier?
+
+Or, as done in earlier versions of Navigator, the `.navigationDestination(HomeDestinations.self)` modifier?
+
+### Eliminating Navigation Destination Registrations
 
 There's no need. Seriously.
 
@@ -71,7 +99,7 @@ for `NavigationLink(value:label:)` transitions to work correctly.
 
 But that seems redundant, doesn't it? Since each `NavigationDestination` *already* defines the views to be provided, why is registration needed? 
 
-It's not! 
+Turns out that it's not! 
 
 ### Introducing NavigationLink(to:label)
 
@@ -80,19 +108,38 @@ Just use `NavigationLink(to:label)` instead of `NavigationLink(value:label)` in 
 ```swift
 import NavigatorUI
 
-List {
-    NavigationLink(to: HomeDestinations.page3) {
-        Text("Link to Home Page 3!")
+struct SettingsTabView: View {
+    var body: some View {
+        ManagedNavigationStack {
+            List {
+                NavigationLink(to: ProfileDestinations.main) {
+                    Text("User Profile")
+                }
+                NavigationLink(to: SettingsDestinations.main) {
+                    Text("Settings")
+                }
+                NavigationLink(to: AboutDestinations.main) {
+                    Text("About Navigator")
+                }
+            }
+            .navigationTitle("Settings")
+        }
     }
 }
 ```
+Where we use three different NavigationDestination types, but provide no registrations.
+
 So what black magic is this? Simple. Navigator provides an initializer for `NavigationLink` that looks for `NavigationDestination` types behind the scenes and dispatches them accordingly.
 
 This small change eliminates *dozens* upon *dozens* of problems trying to use and define multiple destination types within the same navigation stack.
 
-Note that this is a potentially a breaking change as of Navigator 1.2. 
+But it is a potentially breaking change as of 1.2.0. 
 
-*If for some reason you prefer the old mechanism just set `autoDestinationMode` to false in your navigation configuration settings and continue to use `NavigationLink(value:label:)` and `navigationDestination` just as you did before.*
+Use `NavigationLink(value:label)` without defining the destination and navigation will fail.
+
+Use `NavigationLink(to:label)` and you'll be fine.
+
+*If you prefer or need the old mechanism don't worry. Just continue to use `NavigationLink(value:label:)` and `navigationDestination` registrations just like you did before.*
 
 ### Programatic Navigation Destinations
 Navigation Destinations can also be dispatched programmatically via Navigator, or declaratively using modifiers.
@@ -124,8 +171,7 @@ Button("Button Push Home Page 55") {
     navigator.push(HomeDestinations.pageN(55))
 }
 ```
-In case you're wondering, calling `push` pushes the associated view onto the current `NavigationStack`, while `navigate(to:)` will push
-the view or present the view, based on the `NavigationMethod` specified (coming up next).
+In case you're wondering, calling `push` pushes the associated view onto the current `NavigationStack`, while `navigate(to:)` will push the view or present the view, based on the `NavigationMethod` specified (coming up next).
 
 ### Navigation Methods
 
@@ -142,8 +188,7 @@ extension HomeDestinations {
     }
 }
 ```
-In this case, should `navigator.navigate(to: HomeDestinations.page3)` be called, Navigator will automatically present that view in a
-sheet. All other views will be pushed onto the navigation stack.
+In this case, should `navigator.navigate(to: HomeDestinations.page3)` be called, Navigator will automatically present that view in a sheet. All other views will be pushed onto the navigation stack.
 
 The current navigation methods are: .push (default), .sheet, .cover, and .send.
 
