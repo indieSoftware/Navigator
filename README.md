@@ -6,7 +6,7 @@
 
 Advanced Navigation Support for SwiftUI.
 
-## Navigator 1.2.0
+## Navigator 1.2.1
 
 Navigator provides SwiftUI with a simple yet powerful navigation layer based on NavigationStack. 
 
@@ -83,7 +83,7 @@ struct RootView: View {
 ```
 It's that simple.
 
-ManagedNavigationStack creates a NavigationStack for you and installs the associated Navigator environment variable that "manages" the stack. It also provides support for navigation options like automatically presenting sheets and fullScreenCovers.
+ManagedNavigationStack creates a NavigationStack for you and installs the associated Navigator environment variable that "manages" the stack. It provides the NavigationPath and also supports navigation options like automatically presenting sheets and fullScreenCovers.
 
 Those with sharp eyes might have noticed something missing in the above code. We're using `NavigationLink` with a destination value, but where's the `.navigationDestination(for: HomeDestinations.self) { ... )` modifier?
 
@@ -128,13 +128,15 @@ struct SettingsTabView: View {
 ```
 Here we use three different NavigationDestination types, but provide no registrations.
 
-So what black magic is this? Simple. Navigator provides an initializer for `NavigationLink` that looks for `NavigationDestination` types behind the scenes and dispatches them accordingly.
+So what black magic is this? Simple. Navigator provides an initializer for `NavigationLink` that takes `NavigationDestination` types and maps them to an internal type that `ManagedNavigationStack` has already registered for you.
 
-This small change eliminates *dozens* upon *dozens* of problems trying to use and define multiple destination types within the same navigation stack.
+This small change allows a single `navigationDestination` handler to push `NavigationDestination` views of *any* type!
 
-But it is a potentially breaking change as of 1.2.0. 
+Consider a modular application whose home screen uses "cards" provided from different modules. Clicking on a card from Module A should push an internal view from that module... but that's only possible if we somehow knew how to register the needed types from module A.
 
-Use `NavigationLink(value:label)` without defining the destination and navigation will fail.
+Now there's no need to do so!
+
+Note that this is *potentially* a breaking change. Use the old `NavigationLink(value:label)` view *without* defining the destination and navigation will fail. 
 
 Use `NavigationLink(to:label)` and you'll be fine.
 

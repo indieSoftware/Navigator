@@ -14,6 +14,7 @@ nonisolated public enum HomeDestinations: Codable, NavigationDestination {
     case page2
     case page3
     case pageN(Int)
+    case mapped
     case external
     case presented1
     case presented2
@@ -53,6 +54,10 @@ internal struct HomeDestinationsView: View {
             // Demonstrates passing dependency resolver to view and letting it do what's needed.
             HomePageNView(resolver: resolver, number: value)
 
+        case .mapped:
+            // Demonstrates using navigation map.
+            EmptyView()
+
         case .external:
             // Demonstrates getting view itself from unknown source
             resolver.homeExternalViewProvider.view(for: .external)
@@ -75,7 +80,7 @@ extension HomeDestinations {
     // not required but shows possibilities in predefining navigation destination types
     public var method: NavigationMethod {
         switch self {
-        case .home, .page2, .page3, .pageN, .external:
+        case .home, .page2, .page3, .pageN, .mapped, .external:
             .push
         case .presented1:
             .sheet

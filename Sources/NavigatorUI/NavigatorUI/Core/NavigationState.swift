@@ -99,6 +99,18 @@ nonisolated public class NavigationState: ObservableObject, @unchecked Sendable 
     /// set by NavigationAutoDestinationModeModifier
     internal var autoDestinationModeOverride: Bool?
 
+    /// Storage for .navigationMap modifier
+    internal var navigationMap: ((any NavigationDestination) -> any NavigationDestination)?
+    internal var navigationMapInherits: Bool = false
+
+    /// Storage for .navigationModifier
+    internal var navigationModifier: ((any NavigationDestination) -> any View)?
+    internal var navigationModifierInherits: Bool = false
+
+    /// Storage for .presentationModifier
+    internal var presentationModifier: ((any NavigationDestination) -> any View)?
+    internal var presentationModifierInherits: Bool = false
+
     // MARK: Lifecycle
 
     /// Allows public initialization of root Navigators.
@@ -139,6 +151,9 @@ nonisolated public class NavigationState: ObservableObject, @unchecked Sendable 
         child.configuration = configuration
         child.parent = self
         child.publisher = publisher
+        child.navigationMap = navigationMapInherits ? navigationMap : nil
+        child.navigationModifier = navigationModifierInherits ? navigationModifier : nil
+        child.presentationModifier = presentationModifierInherits ? presentationModifier : nil
         log(.lifecycle(.adding(child.id)))
     }
 

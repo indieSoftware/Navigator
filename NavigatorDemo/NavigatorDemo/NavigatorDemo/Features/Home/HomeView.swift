@@ -24,13 +24,29 @@ struct HomeRootView: View {
     var body: some View {
         ManagedNavigationStack(scene: RootTabs.home.id) {
             HomeContentView(viewModel: HomeContentViewModel(resolver: viewModel.resolver, title: "Home Navigation"))
+                .tint(.white)
                 .navigationCheckpoint(KnownCheckpoints.home)
                 .onNavigationReceive { (destination: HomeDestinations, navigator) in
                     navigator.navigate(to: destination)
                     return .auto
                 }
+                .navigationMap { destination in
+                    switch destination {
+                    case HomeDestinations.mapped:
+                        HomeDestinations.pageN(99)
+                    default:
+                        destination
+                    }
+                }
+                .navigationModifier { destination in
+                    destination()
+                        .tint(.pink)
+                }
+                .presentationModifier { destination in
+                    destination()
+                        .tint(.green)
+                }
         }
-
     }
 }
 
@@ -52,6 +68,9 @@ struct HomeContentView: View {
                 }
                 NavigationLink(to: HomeDestinations.pageN(44)) {
                     Text("Link to Home Page 44!")
+                }
+                NavigationLink(to: HomeDestinations.mapped) {
+                    Text("Link to Mapped View! (99)")
                 }
                 NavigationLink(to: HomeDestinations.external) {
                     Text("Link to External View!")

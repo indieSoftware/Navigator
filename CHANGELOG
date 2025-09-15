@@ -1,5 +1,11 @@
 # Navigator Changelog
 
+### 1.2.1
+
+* Adds new `navigationMap` modifier for multi-module application support
+* Adds new `navigationModifier` modifier for commonly needed pushed view attributes
+* Adds new `presentationModifier` modifier for commonly needed presented view attributes
+
 ### 1.2.0
 
 * Introduces `NavigationLink(to:label)` and eliminates the need for `navigationDestination` registrations!

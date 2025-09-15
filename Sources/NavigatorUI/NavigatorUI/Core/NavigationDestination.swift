@@ -119,7 +119,12 @@ extension NavigationDestination {
         .auto
     }
 
-    /// Convenience function returns AnyView.
+    /// Convenience shortcut returns AnyView.
+    @MainActor public func callAsFunction() -> AnyView {
+        AnyView(body)
+    }
+
+    /// Convenience function explicitly returns AnyView.
     @MainActor public func asAnyView() -> AnyView {
         AnyView(body)
     }
@@ -141,15 +146,22 @@ extension NavigationDestination {
 }
 
 extension NavigationDestination {
+    @MainActor
+    public func mappedNavigationView(from navigator: Navigator) -> AnyView {
+        AnyNavigationDestination(self).mappedNavigationView(for: navigator.state)
+    }
+
+    @MainActor
+    public func mappedPresentationView(from navigator: Navigator) -> AnyView {
+        AnyNavigationDestination(self).mappedPresentationView(for: navigator.state)
+    }
+}
+
+extension NavigationDestination {
 
     /// Convenience functions return view.
     @available(*, deprecated, message: "Use plain value instead e.g. 'MyDestination.page2' and not 'MyDestination.page2.view'.")
     @MainActor @ViewBuilder var view: some View {
-        body
-    }
-
-    @available(*, deprecated, message: "Use plain value instead e.g. 'MyDestination.page2' and not 'MyDestination.page2()'.")
-    @MainActor public func callAsFunction() -> some View {
         body
     }
 

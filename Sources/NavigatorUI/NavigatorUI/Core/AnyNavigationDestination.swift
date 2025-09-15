@@ -46,6 +46,28 @@ extension AnyNavigationDestination: Hashable, Equatable {
 
 }
 
+extension AnyNavigationDestination {
+    @MainActor
+    internal func mappedNavigationView(for state: NavigationState) -> AnyView {
+        let mapped = state.navigationMap?(wrapped) ?? wrapped
+        if let modifier = state.navigationModifier {
+            return AnyView(modifier(mapped))
+        } else {
+            return mapped.asAnyView()
+        }
+    }
+
+    @MainActor
+    internal func mappedPresentationView(for state: NavigationState) -> AnyView {
+        let mapped = state.navigationMap?(wrapped) ?? wrapped
+        if let modifier = state.presentationModifier {
+            return AnyView(modifier(mapped))
+        } else {
+            return mapped.asAnyView()
+        }
+    }
+}
+
 extension View {
 
     /// Enables/disables auto destination mode.

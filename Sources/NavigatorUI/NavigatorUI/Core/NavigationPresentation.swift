@@ -111,10 +111,10 @@ internal struct NavigationPresentationModifiers: ViewModifier {
         ManagedPresentationView {
             if destination.method.requiresNavigationStack {
                 ManagedNavigationStack {
-                    destination()
+                    destination.mappedPresentationView(for: state)
                 }
             } else {
-                destination()
+                destination.mappedPresentationView(for: state)
             }
         }
     }
