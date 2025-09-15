@@ -30,15 +30,13 @@ struct HomeRootView: View {
                     navigator.navigate(to: destination)
                     return .auto
                 }
-                .navigationModifier { destination in
+                .navigationModifier(inherits: true) { destination in
                     destination()
-                        .tint(.blue)
-                }
-                .presentationModifier { destination in
-                    destination()
-                        .tint(.green)
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbarBackground(.hidden, for: .navigationBar)
                 }
         }
+        .tint(.white)
     }
 }
 

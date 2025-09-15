@@ -152,8 +152,11 @@ nonisolated public class NavigationState: ObservableObject, @unchecked Sendable 
         child.parent = self
         child.publisher = publisher
         child.navigationMap = navigationMapInherits ? navigationMap : nil
+        child.navigationMapInherits = navigationMapInherits
         child.navigationModifier = navigationModifierInherits ? navigationModifier : nil
+        child.navigationModifierInherits = navigationModifierInherits
         child.presentationModifier = presentationModifierInherits ? presentationModifier : nil
+        child.presentationModifierInherits = presentationModifierInherits
         log(.lifecycle(.adding(child.id)))
     }
 
