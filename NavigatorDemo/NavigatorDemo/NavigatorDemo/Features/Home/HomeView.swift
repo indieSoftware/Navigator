@@ -30,17 +30,9 @@ struct HomeRootView: View {
                     navigator.navigate(to: destination)
                     return .auto
                 }
-                .navigationMap { destination in
-                    switch destination {
-                    case HomeDestinations.mapped:
-                        HomeDestinations.pageN(99)
-                    default:
-                        destination
-                    }
-                }
                 .navigationModifier { destination in
                     destination()
-                        .tint(.pink)
+                        .tint(.blue)
                 }
                 .presentationModifier { destination in
                     destination()

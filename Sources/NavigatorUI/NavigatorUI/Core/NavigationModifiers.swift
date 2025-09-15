@@ -101,6 +101,40 @@ extension View {
 
 }
 
+extension Navigator {
+    @MainActor
+    public func mappedNavigationView(for destination: any NavigationDestination) -> AnyView {
+        state.mappedNavigationView(for: destination)
+    }
+
+    @MainActor
+    public func mappedPresentationView(for destination: any NavigationDestination) -> AnyView {
+        state.mappedPresentationView(for: destination)
+    }
+}
+
+extension NavigationState {
+    @MainActor
+    internal func mappedNavigationView(for destination: any NavigationDestination) -> AnyView {
+        let mapped = navigationMap?(destination) ?? destination
+        if let modifier = navigationModifier {
+            return AnyView(modifier(mapped))
+        } else {
+            return mapped.asAnyView()
+        }
+    }
+
+    @MainActor
+    internal func mappedPresentationView(for destination: any NavigationDestination) -> AnyView {
+        let mapped = navigationMap?(destination) ?? destination
+        if let modifier = presentationModifier {
+            return AnyView(modifier(mapped))
+        } else {
+            return mapped.asAnyView()
+        }
+    }
+}
+
 internal struct NavigationExecutionModifier: ViewModifier {
     @Environment(\.navigator) var navigator
     let block: (Navigator) -> Void

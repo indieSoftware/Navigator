@@ -114,7 +114,7 @@ public struct ManagedNavigationStack<Content: View>: View {
             NavigationStack(path: $state.path) {
                 content
                     .navigationDestination(for: AnyNavigationDestination.self) { destination in
-                        destination.mappedNavigationView(for: state)
+                        state.mappedNavigationView(for: destination.wrapped)
                     }
             }
             .modifier(NavigationSceneStorageModifier(state: state, name: name))
@@ -147,7 +147,7 @@ public struct ManagedNavigationStack<Content: View>: View {
                 NavigationStack(path: $state.path) {
                     content
                         .navigationDestination(for: AnyNavigationDestination.self) { destination in
-                            destination.mappedNavigationView(for: state)
+                            state.mappedNavigationView(for: destination.wrapped)
                         }
                 }
             }

@@ -44,6 +44,15 @@ struct ApplicationRootView: View {
             }
             // enable presentation options on the navigation root (this must be *inside* the root navigator)
             .navigationAutoReceive(AppRootDestinations.self)
+            // setup known mapping for all views
+            .navigationMap { destination in
+                switch destination {
+                case HomeDestinations.mapped:
+                    HomeDestinations.pageN(99)
+                default:
+                    destination
+                }
+            }
             // setup managed navigation root
             .navigationRoot(resolver.navigator)
             // provide application dependencies

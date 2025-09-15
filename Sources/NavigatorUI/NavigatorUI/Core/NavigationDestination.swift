@@ -146,18 +146,6 @@ extension NavigationDestination {
 }
 
 extension NavigationDestination {
-    @MainActor
-    public func mappedNavigationView(from navigator: Navigator) -> AnyView {
-        AnyNavigationDestination(self).mappedNavigationView(for: navigator.state)
-    }
-
-    @MainActor
-    public func mappedPresentationView(from navigator: Navigator) -> AnyView {
-        AnyNavigationDestination(self).mappedPresentationView(for: navigator.state)
-    }
-}
-
-extension NavigationDestination {
 
     /// Convenience functions return view.
     @available(*, deprecated, message: "Use plain value instead e.g. 'MyDestination.page2' and not 'MyDestination.page2.view'.")
