@@ -238,7 +238,7 @@ extension NavigationState {
     // Check to see if destination type known to this navigation node.
     internal func checkKnown(destination: Any) {
         #if DEBUG
-        guard let destination = destination as? NavigationDestination, known(destination: destination) == false else {
+        guard let destination = destination as? any NavigationDestination, known(destination: destination) == false else {
             return
         }
         if let parent = recursiveFindParent({ $0.known(destination: destination) }) {

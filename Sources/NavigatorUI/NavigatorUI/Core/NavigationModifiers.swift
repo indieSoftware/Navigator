@@ -102,11 +102,17 @@ extension View {
 }
 
 extension Navigator {
+    /// Retrieves mapped values for external navigation modes.
+    ///
+    /// See `navigationModifier` for examples.
     @MainActor
     public func mappedNavigationView(for destination: any NavigationDestination) -> AnyView {
         state.mappedNavigationView(for: destination)
     }
 
+    /// Retrieves mapped values for external presentation modes.
+    ///
+    /// See `presentationModifier` for examples.
     @MainActor
     public func mappedPresentationView(for destination: any NavigationDestination) -> AnyView {
         state.mappedPresentationView(for: destination)
