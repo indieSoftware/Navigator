@@ -70,7 +70,6 @@ internal struct HomeDestinationsView: View {
             // This presented view can not be globally dismissed via navigation action, deep links, etc.
             NestedHomeContentView(title: "Via Cover")
                 .navigationLocked()
-
         }
     }
 }
@@ -83,9 +82,9 @@ extension HomeDestinations {
         case .home, .page2, .page3, .pageN, .mapped, .external:
             .push
         case .presented1:
-            .sheet
+            .managedSheet
         case .presented2:
-            .cover
+            .managedCover
         }
     }
     

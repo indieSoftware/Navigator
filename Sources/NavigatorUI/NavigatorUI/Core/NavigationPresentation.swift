@@ -9,16 +9,36 @@ import SwiftUI
 
 extension Navigator {
 
-    /// Convenience method resents a sheet
+    /// Convenience method resents a sheet/managed sheet.
+    ///
+    /// Managed attribute (wrapped in a ManagedNavigationStack) can be used to override NavigationDestination's default method. Otherwise
+    /// the method will take its cue from the destination.method (true if method == .managedCover, false if anything else).
     @MainActor
-    public func present(sheet: any NavigationDestination) {
-        navigate(to: sheet, method: .sheet)
+    public func present(sheet destination: any NavigationDestination, managed: Bool? = nil) {
+        if let managed {
+            let method: NavigationMethod = managed ? .managedSheet : .sheet
+            navigate(to: destination, method: method)
+        } else if case .managedSheet = destination.method {
+            navigate(to: destination, method: .managedSheet)
+        } else {
+            navigate(to: destination, method: .sheet)
+        }
     }
 
-    /// Convenience method resents a cover
+    /// Convenience method resents a cover/managed cover.
+    ///
+    /// Managed attribute (wrapped in a ManagedNavigationStack) can be used to override NavigationDestination's default method. Otherwise
+    /// the method will take its cue from the destination.method (true if method == .managedCover, false if anything else).
     @MainActor
-    public func present(cover: any NavigationDestination) {
-        navigate(to: cover, method: .cover)
+    public func present(cover destination: any NavigationDestination, managed: Bool? = nil) {
+        if let managed {
+            let method: NavigationMethod = managed ? .managedCover : .cover
+            navigate(to: destination, method: method)
+        } else if case .managedCover = destination.method {
+            navigate(to: destination, method: .managedCover)
+        } else {
+            navigate(to: destination, method: .cover)
+        }
     }
 
     /// Returns true if the current ManagedNavigationStack or navigationDismissible is presenting.

@@ -84,17 +84,6 @@ struct HomeContentView: View {
             SendResumeAuthenticatedView()
             ContentSheetSection()
             ContentCheckpointSection()
-            Section("Navigation Errors") {
-                Button("Button Push Misplaced Registration") {
-                    navigator.push(MisplacedDestinations.misplaced)
-                }
-                Button("Button Push Missing Registration") {
-                    navigator.push(MissingDestinations.missing)
-                }
-                Button("Button Push Settings Destination") {
-                    navigator.push(SettingsDestinations.page2)
-                }
-            }
             if UIDevice.current.userInterfaceIdiom == .pad {
                 Section("Layout") {
                     Button("Toggle Root View Type") {
@@ -227,10 +216,8 @@ struct HomePageNView: View {
 struct NestedHomeContentView: View {
     var title: String
     var body: some View {
-        ManagedNavigationStack {
-            // Demonstrates using destinations to build root views that may have dependencies.
-            HomeDestinations.home(title)
-        }
+        // Demonstrates using destinations to build root views that may have dependencies.
+        HomeDestinations.home(title)
     }
 }
 
@@ -246,13 +233,3 @@ struct NestedHomeContentView: View {
         )
 }
 #endif
-
-nonisolated enum MisplacedDestinations: NavigationDestination {
-    case misplaced
-    var body: some View { Text("Missing Destination") }
-}
-
-nonisolated enum MissingDestinations: NavigationDestination {
-    case missing
-    var body: some View { Text("Missing Destination") }
-}

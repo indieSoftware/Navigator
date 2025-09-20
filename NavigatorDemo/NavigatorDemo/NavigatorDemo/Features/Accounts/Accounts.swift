@@ -51,7 +51,6 @@ struct AccountsView: View {
                 NavigationLink("Disclaimers", value: AccountDestinations.disclaimers(account))
             }
         }
-//        .navigationDestination(AccountDestinations.self)
     }
 }
 

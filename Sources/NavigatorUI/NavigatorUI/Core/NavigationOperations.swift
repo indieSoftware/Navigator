@@ -173,7 +173,7 @@ extension NavigationState {
         if autoDestinationMode {
             if let destination = destination as? AnyNavigationDestination {
                 if known(destination: destination.wrapped) {
-                    path.append(destination.wrapped)
+                    push(raw: destination.wrapped)
                 } else {
                     path.append(destination)
                 }

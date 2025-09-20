@@ -119,7 +119,7 @@ extension NavigationDestination {
         .auto
     }
 
-    /// Convenience shortcut returns AnyView.
+    /// Convenience shortcut to implicitly return AnyView.
     @MainActor public func callAsFunction() -> AnyView {
         AnyView(body)
     }
@@ -217,9 +217,6 @@ extension NavigationState {
 
     /// Register the specified navigation destination type with the current navigation state.
     internal func register<D: NavigationDestination>(_ type: D.Type) -> Void {
-        if owner != .stack {
-            log(.warning("\(D.self) registration not within a ManagedNavigationStack (presentation only?)"))
-        }
         navigationDestinations.insert(ObjectIdentifier(D.self))
     }
 

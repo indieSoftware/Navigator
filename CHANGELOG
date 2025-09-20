@@ -5,6 +5,7 @@
 * Adds new `navigationMap` modifier for multi-module application support
 * Adds new `navigationModifier` modifier for commonly needed pushed view attributes
 * Adds new `presentationModifier` modifier for commonly needed presented view attributes
+* Updates Navigator's present(sheet:) and present(cover:) functions to allow managed presentations
 
 ### 1.2.0
 

@@ -16,6 +16,9 @@ It supports...
 * Both Declarative and Imperative navigation and control.
 * Navigation state restoration.
 * Event logging and debugging.
+* No navigationDestination registration operations are required.
+
+You might want to reread that last bullet point again...
 
 Navigator is written entirely in Swift and SwiftUI, and supports iOS 16 and above.
 
