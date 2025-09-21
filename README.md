@@ -31,7 +31,7 @@ Navigator is written entirely in Swift and SwiftUI, and supports iOS 16 and abov
 ### Defining Navigation Destinations
 Destinations (or routes) are typically just public lists of enumerated values, one for each view desired.
 ```swift
-public enum HomeDestinations: NavigationDestination {
+nonisolated public enum HomeDestinations: NavigationDestination {
 
     case page2
     case page3
@@ -39,9 +39,9 @@ public enum HomeDestinations: NavigationDestination {
     
 }
 ```
-SwiftUI requires navigation destination values to be `Hashable`, and so do we.
+SwiftUI requires navigation destination values to be `Hashable`, and so do we. 
 
-Next, we need to provide each destination with a variable that returns the correct view for each case. That's easy, since `NavigationDestination` also conforms to `View`! 
+With our enum in place, we now need to provide each destination with a variable that returns the correct view for each case. That's easy, since `NavigationDestination` also conforms to `View`! 
 
 Just provide the view body as part of the enumeration.
 ```swift
