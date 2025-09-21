@@ -1,6 +1,6 @@
 # Navigator Changelog
 
-### 1.2.3
+### 1.2.2
 
 * Updates documentation to illustrate no longer needing `navigationDestination` registration in the majority of cases
 * Fixes a few non-Navigator issues in the demo app for Xcode 26
