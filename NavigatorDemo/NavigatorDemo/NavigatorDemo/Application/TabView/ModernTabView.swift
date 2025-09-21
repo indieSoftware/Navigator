@@ -20,6 +20,7 @@ struct ModernTabView : View {
                 }
             }
         }
+        .tint(.primary)
         // setup tab switching
         .onNavigationReceive { (tab: RootTabs, navigator: Navigator) in
             if tab == selectedTab {

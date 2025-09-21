@@ -2,11 +2,13 @@
 
 Building NavigationDestinations that access the environment and other use cases 
 
-## External NavigationDestinations
+## Overview
 
 Earlier we demonstrated how to provide ``NavigationDestination`` types with a view body that returns the correct view for that type.
 ```swift
-extension HomeDestinations: NavigationDestination {
+    ...
+    case pageN(Int)
+
     public var body: some View {
         switch self {
         case .page2:
@@ -24,7 +26,9 @@ It's a powerful technique, but what if we can't construct a specific view withou
 
 Simple. Just delegate the view building to a standard SwiftUI view!
 ```swift
-extension HomeDestinations: NavigationDestination {
+    ...
+    case pageN(Int)
+
     public var body: some View {
         HomeDestinationsView(destination: self)
     }
@@ -84,7 +88,7 @@ struct HomePageNView: View {
 ```
 *See the 'DemoDependency.swift' file in the NavigatorDemo project for a possible dependency injection mechanism.*
 
-## NavigationDestinations within Views
+### NavigationDestinations within Views
 
 This technique also allows us to construct and use fully functional views elsewhere in our view code. Consider.
 ```swift
@@ -100,7 +104,7 @@ struct RootHomeView: View {
 Remember, our enumerated values are Views! Just drop the value into a view to obtain a fully resolved `HomePageView` and view model from `HomeDestinationsView`, 
 complete and ready to go.
 
-## Custom Sheets using NavigationDestination
+### Custom Sheets using NavigationDestination
 Let's demonstrate that again using a custom presentation mechanism with detents.
 
 Only this time instead of evaluating the enumerated value directly we'll do the same using a destination variable.
@@ -127,10 +131,48 @@ struct CustomSheetView: View {
 ```
 Setting the variable passes the desired destination to the sheet closure via the `$showSettings` binding. Which again allows us to directly evaluate the value and obtain a fully resolved view ready for presentation.
 
-## Cross Module View Dependencies
-Another technique that might not be apparent and you might have missed at first glance is how this gives us the ability to pass required views across features.
+Note that the `.navigationDismissible()` modifier "registers" our custom sheet with Navigator, and allows the view to be dismissed as needed when deep links and routing occurs elsewhere in the application. (See: <doc:Dismissible>.)
 
-Take another look at our `HomeDestinationsView`.
+### Modular Views
+
+We can also use this technique to expose a module's feature views *without* exposing exposing the views themselves. Consider.
+```swift
+public enum OrderDestinations: NavigationDestination {
+    case orderSummaryCard(Order)
+    case order(Item)
+    case listPastOrders
+
+    public var body: some View {
+        OrderDestinationsView(destination: self)
+    }
+}
+```
+Again, this lets us obtain and use fully constructed views from a module *without* seeing the actual views that support them, and *without* knowing any details of how they're constructed.
+```swift
+struct CustomView: View {
+    @Environment(\.navigator) var navigator
+    @State var order: Order
+    var body: some View {
+        VStack {
+            ...
+            OrderDestinations.orderSummaryCard(order)
+            ...
+        }
+    }
+}
+```
+And now the order summary card is in our view, doing it's thing.
+
+Couple that with Navigator 1.2's ability to avoid the need for `navigationDestination` registrations, and you have an extremely powerful system at your command. 
+
+If the `orderSummaryCard` has a button that takes them to an internal `OrderSummaryDetails` page, that's fine.
+
+It just works.
+
+### Cross Module View Dependencies
+Another technique that might not be apparent is how this gives us the ability to pass required views across features.
+
+Take another look at our original `HomeDestinationsView`.
 ```swift
 private struct HomeDestinationsView: View {
     let destination: HomeDestinations

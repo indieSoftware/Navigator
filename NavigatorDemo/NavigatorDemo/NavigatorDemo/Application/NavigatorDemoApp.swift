@@ -50,14 +50,14 @@ extension NavigatorDemoApp{
 
     nonisolated struct InitializationTask {
         let priority: TaskPriority
-        let operation: @Sendable () async -> Void
+        let operation: @isolated(any) @Sendable () async -> Void
     }
 
     nonisolated static let tasks: [InitializationTask] = [
-        .init(priority: .high, operation: task1),
-        .init(priority: .high, operation: task2),
-        .init(priority: .low, operation: task3),
-        .init(priority: .medium, operation: task4),
+        .init(priority: .high, operation: { await task1() }),
+        .init(priority: .high, operation: { await task2() }),
+        .init(priority: .low, operation: { await task3() }),
+        .init(priority: .medium, operation: { await task4() }),
     ]
 
 }

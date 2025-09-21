@@ -24,7 +24,6 @@ struct HomeRootView: View {
     var body: some View {
         ManagedNavigationStack(scene: RootTabs.home.id) {
             HomeContentView(viewModel: HomeContentViewModel(resolver: viewModel.resolver, title: "Home Navigation"))
-                .tint(.white)
                 .navigationCheckpoint(KnownCheckpoints.home)
                 .onNavigationReceive { (destination: HomeDestinations, navigator) in
                     navigator.navigate(to: destination)
@@ -36,7 +35,6 @@ struct HomeRootView: View {
                         .toolbarBackground(.hidden, for: .navigationBar)
                 }
         }
-        .tint(.white)
     }
 }
 

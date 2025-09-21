@@ -6,7 +6,7 @@
 
 Advanced Navigation Support for SwiftUI.
 
-## Navigator 1.2.1
+## Navigator 1.2.3
 
 Navigator provides SwiftUI with a simple yet powerful navigation layer based on NavigationStack. 
 
@@ -83,7 +83,7 @@ struct RootView: View {
 ```
 It's that simple.
 
-ManagedNavigationStack creates a NavigationStack for you and installs the associated Navigator environment variable that "manages" the stack. It provides the NavigationPath and also supports navigation options like automatically presenting sheets and fullScreenCovers.
+ManagedNavigationStack creates a NavigationStack for you and installs the associated Navigator environment variable that "manages" that particular NavigationStack. It provides it with the NavigationPath and also supports navigation options like automatically presenting sheets and fullScreenCovers.
 
 Those with sharp eyes might have noticed something missing in the above code. We're using `NavigationLink` with a destination value, but where's the `.navigationDestination(for: HomeDestinations.self) { ... )` modifier?
 
@@ -191,7 +191,7 @@ extension HomeDestinations {
 ```
 In this case, should `navigator.navigate(to: HomeDestinations.page3)` be called, Navigator will automatically present that view in a sheet. All other views will be pushed onto the navigation stack.
 
-The current navigation methods are: .push (default), .sheet, .cover, and .send.
+The current navigation methods are: .push (default), .sheet, .managedSheet, .cover, .managedCover, and .send.
 
 Predefined methods can be overridden using Navigator's `navigate(to:method:)` function.
 

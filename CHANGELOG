@@ -1,5 +1,10 @@
 # Navigator Changelog
 
+### 1.2.3
+
+* Updates documentation to illustrate no longer needing `navigationDestination` registration in the majority of cases
+* Fixes a few non-Navigator issues in the demo app for Xcode 26
+
 ### 1.2.1
 
 * Adds new `navigationMap` modifier for multi-module application support
