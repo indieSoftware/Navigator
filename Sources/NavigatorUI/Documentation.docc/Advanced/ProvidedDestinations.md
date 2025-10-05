@@ -65,7 +65,7 @@ But... how?
 
 It asks Navigator for them, of course.
 
-### Registering NavigationProvidedDestination Destinations
+### Registering Provided Destinations
 
 But that just kicks the can down the road. *Where does Navigator get them from?*
 
@@ -104,9 +104,9 @@ After all, it's the app that sees all and knows all. And in this case, it's also
 
 The application knows about the `Orders` and `Products` modules, and it and only it can see into them to get the public views needed. 
 
-And in the case of the `Products` module, it can't even see the views. It just asks `ProductDestinations` to provide what's needed. (A `NavigationDestination` type.)
+And in the case of the `Products` module, it can't even see the views. It just asks `ProductDestinations` to provide what's needed. (ProductDestinations is a `NavigationDestination` type.)
 
->Note: This concept works hand in hand with the concept of Navigation auto-registration developed for Navigator 1.2. One can get and present a new orders view or product view without caring what views that view may push or present.
+>Note: This concept works hand in hand with the concept of NavigationDestination auto-registration developed for Navigator 1.2. One can get and present a new orders view or product view without caring what views that view may push or present.
 
 ### Exposed Destinations
 
@@ -117,7 +117,7 @@ nonisolated public enum OrdersExternalViews: NavigationProvidedDestination {
     case homeAddressEntryScreen
 }
 ```
-Here the module is basically saying, "Hey, I may want to show the screen that lets the user enter his home address. Somebody needs to give it me."
+Here the `Orders` module is basically saying, "Hey, I may want to show the screen that lets the user enter his home address. Somebody needs to give it me."
 
 With that someone being the application, of course.
 ```swift
@@ -125,7 +125,7 @@ With that someone being the application, of course.
     ProfileDestinations.addressEntry // only one view, so no switch needed
 }
 ```
-This makes it much, much easier to create modular applications that minimizes the known dependencies between modules. Shared dependencies for common cases, and custom external dependencies when and where needed.
+This makes it much, much easier to create modular applications that minimizes the known dependencies between modules. Use shared dependencies for common cases, and custom external dependencies when and where needed.
 
 The alternative is for module A to import module B and vice-versa... and that tends to eliminate most the benefits we gained from modularization in the first place.
 
@@ -189,7 +189,7 @@ nonisolated public enum SharedDestinations: NavigationDestination {
     }
 }
 ```
-One could also follow the behavior of `NavigationProvidedView`, returning mocks in DEBUG mode and launch an "Oops!" page so your users could tell you that something is awry.
+One could also follow the behavior of `NavigationProvidedView`, returning mocks in DEBUG mode and launch an "Oops!" page so your users could tell you that something is awry should this code somehow make it into production.
 
 It's up to you.
 
@@ -218,18 +218,18 @@ nonisolated public enum HomeDestinations: NavigationDestination {
 ```
 Here we provide known views for most of our cases. But for `external` we ask the application to provide it for us.
 ```swift
-.onNavigationProvidedView { (destination: HomeDestinations) in
+.onNavigationProvidedView(HomeDestinations.self) { destination in
     switch destination {
     case .external:
         SomeExternalView()
     default:
-        destination
+        EmptyView()
     }
 }
 ```
-Note that in the default we're seemingly reentering HomeDestinations again, but that's just to make the compiler happy. That case would have been caught earlier.
+Note that in the default we're seemingly return EmptyView for all of the other cases, but that's just to make the compiler happy. All of the other cases would have been caught and handled earlier in the original `switch` statement.
 
-All in all, use this particular technique judiciously. As we saw earlier it's usually better for a module to expose a custom enumeration explicitly defined to manage external view dependencies.
+All in all, use this particular technique judiciously. As we saw earlier it's usually better for a module to expose a custom enumeration explicitly exposed and defined to manage external view dependencies.
 
 ### Dependency Injection and NavigationViewProviding
 
@@ -288,7 +288,7 @@ internal struct HomeDestinationsView: View {
     }
 }
 ```
-The module described its dependencies, the application provided them, the view accessed them, and we're done. And in this case we *know* we have what we need.
+The module described its dependencies, the application provided them, and the view accessed them. And in this case we *know* we have what we need.
 
 That said, it's a lot easier to use `NavigationProvidedDestination` and eliminate all of the extra boilerplate and moving parts.
 
