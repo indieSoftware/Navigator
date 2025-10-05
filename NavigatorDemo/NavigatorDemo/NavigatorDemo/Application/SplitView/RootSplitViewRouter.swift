@@ -67,6 +67,8 @@ public struct RootSplitViewRouter: NavigationRouteHandling {
                 .popAll(in: RootTabs.settings.id),
                 .send(SettingsDestinations.page3)
             )
+        case .external:
+            navigator.push(HomeDestinations.external)
         }
     }
 }

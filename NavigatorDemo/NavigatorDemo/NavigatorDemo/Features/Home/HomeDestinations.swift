@@ -1,6 +1,5 @@
 //
-//  TestPage.swift
-//  Nav5
+//  HomeDestinations.swift
 //
 //  Created by Michael Long on 11/10/24.
 //
@@ -16,6 +15,8 @@ nonisolated public enum HomeDestinations: Codable, NavigationDestination {
     case pageN(Int)
     case mapped
     case external
+    case external2
+    case external3
     case presented1
     case presented2
 
@@ -59,7 +60,18 @@ internal struct HomeDestinationsView: View {
             EmptyView()
 
         case .external:
-            // Demonstrates getting view itself from unknown source
+            // Demonstrates using NavigationProvidedDestination type to obtain views from a registered navigation view provider
+            HomeExternalViews.external
+
+        case .external2:
+            // Demonstrates getting a specific view from a registered navigation view provider
+            // and providing a specific placeholder view if view not found
+            NavigationProvidedView(for: HomeDestinations.external2) {
+                Text("External View Placeholder")
+            }
+
+        case .external3:
+            // Demonstrates old DI-specific getting view itself from unknown source
             resolver.homeExternalViewProvider.view(for: .external)
 
         case .presented1:
@@ -76,10 +88,10 @@ internal struct HomeDestinationsView: View {
 
 extension HomeDestinations {
 
-    // not required but shows possibilities in predefining navigation destination types
+    // not required but shows possibilities in predefining navigation destination methods
     public var method: NavigationMethod {
         switch self {
-        case .home, .page2, .page3, .pageN, .mapped, .external:
+        case .home, .page2, .page3, .pageN, .mapped, .external, .external2, .external3:
             .push
         case .presented1:
             .managedSheet
@@ -89,3 +101,6 @@ extension HomeDestinations {
     }
     
 }
+
+// convenience
+typealias Home = HomeDestinations

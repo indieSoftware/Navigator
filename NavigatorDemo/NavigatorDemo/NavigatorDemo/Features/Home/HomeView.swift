@@ -25,7 +25,7 @@ struct HomeRootView: View {
         ManagedNavigationStack(scene: RootTabs.home.id) {
             HomeContentView(viewModel: HomeContentViewModel(resolver: viewModel.resolver, title: "Home Navigation"))
                 .navigationCheckpoint(KnownCheckpoints.home)
-                .onNavigationReceive { (destination: HomeDestinations, navigator) in
+                .onNavigationReceive { (destination: Home, navigator) in
                     navigator.navigate(to: destination)
                     return .auto
                 }
@@ -51,30 +51,38 @@ struct HomeContentView: View {
     var body: some View {
         List {
             Section("Navigation Actions") {
-                NavigationLink(to: HomeDestinations.page2) {
+                NavigationLink(to: Home.page2) {
                     Text("Link to Home Page 2!")
                 }
-                NavigationLink(to: HomeDestinations.pageN(44)) {
+                NavigationLink(to: Home.pageN(44)) {
                     Text("Link to Home Page 44!")
                 }
-                NavigationLink(to: HomeDestinations.mapped) {
+                NavigationLink(to: Home.mapped) {
                     Text("Link to Mapped View! (99)")
                 }
-                NavigationLink(to: HomeDestinations.external) {
-                    Text("Link to External View!")
-                }
                 Button("Button Navigate to Home Page 55") {
-                    navigator.navigate(to: HomeDestinations.pageN(55))
+                    navigator.navigate(to: Home.pageN(55))
                 }
                 Button("Button Push to Home Page 56") {
-                    navigator.navigate(to: HomeDestinations.pageN(56))
+                    navigator.navigate(to: Home.pageN(56))
+                }
+            }
+            Section("Externally Provided Views") {
+                NavigationLink(to: Home.external) {
+                    Text("Link to External View 1!")
+                }
+                NavigationLink(to: Home.external2) {
+                    Text("Link to External View 2!")
+                }
+                NavigationLink(to: MissingDestinations.missing) {
+                    Text("Link to Missing View Provider!")
                 }
             }
             Section("Send Actions") {
                 Button("Send Home Page 2, 3") {
                     navigator.send(
-                        HomeDestinations.page2,
-                        HomeDestinations.page3
+                        Home.page2,
+                        Home.page3
                     )
                 }
             }
@@ -121,10 +129,10 @@ struct HomePage2View: View {
     var body: some View {
         List {
             Section("Navigation Actions") {
-                NavigationLink(to: HomeDestinations.page3) {
+                NavigationLink(to: Home.page3) {
                     Text("Link to Home Page 3!")
                 }
-                NavigationLink(to: HomeDestinations.pageN(55)) {
+                NavigationLink(to: Home.pageN(55)) {
                     Text("Link to Home Page 55!")
                 }
             }
@@ -158,11 +166,11 @@ struct HomePage3View: View {
     var body: some View {
         List {
             Section("Navigation Actions") {
-                NavigationLink(to: HomeDestinations.pageN(initialValue)) {
+                NavigationLink(to: Home.pageN(initialValue)) {
                     Text("Link to Home Page 66!")
                 }
                 Button("Button Push to Home Page 77") {
-                    navigator.push(HomeDestinations.pageN(77))
+                    navigator.push(Home.pageN(77))
                 }
             }
             ContentSheetSection()
@@ -194,9 +202,9 @@ struct HomePageNView: View {
                 Button("Send Home Page 2, 88, 99") {
                     navigator.send(
                         NavigationAction.popAll(in: RootTabs.home.id),
-                        HomeDestinations.page2,
-                        HomeDestinations.pageN(88),
-                        HomeDestinations.pageN(99)
+                        Home.page2,
+                        Home.pageN(88),
+                        Home.pageN(99)
                     )
                 }
                 Button("Route To Settings Page 2") {

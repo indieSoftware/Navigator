@@ -13,12 +13,12 @@ public struct AnyNavigationDestination {
     public var method: NavigationMethod
 
     @MainActor
-    init<D: NavigationDestination>(_ destination: D) {
+    public init<D: NavigationDestination>(_ destination: D) {
         self.wrapped = destination
         self.method = destination.method
     }
 
-    init(wrapped: any NavigationDestination, method: NavigationMethod) {
+    public init(wrapped: any NavigationDestination, method: NavigationMethod) {
         self.wrapped = wrapped
         self.method = method
     }
@@ -78,11 +78,11 @@ extension View {
     ///     navigator.navigate(to: UnregisteredDestination.pageN(55))
     /// }
     /// ```
-    /// This even works with `NavigationLink(value:label)`!
+    /// This even works with `NavigationLink` and pushed values. Just use `NavigationLink(to:label:)` in your code.
     /// ```swift
     /// import NavigatorUI
     ///
-    /// NavigationLink(value: UnregisteredDestination.page3) {
+    /// NavigationLink(to: UnregisteredDestination.page3) {
     ///     Text("Link to Page 3!")
     /// }
     /// ```

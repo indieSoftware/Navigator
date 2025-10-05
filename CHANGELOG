@@ -1,5 +1,9 @@
 # Navigator Changelog
 
+### 1.3.0
+
+* Adds NavigationProvidedDestination, NavigationProvidedView, and onNavigationProvidedView for easier modular application support
+
 ### 1.2.2
 
 * Updates documentation to illustrate no longer needing `navigationDestination` registration in the majority of cases

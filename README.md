@@ -6,7 +6,7 @@
 
 Advanced Navigation Support for SwiftUI.
 
-## Navigator 1.2.2
+## Navigator 1.3.0
 
 Navigator provides SwiftUI with a simple yet powerful navigation layer based on NavigationStack. 
 
@@ -14,6 +14,7 @@ This is *not* just another push/pop navigation stack library. It supports...
 
 * Simple and easy navigation linking and presentation of views.
 * Coordination patterns with well-defined separation of concerns. 
+* Extensive support for modular applications including cross-module navigation and views.
 * True deep linking and internal application navigation via navigation send.
 * Easily returning to a specific spot in the navigation tree via navigation checkpoints.
 * Returning callback values via navigation checkpoints.
@@ -384,6 +385,54 @@ Calling the destination as a function obtains a fully resolved `HomePageView` an
 complete and ready to go.
 
 Check out the NavigatorDemo project for a more thorough example of this dependency injection mechanism.
+
+### Modular Applications
+
+NavigationDestination works well for situations where the required views can be seen and defined in the destination's view body. But what happens in modular applications when that information is **not** available to the module in question?
+
+Just define your destinations as conforming to `NavigationProvidedDestination`. 
+
+Consider an application that wants to provide feature modules with a list of views that they can use and present. Just put the following destination in a `Shared` or `Common` module.
+```swift
+nonisolated public enum SharedDestinations: NavigationProvidedDestination {
+    case newOrder
+    case orderDetails(Order)
+    case produceDetails(Product)
+}
+```
+Conforming to `NavigationProvidedDestination` tells Navigator (and Swift) that the missing destinations will be provided elsewhere in the application.
+
+Then in your application root, simply register and provide the missing dependencies for that type.
+```swift
+import Shared
+import Orders
+import Products
+import NavigatorUI
+import SwiftUI
+
+struct ContentView: View {
+    let navigator: Navigator = .init(configuration: .init())
+    var body: some View {
+        RootTabView()
+            // provide Shared views
+            .onNavigationProvidedView(SharedDestinations.self) {
+                switch $0 {
+                case .newOrder:
+                    NewOrderView()
+                case .orderDetails(let order:
+                    OrderDetailsView(order)
+                case .produceDetails(let product):
+                    ProductDestinations.details(product)
+                }
+            }
+            // setup managed navigation root
+            .navigationRoot(navigator)
+    }
+}
+```
+This works because the application sees all and knows all and as such it can provide the missing views from the 'Orders' and 'Products' module.
+
+See the [documentation](https://hmlongco.github.io/Navigator/documentation/navigatorui/provideddestinations) for more.
 
 ## Documentation
 

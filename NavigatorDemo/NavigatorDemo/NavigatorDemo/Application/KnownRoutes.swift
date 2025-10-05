@@ -18,4 +18,5 @@ nonisolated public enum KnownRoutes: NavigationRoutes {
     case settings
     case settingsPage2
     case settingsPage3
+    case external
 }
