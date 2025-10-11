@@ -48,6 +48,7 @@ class HomeContentViewModel: ObservableObject {
 struct HomeContentView: View {
     @StateObject var viewModel: HomeContentViewModel
     @Environment(\.navigator) var navigator
+    @State var destination: Home?
     var body: some View {
         List {
             Section("Navigation Actions") {
@@ -64,8 +65,9 @@ struct HomeContentView: View {
                     navigator.navigate(to: Home.pageN(55))
                 }
                 Button("Button Push to Home Page 56") {
-                    navigator.navigate(to: Home.pageN(56))
+                    destination = .pageN(56)
                 }
+                .navigate(to: $destination)
             }
             Section("Externally Provided Views") {
                 NavigationLink(to: Home.external) {

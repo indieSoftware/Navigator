@@ -96,7 +96,7 @@ nonisolated public class NavigationState: ObservableObject, @unchecked Sendable 
 
     /// Use AnyNavigationDestination for all pushed NavigationDestination values, avoiding need to register destinations
     internal var autoDestinationMode: Bool {
-        autoDestinationModeOverride ?? configuration?.autoDestinationMode ?? false
+        autoDestinationModeOverride ?? configuration?.autoDestinationMode ?? true
     }
 
     /// set by NavigationAutoDestinationModeModifier
@@ -154,6 +154,7 @@ nonisolated public class NavigationState: ObservableObject, @unchecked Sendable 
         child.configuration = configuration
         child.parent = self
         child.publisher = publisher
+        child.autoDestinationModeOverride = autoDestinationModeOverride
         child.navigationMap = navigationMapInherits ? navigationMap : nil
         child.navigationMapInherits = navigationMapInherits
         child.navigationModifier = navigationModifierInherits ? navigationModifier : nil

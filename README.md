@@ -6,7 +6,7 @@
 
 Advanced Navigation Support for SwiftUI.
 
-## Navigator 1.3.0
+## Navigator 1.3.1
 
 Navigator provides SwiftUI with a simple yet powerful navigation layer based on NavigationStack. 
 
@@ -482,6 +482,7 @@ Michael was also one of Google's [Open Source Peer Reward](https://opensource.go
 * [Medium: Advanced Deep Linking in SwiftUI](https://michaellong.medium.com/advanced-deep-linking-in-swiftui-c0085be83e7c?sk=118d08a22cb02b21dccf9235d78dc74f)
 * [Medium: Navigation Checkpoints in SwiftUI](https://michaellong.medium.com/navigation-checkpoints-in-swiftui-345270388240?sk=a7802f5351fcb3b5cfced714d0bcfaec)
 * [Medium: SwiftUI Navigation With Dismissible](https://michaellong.medium.com/swiftui-navigation-with-dismissible-8de3cab72a4e?sk=dcb743fbb90d59c5775fed33725958b9)
+* [Medium: Eliminating Navigation Registrations in SwiftUI] (https://medium.com/the-swift-cooperative/swiftui-eliminating-navigation-registration-7339691c2887?sk=583c8b1fdc7945501f707ea94020737f)
 * [Medium: Now Previewing Navigator!](https://michaellong.medium.com/now-previewing-navigator-faebf290a1da?sk=88d3ff52057cf0a948279e6be4a15f75)
 * [Navigator Documentation](https://hmlongco.github.io/Navigator/documentation/navigatorui/)
 * [Factory](https://hmlongco.github.io/Factory/)
