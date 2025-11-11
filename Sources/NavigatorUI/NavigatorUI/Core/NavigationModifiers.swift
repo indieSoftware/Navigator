@@ -78,7 +78,7 @@ extension View {
     ///     var body: some View {
     ///         ManagedNavigationStack {
     ///             HomeContentView()
-    ///                 .navigationModifier(inherits: true) { destination in
+    ///                 .presentationModifier(inherits: true) { destination in
     ///                     destination()
     ///                          .tint(.white)
     ///                 }

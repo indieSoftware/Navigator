@@ -53,19 +53,26 @@ struct HomeContentView: View {
         List {
             Section("Navigation Actions") {
                 NavigationLink(to: Home.page2) {
-                    Text("Link to Home Page 2!")
+                    Text("Link to Page 2!")
                 }
                 NavigationLink(to: Home.pageN(44)) {
-                    Text("Link to Home Page 44!")
+                    Text("Link to Page 44!")
                 }
                 NavigationLink(to: Home.mapped) {
                     Text("Link to Mapped View! (99)")
                 }
-                Button("Button Navigate to Home Page 55") {
+                Button("Navigate to Page 55 (Imperative)") {
                     navigator.navigate(to: Home.pageN(55))
                 }
-                Button("Button Push to Home Page 56") {
+                Button("Navigate to Page 56 (Declarative)") {
                     destination = .pageN(56)
+                }
+                Button("Navigate to Page 57 (Timed)") {
+                    destination = .pageN(57)
+                    Task {
+                        try await Task.sleep(nanoseconds: 4_000_000_000)
+                        destination = nil
+                    }
                 }
                 .navigate(to: $destination)
             }

@@ -68,10 +68,10 @@ struct ApplicationRootView: View {
         }
         // setup managed navigation root
         .navigationRoot(resolver.navigator)
-            // provide application dependencies
-            .environment(\.coreDependencies, resolver)
-            .environment(\.homeDependencies, resolver)
-            .environment(\.settingsDependencies, resolver)
+        // provide application dependencies
+        .environment(\.coreDependencies, resolver)
+        .environment(\.homeDependencies, resolver)
+        .environment(\.settingsDependencies, resolver)
     }
 
 }

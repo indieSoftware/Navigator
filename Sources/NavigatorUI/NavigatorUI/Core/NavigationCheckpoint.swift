@@ -117,6 +117,11 @@ extension Navigator {
         state.addCheckpoint(checkpoint)
     }
 
+    @MainActor
+    internal func returnToIndex(_ index: Int) {
+        state.returnToIndex(index)
+    }
+
 }
 
 extension NavigationState {
@@ -139,13 +144,17 @@ extension NavigationState {
             return
         }
         log(.checkpoint(.returning(checkpoint.name)))
-        _ = navigator.dismissAnyChildren()
-        _ = navigator.pop(to: found.index)
+        returnToIndex(found.index)
         // send trigger to specific action handler
         if let identifier = found.identifier {
             let values = NavigationSendValues(navigator: Navigator(state: self), identifier: identifier, value: CheckpointAction())
             publisher.send(values)
         }
+    }
+    
+    @MainActor internal func returnToIndex(_ index: Int) {
+        _ = dismissAnyChildren()
+        _ = pop(to: index)
     }
 
     @MainActor internal func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint<T>, value: T) {
@@ -178,14 +187,12 @@ extension NavigationState {
         }
         checkpoints[entry.key] = entry
         log(.checkpoint(.adding(checkpoint.name)))
-//        log("Navigator \(id) adding checkpoint: \(entry.key)")
     }
 
     internal func cleanCheckpoints() {
         checkpoints = checkpoints.filter {
             guard $1.index <= path.count else {
                 log(.checkpoint(.removing($1.key)))
-//                log("Navigator \(id) removing checkpoint: \($1.key)")
                 return false
             }
             return true

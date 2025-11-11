@@ -11,6 +11,7 @@ import SwiftUI
 public struct AnyNavigationDestination {
     public var wrapped: any NavigationDestination
     public var method: NavigationMethod
+    private var sentinel: Sentinel?
 
     @MainActor
     public init<D: NavigationDestination>(_ destination: D) {
@@ -18,9 +19,10 @@ public struct AnyNavigationDestination {
         self.method = destination.method
     }
 
-    public init(wrapped: any NavigationDestination, method: NavigationMethod) {
+    internal init(wrapped: any NavigationDestination, method: NavigationMethod, sentinel: Sentinel? = nil) {
         self.wrapped = wrapped
         self.method = method
+        self.sentinel = sentinel
     }
 }
 
@@ -134,8 +136,8 @@ extension AnyNavigationDestination: Codable {
         guard let destination = (try container.decode(type)) as? any NavigationDestination else {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "\(typeName) is not decodable.")
         }
-        wrapped = destination
-        method = try container.decode(NavigationMethod.self)
+        let method = try container.decode(NavigationMethod.self)
+        self.init(wrapped: destination, method: method)
     }
 
     // convert NavigationDestination to storable data
@@ -149,4 +151,17 @@ extension AnyNavigationDestination: Codable {
         try container.encode(element)
     }
 
+}
+
+internal class Sentinel {
+    var action: (() -> Void)?
+    init(action: @escaping () -> Void) {
+        self.action = action
+    }
+    deinit {
+        action?()
+    }
+    func reset() {
+        action = nil
+    }
 }

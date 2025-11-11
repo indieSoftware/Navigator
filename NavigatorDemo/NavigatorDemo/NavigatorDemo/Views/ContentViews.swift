@@ -26,21 +26,28 @@ struct ContentSheetSection: View {
     @State var presentCover: HomeDestinations?
     var body: some View {
         Section("Presentation Actions") {
-            Button("Present Sheet (Programatic)") {
+            Button("Present Sheet (Imperative)") {
                 navigator.navigate(to: HomeDestinations.presented1)
             }
 
-            Button("Present Sheet (Binding)") {
+            Button("Present Sheet (Declarative)") {
                 presentSheet = HomeDestinations.presented1
             }
-            .navigate(to: $presentSheet)
+            Button("Present Sheet (Timed)") {
+                presentSheet = HomeDestinations.presented1
+                Task {
+                    try await Task.sleep(nanoseconds: 4_000_000_000)
+                    presentSheet = nil
+                }
+            }
+            .navigate(to: $presentSheet) // shared
 
-            Button("Present Sheet as Cover (Binding)") {
+            Button("Present Sheet as Cover (Declarative)") {
                 presentCover = HomeDestinations.presented1
             }
             .navigate(to: $presentCover, method: .cover)
 
-            Button("Present Locked Cover (Programatic)") {
+            Button("Present Locked Cover (Imperative)") {
                 navigator.navigate(to: HomeDestinations.presented2)
             }
 

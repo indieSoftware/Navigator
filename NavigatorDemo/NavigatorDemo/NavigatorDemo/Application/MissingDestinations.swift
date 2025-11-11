@@ -8,6 +8,6 @@
 import NavigatorUI
 import SwiftUI
 
-enum MissingDestinations: NavigationProvidedDestination {
+nonisolated enum MissingDestinations: NavigationProvidedDestination {
     case missing
 }
