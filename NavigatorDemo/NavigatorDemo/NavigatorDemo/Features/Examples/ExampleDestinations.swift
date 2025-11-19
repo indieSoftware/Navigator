@@ -8,7 +8,7 @@
 import NavigatorUI
 import SwiftUI
 
-public enum ExampleDestinations: String, NavigationDestination, CaseIterable {
+nonisolated public enum ExampleDestinations: String, NavigationDestination, CaseIterable {
 
     case flow
     case binding

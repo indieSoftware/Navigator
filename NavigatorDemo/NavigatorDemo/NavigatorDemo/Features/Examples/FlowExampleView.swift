@@ -28,8 +28,7 @@ struct FlowExampleView: View {
     }
 }
 
-@MainActor
-struct ABCFlow: NavigationFlow {
+nonisolated struct ABCFlow: NavigationFlow {
     var checkpoint: NavigationFlowCheckpoint?
 
     let initialValue: Int
@@ -53,7 +52,7 @@ struct ABCFlow: NavigationFlow {
 }
 
 extension ABCFlow {
-    enum Destinations: NavigationDestination {
+    nonisolated enum Destinations: NavigationDestination {
         case aaa(ABCFlow)
         case bbb(ABCFlow)
         case ccc(ABCFlow)
