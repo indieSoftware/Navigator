@@ -45,7 +45,7 @@ extension Navigator {
         case .cover, .managedCover:
             guard state.cover?.id != destination.id else { return }
             log(.navigation(.presenting(destination)))
-            #if os(iOS)
+            #if os(iOS) || os(tvOS) || os(watchOS)
             state.cover = AnyNavigationDestination(wrapped: destination, method: method)
             #else
             state.sheet = AnyNavigationDestination(wrapped: destination, method: method)
