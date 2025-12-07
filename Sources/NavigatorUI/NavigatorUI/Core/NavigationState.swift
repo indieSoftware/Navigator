@@ -127,13 +127,18 @@ nonisolated public class NavigationState: ObservableObject, @unchecked Sendable 
     internal init(owner: Owner, name: String?) {
         self.owner = owner
         self.name = name
+        // set as current
+        NavigationState.current = self
     }
 
     /// Sentinel code removes child from parent when Navigator is dismissed or deallocated.
     deinit {
         log(.lifecycle(.deinit))
         parent?.removeChild(self)
+        NavigationState.current = parent
     }
+
+    nonisolated(unsafe) internal static weak var current: NavigationState?
 
     // MARK: Navigation tree support
 

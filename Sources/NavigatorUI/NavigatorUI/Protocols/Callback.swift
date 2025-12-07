@@ -30,7 +30,7 @@ public struct Callback<Value>: Hashable, Equatable {
     }
 
     public func hash(into hasher: inout Hasher) {
-       hasher.combine(identifier)
+        hasher.combine(identifier)
     }
 
     public static func == (lhs: Callback<Value>, rhs: Callback<Value>) -> Bool {

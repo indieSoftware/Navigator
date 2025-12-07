@@ -9,6 +9,14 @@ import SwiftUI
 
 extension Navigator {
 
+    /// Returns first navigator found with given id
+    @MainActor public func find(id: UUID) -> Navigator? {
+        if let state = state.root.recursiveFindChild({ $0.id == id }) {
+            return Navigator(state: state)
+        }
+        return nil
+    }
+
     /// Returns first navigator found with given name
     @MainActor public func named(_ name: String) -> Navigator? {
         if let state = state.root.recursiveFindChild({ $0.name == name }) {

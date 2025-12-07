@@ -40,7 +40,7 @@ extension Navigator {
 
     @MainActor public func start(_ flow: some NavigationFlow) {
         var mutableFlow = flow
-        mutableFlow.checkpoint = .init(index: count, state: state)
+        mutableFlow.checkpoint = .init(id: state.id, index: count)
         switch mutableFlow.start() {
         case .destination(let destination):
             navigate(to: destination)
@@ -69,7 +69,7 @@ extension Navigator {
 
     @MainActor public func complete(_ flow: some NavigationFlow) {
         guard let checkpoint = flow.checkpoint else { return }
-        if let state = checkpoint.state {
+        if let state = find(id: checkpoint.id) {
             state.returnToIndex(checkpoint.index)
             flow.onComplete()
         }
@@ -77,7 +77,7 @@ extension Navigator {
 
     @MainActor public func cancel(_ flow: some NavigationFlow) {
         guard let checkpoint = flow.checkpoint else { return }
-        if let state = checkpoint.state {
+        if let state = find(id: checkpoint.id) {
             state.returnToIndex(checkpoint.index)
             flow.onCancel()
         }
@@ -85,7 +85,7 @@ extension Navigator {
 
     @MainActor public func error(_ flow: some NavigationFlow, error: Error) {
         guard let checkpoint = flow.checkpoint else { return }
-        if let state = checkpoint.state {
+        if let state = find(id: checkpoint.id) {
             state.returnToIndex(checkpoint.index)
             flow.onError(error)
         }
@@ -96,50 +96,7 @@ extension Navigator {
 public typealias NavigationFlowCheckpoint = IndexedNavigationCheckpoint
 
 @MainActor
-public struct IndexedNavigationCheckpoint {
+public struct IndexedNavigationCheckpoint: Hashable, Equatable {
+    internal let id: UUID
     internal let index: Int
-    internal weak var state: NavigationState?
 }
-
-extension IndexedNavigationCheckpoint: Hashable, Equatable {
-
-    nonisolated public func hash(into hasher: inout Hasher) {
-        hasher.combine(index)
-        if let state {
-            hasher.combine(ObjectIdentifier(state).hashValue)
-        }
-    }
-
-    nonisolated public static func == (lhs: Self, rhs: Self) -> Bool {
-        if let lState = lhs.state, let rState = rhs.state {
-            lhs.index == rhs.index && ObjectIdentifier(lState) == ObjectIdentifier(rState)
-        } else {
-            lhs.index == rhs.index
-        }
-    }
-}
-
-//@MainActor
-//public struct SimpleNavigationFlow<D: NavigationDestination> {
-//    private let items: [D]
-//    private var index: Int = 0
-//
-//    public init(items: [D]) {
-//        self.items = items
-//    }
-//
-//    public func start() -> FlowResult<D> {
-//        guard let first = items.first else {
-//            return .complete
-//        }
-//        return .destination(first)
-//    }
-//    
-//    public mutating func next() -> FlowResult<D> {
-//        index += 1
-//        guard index < items.count else {
-//            return .complete
-//        }
-//        return .destination(items[index])
-//    }
-//}

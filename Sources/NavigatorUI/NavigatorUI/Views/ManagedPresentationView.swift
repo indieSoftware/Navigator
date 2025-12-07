@@ -54,6 +54,9 @@ public struct ManagedPresentationView<Content: View>: View {
         content
             .modifier(NavigationPresentationModifiers(state: state))
             .environment(\.navigator, Navigator(state: state, parent: parent, dismissible: isPresented ? dismiss : nil))
+            .onAppear {
+                NavigationState.current = state
+            }
     }
 
 }

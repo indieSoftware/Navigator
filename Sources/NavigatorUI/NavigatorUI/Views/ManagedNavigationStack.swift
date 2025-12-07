@@ -118,6 +118,9 @@ public struct ManagedNavigationStack<Content: View>: View {
                     }
             }
             .modifier(NavigationSceneStorageModifier(state: state, name: name))
+            .onAppear {
+                NavigationState.current = state
+            }
         }
     }
 
@@ -149,6 +152,9 @@ public struct ManagedNavigationStack<Content: View>: View {
                         .navigationDestination(for: AnyNavigationDestination.self) { destination in
                             state.mappedNavigationView(for: destination.wrapped)
                         }
+                }
+                .onAppear {
+                    NavigationState.current = state
                 }
             }
         }

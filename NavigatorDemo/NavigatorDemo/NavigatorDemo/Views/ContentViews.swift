@@ -26,6 +26,13 @@ struct ContentSheetSection: View {
     @State var presentCover: HomeDestinations?
     var body: some View {
         Section("Presentation Actions") {
+            Button("Present On Current Navigator (5s)") {
+                Task {
+                    try? await Task.sleep(nanoseconds: 5_000_000_000)
+                    navigator.current?.navigate(to: HomeDestinations.presented1)
+                }
+            }
+
             Button("Present Sheet (Imperative)") {
                 navigator.navigate(to: HomeDestinations.presented1)
             }

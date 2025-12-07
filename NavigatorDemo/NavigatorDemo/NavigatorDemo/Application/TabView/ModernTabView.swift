@@ -10,7 +10,6 @@ import SwiftUI
 
 @available(iOS 18.0, macOS 15.0, tvOS 18.0, *)
 struct ModernTabView : View {
-//    @SceneStorage("selectedTab") var selectedTab: RootTabs = .home
     @State var selectedTab: RootTabs = .home
     var body: some View {
         TabView(selection: $selectedTab) {
