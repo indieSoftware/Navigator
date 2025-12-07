@@ -67,14 +67,6 @@ struct HomeContentView: View {
                 Button("Navigate to Page 56 (Declarative)") {
                     destination = .pageN(56)
                 }
-                Button("Navigate to Page 57 (Timed)") {
-                    destination = .pageN(57)
-                    Task {
-                        try await Task.sleep(nanoseconds: 4_000_000_000)
-                        destination = nil
-                    }
-                }
-                .navigate(to: $destination)
             }
             Section("Externally Provided Views") {
                 NavigationLink(to: Home.external) {

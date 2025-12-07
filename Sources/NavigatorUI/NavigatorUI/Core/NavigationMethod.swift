@@ -36,7 +36,10 @@ nonisolated public enum NavigationMethod: Int, Codable {
     /// Pushes the destination onto the navigation stack path.
     case push
 
-   /// Displays the destination as a SwiftUI sheet.
+    /// Publishes the destination using `navigator.send()`.
+    case send
+
+    /// Displays the destination as a SwiftUI sheet.
     case sheet
 
     /// Displays the destination as a SwiftUI full screen cover on iOS.

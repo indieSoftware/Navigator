@@ -11,7 +11,6 @@ import SwiftUI
 public struct AnyNavigationDestination {
     public var wrapped: any NavigationDestination
     public var method: NavigationMethod
-    private var sentinel: Sentinel?
 
     @MainActor
     public init<D: NavigationDestination>(_ destination: D) {
@@ -19,10 +18,9 @@ public struct AnyNavigationDestination {
         self.method = destination.method
     }
 
-    internal init(wrapped: any NavigationDestination, method: NavigationMethod, sentinel: Sentinel? = nil) {
+    internal init(wrapped: any NavigationDestination, method: NavigationMethod) {
         self.wrapped = wrapped
         self.method = method
-        self.sentinel = sentinel
     }
 }
 
@@ -151,17 +149,4 @@ extension AnyNavigationDestination: Codable {
         try container.encode(element)
     }
 
-}
-
-internal class Sentinel {
-    var action: (() -> Void)?
-    init(action: @escaping () -> Void) {
-        self.action = action
-    }
-    deinit {
-        action?()
-    }
-    func reset() {
-        action = nil
-    }
 }

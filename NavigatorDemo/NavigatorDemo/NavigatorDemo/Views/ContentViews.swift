@@ -40,14 +40,7 @@ struct ContentSheetSection: View {
             Button("Present Sheet (Declarative)") {
                 presentSheet = HomeDestinations.presented1
             }
-            Button("Present Sheet (Timed)") {
-                presentSheet = HomeDestinations.presented1
-                Task {
-                    try await Task.sleep(nanoseconds: 4_000_000_000)
-                    presentSheet = nil
-                }
-            }
-            .navigate(to: $presentSheet) // shared
+            .navigate(to: $presentSheet)
 
             Button("Present Sheet as Cover (Declarative)") {
                 presentCover = HomeDestinations.presented1

@@ -30,27 +30,25 @@ extension Navigator {
     /// ```
     @MainActor
     public func navigate<D: NavigationDestination>(to destination: D, method: NavigationMethod) {
-        navigate(to: AnyNavigationDestination(wrapped: destination, method: method))
-    }
-
-    @MainActor
-    internal func navigate(to destination: AnyNavigationDestination) {
-        switch destination.method {
+        switch method {
         case .push:
             state.push(destination)
 
+        case .send:
+            send(destination)
+
         case .sheet, .managedSheet:
             guard state.sheet?.id != destination.id else { return }
-            log(.navigation(.presenting(destination.wrapped)))
-            state.sheet = destination
+            log(.navigation(.presenting(destination)))
+            state.sheet = AnyNavigationDestination(wrapped: destination, method: method)
 
         case .cover, .managedCover:
             guard state.cover?.id != destination.id else { return }
-            log(.navigation(.presenting(destination.wrapped)))
+            log(.navigation(.presenting(destination)))
             #if os(iOS)
-            state.cover = destination
+            state.cover = AnyNavigationDestination(wrapped: destination, method: method)
             #else
-            state.sheet = destination
+            state.sheet = AnyNavigationDestination(wrapped: destination, method: method)
             #endif
         }
     }
@@ -258,21 +256,14 @@ extension NavigationState {
 
 private struct NavigateToModifier<T: NavigationDestination>: ViewModifier {
     @Environment(\.navigator) internal var navigator: Navigator
-    @State internal var currentIndex: Int?
     @Binding internal var destination: T?
     internal let method: NavigationMethod?
     func body(content: Content) -> some View {
         content
             .onChange(of: destination) { destination in
                 if let destination {
-                    currentIndex = navigator.count
-                    navigator.navigate(to: AnyNavigationDestination(wrapped: destination, method: method ?? destination.method, sentinel: .init {
-                        self.currentIndex = nil
-                        self.destination = nil
-                    }))
-                } else if let index = currentIndex {
-                    navigator.returnToIndex(index)
-                    self.currentIndex = nil
+                    navigator.navigate(to: destination, method: method ?? destination.method)
+                    self.destination = nil
                 }
             }
     }
@@ -280,7 +271,6 @@ private struct NavigateToModifier<T: NavigationDestination>: ViewModifier {
 
 private struct NavigateTriggerModifier<T: NavigationDestination>: ViewModifier {
     @Binding internal var trigger: Bool
-    @State internal var currentIndex: Int?
     let destination: T
     internal let method: NavigationMethod?
     @Environment(\.navigator) internal var navigator: Navigator
@@ -288,15 +278,9 @@ private struct NavigateTriggerModifier<T: NavigationDestination>: ViewModifier {
         content
             .onChange(of: trigger) { trigger in
                 if trigger {
-                    currentIndex = navigator.count
-                    navigator.navigate(to: AnyNavigationDestination(wrapped: destination, method: method ?? destination.method, sentinel: .init {
-                        self.currentIndex = nil
-                        self.trigger = false
-                    }))
-                } else if let index = currentIndex {
-                    navigator.returnToIndex(index)
-                    self.currentIndex = nil
-                }
+                    navigator.navigate(to: destination, method: method ?? destination.method)
+                    self.trigger = false
+               }
            }
     }
 }
