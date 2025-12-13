@@ -48,6 +48,7 @@ class HomeContentViewModel: ObservableObject {
 struct HomeContentView: View {
     @StateObject var viewModel: HomeContentViewModel
     @Environment(\.navigator) var navigator
+    @Environment(\.navigator.isEmpty) var isEmpty
     @State var destination: Home?
     var body: some View {
         List {
@@ -103,6 +104,12 @@ struct HomeContentView: View {
         .navigationCheckpoint(KnownCheckpoints.duplicate)
         .task {
             print("HomeContentView")
+        }
+        .onChange(of: isEmpty) { v in
+            print("Empty:", v)
+        }
+        .onChange(of: navigator) { _ in
+            print("Navigator changed") // never prints
         }
     }
 }

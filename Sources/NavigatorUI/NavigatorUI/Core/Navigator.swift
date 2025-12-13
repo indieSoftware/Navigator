@@ -90,11 +90,12 @@ nonisolated public struct Navigator: @unchecked Sendable {
 extension Navigator: Hashable {
 
     public func hash(into hasher: inout Hasher) {
+        hasher.combine(state.id)
         hasher.combine(state.hashValue)
     }
 
     public static func == (lhs: Navigator, rhs: Navigator) -> Bool {
-        lhs.id == rhs.id
+        lhs.id == rhs.id && lhs.hashValue == rhs.hashValue
     }
 
 }

@@ -1,5 +1,9 @@
 # Navigator Changelog
 
+### 1.4.1
+
+* Miscellaneous internal improvements
+
 ### 1.4.0
 
 * Adds access to the current Navigator via the Navigator environment variable
