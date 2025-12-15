@@ -91,7 +91,7 @@ extension Navigator {
     }
 }
 
-internal class NavigationViewProvidingSentinel<D: NavigationDestination>: ObservableObject {
+internal final class NavigationViewProvidingSentinel<D: NavigationDestination>: ObservableObject {
 
     internal let views: (D) -> any View
 

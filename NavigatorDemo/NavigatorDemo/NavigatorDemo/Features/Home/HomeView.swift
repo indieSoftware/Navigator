@@ -68,6 +68,9 @@ struct HomeContentView: View {
                 Button("Navigate to Page 56 (Declarative)") {
                     destination = .pageN(56)
                 }
+                Button("Navigate to Page 57 (Declarative)") {
+                    destination = .pageN(57)
+                }
             }
             Section("Externally Provided Views") {
                 NavigationLink(to: Home.external) {
@@ -102,6 +105,7 @@ struct HomeContentView: View {
         }
         .navigationTitle(viewModel.title)
         .navigationCheckpoint(KnownCheckpoints.duplicate)
+        .navigate(to: $destination)
         .task {
             print("HomeContentView")
         }

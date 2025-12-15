@@ -187,7 +187,6 @@ private struct NavigationDestinationModifier<D: NavigationDestination>: ViewModi
     let destination: D.Type
     @Environment(\.navigator) var navigator
     func body(content: Content) -> some View {
-        let _ = navigator.register(D.self)
         content
             .navigationDestination(for: D.self) { destination in
                 destination
@@ -196,28 +195,4 @@ private struct NavigationDestinationModifier<D: NavigationDestination>: ViewModi
                     .environment(\.navigator, navigator)
             }
     }
-}
-
-extension Navigator {
-
-    public func register<D: NavigationDestination>(_ destination: D.Type) -> Void {
-        #if DEBUG
-        state.register(destination)
-        #endif
-    }
-    
-}
-
-extension NavigationState {
-
-    /// Checks for known navigation destination
-    internal func known<D: NavigationDestination>(destination: D) -> Bool {
-        navigationDestinations.contains(ObjectIdentifier(D.self))
-    }
-
-    /// Register the specified navigation destination type with the current navigation state.
-    internal func register<D: NavigationDestination>(_ type: D.Type) -> Void {
-        navigationDestinations.insert(ObjectIdentifier(D.self))
-    }
-
 }

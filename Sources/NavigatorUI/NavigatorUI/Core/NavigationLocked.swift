@@ -55,7 +55,7 @@ private struct NavigationLockedModifier: ViewModifier {
 
 }
 
-private class NavigationLockedSentinel: ObservableObject {
+private final class NavigationLockedSentinel: ObservableObject {
 
     private let id: UUID = UUID()
     private var state: NavigationState?
