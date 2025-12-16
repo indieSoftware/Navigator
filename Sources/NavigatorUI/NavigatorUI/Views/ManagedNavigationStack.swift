@@ -86,7 +86,7 @@ public struct ManagedNavigationStack<Content: View>: View {
         if isWrappedInPresentationView {
             WrappedNavigationStack(state: navigator.state.setting(name), name: sceneName, content: content(navigator))
         } else {
-            CreateNavigationStack(name: sceneName, content: content)
+            CreateNavigationStack(name: name, content: content)
         }
     }
 
