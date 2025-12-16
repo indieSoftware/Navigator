@@ -84,9 +84,9 @@ public struct ManagedNavigationStack<Content: View>: View {
 
     public var body: some View {
         if isWrappedInPresentationView {
-            WrappedNavigationStack(state: navigator.state.setting(name), name: sceneName, content: content(navigator))
+            WrappedNavigationStack(state: navigator.state.setting(name), sceneName: sceneName, content: content(navigator))
         } else {
-            CreateNavigationStack(name: name, content: content)
+            CreateNavigationStack(name: name, sceneName: sceneName, content: content)
         }
     }
 
@@ -102,12 +102,12 @@ public struct ManagedNavigationStack<Content: View>: View {
     internal struct WrappedNavigationStack: View {
 
         @ObservedObject internal var state: NavigationState
-        internal let name: String?
+        internal let sceneName: String?
         internal let content: Content
 
-        init(state: NavigationState, name: String?, content: Content) {
+        init(state: NavigationState, sceneName: String?, content: Content) {
             self.state = state
-            self.name = name
+            self.sceneName = sceneName
             self.content = content
         }
         var body: some View {
@@ -117,7 +117,7 @@ public struct ManagedNavigationStack<Content: View>: View {
                         state.mappedNavigationView(for: destination.wrapped)
                     }
             }
-            .modifier(NavigationSceneStorageModifier(state: state, name: name))
+            .modifier(NavigationSceneStorageModifier(state: state, name: sceneName))
             .onAppear {
                 NavigationState.current = state
             }
@@ -131,12 +131,12 @@ public struct ManagedNavigationStack<Content: View>: View {
         @Environment(\.isPresented) private var isPresented
         @Environment(\.dismiss) private var dismiss
 
-        private let name: String?
+        private let sceneName: String?
         private let content: (Navigator) -> Content
 
-        init(name: String?, content: @escaping (Navigator) -> Content) {
+        init(name: String?, sceneName: String?, content: @escaping (Navigator) -> Content) {
             self._state = .init(wrappedValue: .init(owner: .stack, name: name))
-            self.name = name
+            self.sceneName = sceneName
             self.content = content
         }
 
@@ -149,7 +149,7 @@ public struct ManagedNavigationStack<Content: View>: View {
                     }
             }
             .modifier(NavigationPresentationModifiers(state: state))
-            .modifier(NavigationSceneStorageModifier(state: state, name: name))
+            .modifier(NavigationSceneStorageModifier(state: state, name: sceneName))
             .environment(\.navigator, navigator)
             .onAppear {
                 NavigationState.current = state
