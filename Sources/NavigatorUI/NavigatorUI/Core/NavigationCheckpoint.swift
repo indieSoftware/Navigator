@@ -163,9 +163,7 @@ extension NavigationState {
             return
         }
         log(.checkpoint(.returningWithValue(checkpoint.name, value)))
-        // return to sender
-        _ = navigator.dismissAnyChildren()
-        _ = navigator.pop(to: found.index)
+        navigator.returnToIndex(found.index)
         // send value to specific receive handler
         if let identifier = found.identifier {
             let values = NavigationSendValues(navigator: Navigator(state: self), identifier: identifier, value: value)
