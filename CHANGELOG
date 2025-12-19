@@ -1,5 +1,9 @@
 # Navigator Changelog
 
+### 1.4.4
+
+* Fixes issue where returnToCheckpoint fails to dismiss #84, #86
+
 ### 1.4.3
 
 * ManagedNavigationStack(name:) cannot be found by name on v1.4.1 #83

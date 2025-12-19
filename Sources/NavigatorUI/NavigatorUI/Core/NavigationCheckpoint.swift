@@ -144,7 +144,7 @@ extension NavigationState {
             return
         }
         log(.checkpoint(.returning(checkpoint.name)))
-        returnToIndex(found.index)
+        navigator.returnToIndex(found.index)
         // send trigger to specific action handler
         if let identifier = found.identifier {
             let values = NavigationSendValues(navigator: Navigator(state: self), identifier: identifier, value: CheckpointAction())
