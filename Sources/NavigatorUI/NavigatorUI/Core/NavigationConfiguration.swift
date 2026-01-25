@@ -95,18 +95,18 @@ extension View {
     /// }
     /// ```
     public func navigationRoot(_ navigator: Navigator) -> some View {
-        self.modifier(NavigationRootModifier(state: navigator.state))
+        self.modifier(NavigationRootModifier(navigator: navigator))
     }
 }
 
 private struct NavigationRootModifier: ViewModifier {
 
-    @StateObject var state: NavigationState
+    var navigator: Navigator
 
     public func body(content: Content) -> some View {
         content
-            .modifier(NavigationPresentationModifiers(state: state))
-            .environment(\.navigator, Navigator(state: state, parent: nil, dismissible: nil))
+            .modifier(NavigationPresentationModifiers(navigator: navigator))
+            .environment(\.navigator, navigator)
     }
 
 }

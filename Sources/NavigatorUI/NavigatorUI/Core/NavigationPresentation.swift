@@ -42,23 +42,23 @@ extension Navigator {
     }
 
     /// Returns true if the current ManagedNavigationStack or navigationDismissible is presenting.
-    public nonisolated var isPresenting: Bool {
-        state.isPresenting
+    public var isPresenting: Bool {
+        _children.values.first(where: { $0.object?.isPresented ?? false }) != nil
     }
 
     /// Returns true if any child of the current ManagedNavigationStack or navigationDismissible is presenting.
-    public nonisolated var isAnyChildPresenting: Bool {
-        state.isAnyChildPresenting
-    }
-
-    /// Returns true if the current ManagedNavigationStack or navigationDismissible is presented.
-    public nonisolated var isPresented: Bool {
-        state.isPresented
+    public var isAnyChildPresenting: Bool {
+        _children.values.first(where: {
+            if let object = $0.object, object.isPresented || object.isAnyChildPresenting {
+                return true
+            }
+            return false
+        }) != nil
     }
 
     /// Returns NavigationDestination of sheet or cover we're currently presenting, if any.
-    public nonisolated var presentingSheetOrCover: (any NavigationDestination)? {
-        (state.sheet ?? state.cover)?.wrapped as? NavigationDestination
+    public var presentingSheetOrCover: (any NavigationDestination)? {
+        (sheet ?? cover)?.wrapped as? NavigationDestination
     }
 }
 
@@ -98,34 +98,18 @@ extension View {
 
 }
 
-extension NavigationState {
-
-    internal nonisolated var isPresenting: Bool {
-        children.values.first(where: { $0.object?.isPresented ?? false }) != nil
-    }
-
-    internal nonisolated var isAnyChildPresenting: Bool {
-        children.values.first(where: {
-            if let object = $0.object, object.isPresented || object.isAnyChildPresenting {
-                return true
-            }
-            return false
-        }) != nil
-    }
-
-}
-
 internal struct NavigationPresentationModifiers: ViewModifier {
 
-    @ObservedObject internal var state: NavigationState
+    internal var navigator: Navigator
 
     func body(content: Content) -> some View {
+        @Bindable var nav = navigator
         content
-            .sheet(item: $state.sheet) { (destination) in
+            .sheet(item: $nav.sheet) { (destination) in
                 managedView(for: destination)
             }
             #if os(iOS) || os(tvOS) || os(watchOS)
-            .fullScreenCover(item: $state.cover) { (destination) in
+            .fullScreenCover(item: $nav.cover) { (destination) in
                 managedView(for: destination)
             }
             #endif
@@ -135,10 +119,10 @@ internal struct NavigationPresentationModifiers: ViewModifier {
         ManagedPresentationView {
             if destination.method.requiresNavigationStack {
                 ManagedNavigationStack {
-                    state.mappedPresentationView(for: destination.wrapped)
+                    navigator.mappedPresentationView(for: destination.wrapped)
                 }
             } else {
-                state.mappedPresentationView(for: destination.wrapped)
+                navigator.mappedPresentationView(for: destination.wrapped)
             }
         }
     }

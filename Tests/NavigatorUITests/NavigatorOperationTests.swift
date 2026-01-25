@@ -9,53 +9,54 @@ import Testing
 import Foundation
 @testable import NavigatorUI
 
+@MainActor
 struct NavigatorOperationTests {
 
     // MARK: - Navigation Path Management
 
     @Test func testNavigationPathOperations() async {
-        let navigator = Navigator(owner: .root)
+        let navigator = Navigator(owner: .root, name: nil)
         let destination = MockDestination.screen1
-        
+
         // Test push
-        await navigator.push(destination)
-        #expect(navigator.state.path.count == 1)
-        
+        navigator.push(destination)
+        #expect(navigator.path.count == 1)
+
         // Test pop
-        let popped = await navigator.pop()
+        let popped = navigator.pop()
         #expect(popped)
-        #expect(navigator.state.path.isEmpty)
+        #expect(navigator.path.isEmpty)
     }
 
     @Test func testMultiplePathOperations() async {
-        let navigator = Navigator(owner: .root)
-        
+        let navigator = Navigator(owner: .root, name: nil)
+
         // Push multiple destinations
-        await navigator.push(MockDestination.screen1)
-        await navigator.push(MockDestination.screen2)
-        await navigator.push(MockDestination.screen3)
-        #expect(navigator.state.path.count == 3)
+        navigator.push(MockDestination.screen1)
+        navigator.push(MockDestination.screen2)
+        navigator.push(MockDestination.screen3)
+        #expect(navigator.path.count == 3)
 
         // Pop to root
-        let popped = await navigator.popAll()
+        let popped = navigator.popAll()
         #expect(popped)
-        #expect(navigator.state.path.isEmpty)
+        #expect(navigator.path.isEmpty)
     }
 
     // MARK: - Sheet Presentation Tests
 
     @Test func testSheetPresentation() async {
-        let navigator = Navigator(owner: .root)
+        let navigator = Navigator(owner: .root, name: nil)
         let destination = MockDestination.screen1
 
         // Present sheet
-        await navigator.navigate(to: destination, method: .sheet)
-        #expect(navigator.state.sheet != nil)
-        #expect(navigator.state.sheet?.wrapped as? MockDestination == destination)
+        navigator.navigate(to: destination, method: .sheet)
+        #expect(navigator.sheet != nil)
+        #expect(navigator.sheet?.wrapped as? MockDestination == destination)
 
         // Dismiss sheet
-        await navigator.dismissPresentedViews()
-        #expect(navigator.state.sheet == nil)
+        navigator.dismissPresentedViews()
+        #expect(navigator.sheet == nil)
     }
 
 }

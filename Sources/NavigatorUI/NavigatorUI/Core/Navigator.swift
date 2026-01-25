@@ -28,84 +28,257 @@ import SwiftUI
 /// ```swift
 /// @Environmnt(\.navigator) var navigator
 /// ```
-nonisolated public struct Navigator: @unchecked Sendable {
+@Observable
+@MainActor
+public final class Navigator: @unchecked Sendable {
 
-    internal let environmentID: Int
-    internal let state: NavigationState
+    public enum Owner: Int, Sendable {
+        case application
+        case root
+        case stack
+        case presenter
+    }
 
+    /// Errors that Navigator can throw
+    public enum NavigationError: Error {
+        case navigationLocked
+    }
+
+    /// Allows weak storage of reference types in arrays, dictionaries, and other collection types.
+    internal struct WeakNavigator: Sendable {
+        weak var object: Navigator?
+    }
+
+    // MARK: - Observable Properties
+
+    /// Navigation path for the current ManagedNavigationStack
+    internal var path: NavigationPath = .init() {
+        didSet {
+            cleanCheckpoints()
+        }
+    }
+
+    /// Presentation trigger for .sheet navigation methods.
+    internal var sheet: AnyNavigationDestination? = nil
+
+    /// Presentation trigger for .cover navigation methods.
+    internal var cover: AnyNavigationDestination? = nil
+
+    /// Checkpoints managed by this navigation stack
+    internal var checkpoints: [String: AnyNavigationCheckpoint] = [:]
+
+    /// Navigation locks, if any
+    internal var navigationLocks: Set<UUID> = []
+
+    // MARK: - Non-Observable Properties
+
+    /// Persistent id of this navigator.
+    @ObservationIgnored
+    public let id: UUID = .init()
+
+    /// Name of the current ManagedNavigationStack, if any.
+    @ObservationIgnored
+    public internal(set) var name: String? = nil
+
+    /// Owner of this particular navigator.
+    @ObservationIgnored
+    public internal(set) var owner: Owner = .root
+
+    /// Copy of the navigation configuration from the root view.
+    @ObservationIgnored
+    internal var configuration: NavigationConfiguration?
+
+    /// Parent navigator, if any.
+    @ObservationIgnored
+    internal weak var parent: Navigator? = nil
+
+    /// Presented children, if any.
+    @ObservationIgnored
+    internal var _children: [UUID : WeakNavigator] = [:]
+
+    /// True if the current ManagedNavigationStack or navigationDismissible is presented.
+    public var isPresented: Bool {
+        dismissAction != nil
+    }
+
+    /// Dismissible function for this particular navigator.
+    @ObservationIgnored
+    internal var dismissAction: DismissAction?
+
+    /// Navigation send publisher
+    @ObservationIgnored
+    internal var publisher: PassthroughSubject<NavigationSendValues, Never> = .init()
+
+    /// Registered view providers
+    @ObservationIgnored
+    internal var navigationProviders: [ObjectIdentifier : Any] = [:]
+
+    /// Use AnyNavigationDestination for all pushed NavigationDestination values, avoiding need to register destinations
+    @ObservationIgnored
+    internal var autoDestinationMode: Bool {
+        autoDestinationModeOverride ?? configuration?.autoDestinationMode ?? true
+    }
+
+    /// set by NavigationAutoDestinationModeModifier
+    @ObservationIgnored
+    internal var autoDestinationModeOverride: Bool?
+
+    /// Storage for .navigationMap modifier
+    @ObservationIgnored
+    internal var navigationMap: ((any NavigationDestination) -> any NavigationDestination)?
+    @ObservationIgnored
+    internal var navigationMapInherits: Bool = false
+
+    /// Storage for .navigationModifier
+    @ObservationIgnored
+    internal var navigationModifier: ((any NavigationDestination) -> any View)?
+    @ObservationIgnored
+    internal var navigationModifierInherits: Bool = false
+
+    /// Storage for .presentationModifier
+    @ObservationIgnored
+    internal var presentationModifier: ((any NavigationDestination) -> any View)?
+    @ObservationIgnored
+    internal var presentationModifierInherits: Bool = false
+
+    // MARK: - Static Properties
+
+    /// The currently active navigator
+    nonisolated(unsafe) public static weak var current: Navigator?
+
+    // MARK: - Computed Properties
+
+    /// Determines whether or not users should see animation steps when deep linking.
+    public var executionDelay: TimeInterval {
+        configuration?.executionDelay ?? 0.6
+    }
+
+    /// Walks up the parent tree and returns the root Navigator.
+    public var root: Navigator {
+        parent?.root ?? self
+    }
+
+    /// Returns an array of any presented children.
+    public var children: [Navigator] {
+        _children
+            .compactMap { $1.object }
+    }
+
+    // MARK: - Lifecycle
+
+    /// Allows public initialization of root Navigators.
     public init(configuration: NavigationConfiguration) {
-        let state = NavigationState(configuration: configuration)
-        self.environmentID = state.hashValue
-        self.state = state
+        self.name = "root"
+        self.configuration = configuration
+        log(.lifecycle(.configured))
     }
 
-    internal init(owner: NavigationState.Owner, name: String? = nil) {
-        self.state = NavigationState(owner: owner, name: name)
-        self.environmentID = state.hashValue
+    /// Internal initializer used by ManagedNavigationStack and navigationDismissible modifiers.
+    internal init(owner: Owner, name: String?) {
+        self.owner = owner
+        self.name = name
+        // set as current
+        Navigator.current = self
     }
 
-    internal init(state: NavigationState) {
-        self.environmentID = state.hashValue
-        self.state = state
+    /// Sentinel code removes child from parent when Navigator is dismissed or deallocated.
+    deinit {
+        let parent = self.parent
+        let child = self
+        MainActor.assumeIsolated {
+            child.log(.lifecycle(.deinit))
+            parent?.removeChild(child)
+            Navigator.current = parent
+        }
     }
 
-    internal init(state: NavigationState, parent: Navigator?, dismissible: DismissAction?) {
-        self.environmentID = state.hashValue
-        self.state = state
-        parent?.state.addChild(state, dismissible: dismissible)
+    // MARK: - Navigation tree support
+
+    /// Adds a child navigator to parent.
+    internal func addChild(_ child: Navigator, dismissible: DismissAction?) {
+        // always update dismissible closure
+        child.dismissAction = dismissible
+        // exit if already added
+        guard !_children.keys.contains(child.id) else {
+            return
+        }
+        _children[child.id] = WeakNavigator(object: child)
+        child.configuration = configuration
+        child.parent = self
+        child.publisher = publisher
+        child.autoDestinationModeOverride = autoDestinationModeOverride
+        child.navigationMap = navigationMapInherits ? navigationMap : nil
+        child.navigationMapInherits = navigationMapInherits
+        child.navigationModifier = navigationModifierInherits ? navigationModifier : nil
+        child.navigationModifierInherits = navigationModifierInherits
+        child.presentationModifier = presentationModifierInherits ? presentationModifier : nil
+        child.presentationModifierInherits = presentationModifierInherits
+        log(.lifecycle(.adding(child.id)))
     }
 
-    public var id: UUID {
-        state.id
+    /// Removes a child navigator from a parent.
+    internal func removeChild(_ child: Navigator) {
+        log(.lifecycle(.removing(child.id)))
+        _children.removeValue(forKey: child.id)
+        child.dismissAction = nil
     }
 
-    public var name: String? {
-        state.name
+    /// Renames navigator for wrapped navigation stacks.
+    @discardableResult
+    internal func setting(_ name: String?) -> Navigator {
+        self.name = name
+        return self
     }
+
+}
+
+// MARK: - Hashable, Equatable
+
+extension Navigator: Hashable, Equatable {
+
+    nonisolated public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
+    nonisolated public static func == (lhs: Navigator, rhs: Navigator) -> Bool {
+        lhs.id == rhs.id
+    }
+
+}
+
+// MARK: - Public Accessors
+
+extension Navigator {
 
     /// Returns the root Navigator in the navigation tree.
     ///
     /// Note this navigation may not have a navigation stack associated with it.
-    public var root: Navigator {
-        Navigator(state: state.root)
+    public var rootNavigator: Navigator {
+        root
     }
 
     /// Returns the parent Navigator, if any, in the navigation tree.
-    public var parent: Navigator? {
-        guard let state = state.parent else { return nil }
-        return Navigator(state: state)
+    public var parentNavigator: Navigator? {
+        parent
     }
 
     /// Returns the current Navigator that represents the current ManagedNavigationStack.
     ///
     /// Note this Navigator is defined when a given ManagedNavigationStack fires its "onAppear" handler, so it should be good for
     /// when a given Navigator first appears and when control returns to a given Navigator.
-    public var current: Navigator? {
-        guard let state = NavigationState.current else { return nil }
-        return Navigator(state: state)
+    public var currentNavigator: Navigator? {
+        Navigator.current
     }
 
     /// Returns an array of any presented children.
-    public var children: [Navigator] {
-        state.children
+    public var childNavigators: [Navigator] {
+        _children
             .compactMap { $1.object }
-            .map { Navigator(state: $0) }
     }
 
 }
 
-extension Navigator: Hashable {
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(state.id)
-        hasher.combine(state.hashValue)
-    }
-
-    public static func == (lhs: Navigator, rhs: Navigator) -> Bool {
-        lhs.id == rhs.id && lhs.hashValue == rhs.hashValue
-    }
-
-}
+// MARK: - Environment
 
 extension EnvironmentValues {
     /// Create environment entry for the Navigator managing the current ManagedNavigationStack.
@@ -115,8 +288,9 @@ extension EnvironmentValues {
     }
 }
 
-private struct NavigatorKey: EnvironmentKey {
+@MainActor
+private struct NavigatorKey: @preconcurrency EnvironmentKey {
     // Old-school approach avoids subtle bug in @Entry macro
     // https://michaellong.medium.com/debugging-swiftuis-entry-macro-e018a4974454
-    static let defaultValue: Navigator = Navigator(owner: .application)
+    static let defaultValue: Navigator = Navigator(owner: .application, name: nil)
 }

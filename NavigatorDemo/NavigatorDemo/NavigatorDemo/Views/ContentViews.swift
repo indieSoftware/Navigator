@@ -29,7 +29,7 @@ struct ContentSheetSection: View {
             Button("Present On Current Navigator (5s)") {
                 Task {
                     try? await Task.sleep(nanoseconds: 5_000_000_000)
-                    navigator.current?.navigate(to: HomeDestinations.presented1)
+                    Navigator.current?.navigate(to: HomeDestinations.presented1)
                 }
             }
 

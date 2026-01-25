@@ -38,7 +38,7 @@ nonisolated internal struct NavigationSceneStorage: Codable {
 
 }
 
-extension NavigationState {
+extension Navigator {
 
     internal static let decoder = JSONDecoder()
     internal static let encoder = JSONEncoder()
@@ -48,27 +48,27 @@ extension NavigationState {
         guard let restorationKey = configuration?.restorationKey else {
             return nil
         }
-        let path = try? path.codable.map(NavigationState.encoder.encode)
+        let path = try? path.codable.map(Navigator.encoder.encode)
         let storage = NavigationSceneStorage(
             name: name,
             restorationKey: restorationKey,
             path: path ?? Data(),
             checkpoints: checkpoints,
             dismissible: isPresented,
-            sheet: try? NavigationState.encoder.encode(sheet),
-            cover: try? NavigationState.encoder.encode(cover)
+            sheet: try? Navigator.encoder.encode(sheet),
+            cover: try? Navigator.encoder.encode(cover)
         )
-        return try? NavigationState.encoder.encode(storage)
+        return try? Navigator.encoder.encode(storage)
     }
 
     /// Decoding from scene storage
     internal func restore(from data: Data) {
-        guard let storage = try? NavigationState.decoder.decode(NavigationSceneStorage.self, from: data),
+        guard let storage = try? Navigator.decoder.decode(NavigationSceneStorage.self, from: data),
               storage.restorationKey == configuration?.restorationKey else {
             return
         }
         self.name = storage.name
-        if let data = storage.path, let representation = try? NavigationState.decoder.decode(NavigationPath.CodableRepresentation.self, from: data) {
+        if let data = storage.path, let representation = try? Navigator.decoder.decode(NavigationPath.CodableRepresentation.self, from: data) {
             path = NavigationPath(representation)
         } else {
             path = .init()
@@ -80,12 +80,12 @@ extension NavigationState {
             }
         }
         if let data = storage.sheet {
-            sheet = try? NavigationState.decoder.decode(AnyNavigationDestination.self, from: data)
+            sheet = try? Navigator.decoder.decode(AnyNavigationDestination.self, from: data)
         } else {
             sheet = nil
         }
         if let data = storage.cover {
-            cover = try? NavigationState.decoder.decode(AnyNavigationDestination.self, from: data)
+            cover = try? Navigator.decoder.decode(AnyNavigationDestination.self, from: data)
         } else {
             cover = nil
         }
@@ -95,15 +95,15 @@ extension NavigationState {
 
 internal struct NavigationSceneStorageModifier: ViewModifier {
 
-    @ObservedObject internal var state: NavigationState
+    internal var navigator: Navigator
 
     @Environment(\.scenePhase) private var scenePhase
     @SceneStorage private var sceneStorage: Data?
 
     private let name: String?
 
-    init(state: NavigationState, name: String? = nil) {
-        self.state = state
+    init(navigator: Navigator, name: String? = nil) {
+        self.navigator = navigator
         self.name = name
         self._sceneStorage = SceneStorage("NavigationSceneStorage.\(name ?? "*")")
     }
@@ -115,9 +115,9 @@ internal struct NavigationSceneStorageModifier: ViewModifier {
                     return
                 }
                 if phase == .active, let data = sceneStorage {
-                    state.restore(from: data)
+                    navigator.restore(from: data)
                 } else {
-                    sceneStorage = state.encoded()
+                    sceneStorage = navigator.encoded()
                 }
             }
     }

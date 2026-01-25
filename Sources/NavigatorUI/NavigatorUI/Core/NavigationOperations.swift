@@ -32,23 +32,23 @@ extension Navigator {
     public func navigate<D: NavigationDestination>(to destination: D, method: NavigationMethod) {
         switch method {
         case .push:
-            state.push(destination)
+            push(destination)
 
         case .send:
             send(destination)
 
         case .sheet, .managedSheet:
-            guard state.sheet?.id != destination.id else { return }
+            guard sheet?.id != destination.id else { return }
             log(.navigation(.presenting(destination)))
-            state.sheet = AnyNavigationDestination(wrapped: destination, method: method)
+            sheet = AnyNavigationDestination(wrapped: destination, method: method)
 
         case .cover, .managedCover:
-            guard state.cover?.id != destination.id else { return }
+            guard cover?.id != destination.id else { return }
             log(.navigation(.presenting(destination)))
             #if os(iOS) || os(tvOS) || os(watchOS)
-            state.cover = AnyNavigationDestination(wrapped: destination, method: method)
+            cover = AnyNavigationDestination(wrapped: destination, method: method)
             #else
-            state.sheet = AnyNavigationDestination(wrapped: destination, method: method)
+            sheet = AnyNavigationDestination(wrapped: destination, method: method)
             #endif
         }
     }
@@ -66,109 +66,6 @@ extension Navigator {
     /// Also supports plain Hashable values for better integration with existing code bases.
     @MainActor
     public func push<D: Hashable>(_ destination: D) {
-        state.push(destination)
-    }
-
-    /// Pops to a specific position on stack's navigation path.
-    @MainActor
-    @discardableResult
-    public func pop(to position: Int)  -> Bool {
-        log(.navigation(.popping))
-        return state.pop(to: position)
-    }
-
-    /// Pops the specified number of the items from the end of a stack's navigation path.
-    ///
-    /// Defaults to one if not specified.
-    /// ```swift
-    /// Button("Go Back") {
-    ///     navigator.pop()
-    /// }
-    /// ```
-    @MainActor
-    @discardableResult
-    public func pop(last k: Int = 1) -> Bool {
-        if state.path.count >= k {
-            log(.navigation(.popping))
-            state.path.removeLast(k)
-            return true
-        }
-        return false
-    }
-
-    /// Pops all items from the current navigation path, returning to the root view.
-    /// ```swift
-    /// Button("Go Root") {
-    ///     navigator.popAll()
-    /// }
-    /// ```
-    @MainActor
-    @discardableResult
-    public func popAll() -> Bool {
-        state.popAll()
-    }
-
-    /// Pops all items from *any* navigation path, returning each to the root view.
-    /// ```swift
-    /// Button("Pop Any") {
-    ///     navigator.popAny()
-    /// }
-    /// ```
-    @MainActor
-    @discardableResult
-    public func popAny() throws -> Bool {
-        try state.popAny()
-    }
-
-    /// Pops an items from the navigation path, or dismiss if we're on the root view.
-    /// ```swift
-    /// Button("Go Back") {
-    ///     navigator.back()
-    /// }
-    /// ```
-    /// This mimics standard SwiftUI dismiss behavior.
-    @MainActor
-    @discardableResult
-    public func back() -> Bool {
-        pop() || dismiss()
-    }
-
-    /// Indicates whether or not the navigation path is empty.
-    public nonisolated var isEmpty: Bool {
-        state.path.isEmpty
-    }
-
-    /// Number of items in the navigation path.
-    public nonisolated var count: Int {
-        state.path.count
-    }
-
-}
-
-extension View {
-
-    public func navigate(to destination: Binding<(some NavigationDestination)?>) -> some View {
-        self.modifier(NavigateToModifier(destination: destination, method: nil))
-    }
-
-    public func navigate(to destination: Binding<(some NavigationDestination)?>, method: NavigationMethod) -> some View {
-        self.modifier(NavigateToModifier(destination: destination, method: method))
-    }
-
-    public func navigate(trigger: Binding<Bool>, destination: some NavigationDestination) -> some View {
-        self.modifier(NavigateTriggerModifier(trigger: trigger, destination: destination, method: nil))
-    }
-
-    public func navigate(trigger: Binding<Bool>, destination: some NavigationDestination, method: NavigationMethod) -> some View {
-        self.modifier(NavigateTriggerModifier(trigger: trigger, destination: destination, method: method))
-    }
-
-}
-
-extension NavigationState {
-
-    @MainActor
-    func push<D: Hashable>(_ destination: D) {
         log(.navigation(.pushing(destination)))
         if autoDestinationMode {
             if let destination = destination as? AnyNavigationDestination {
@@ -192,7 +89,10 @@ extension NavigationState {
     }
 
     /// Pops to a specific position on stack's navigation path.
-    internal func pop(to position: Int)  -> Bool {
+    @MainActor
+    @discardableResult
+    public func pop(to position: Int)  -> Bool {
+        log(.navigation(.popping))
         if position <= path.count {
             path.removeLast(path.count - position)
             return true
@@ -200,13 +100,48 @@ extension NavigationState {
         return false
     }
 
-    internal func popAll() -> Bool {
+    /// Pops the specified number of the items from the end of a stack's navigation path.
+    ///
+    /// Defaults to one if not specified.
+    /// ```swift
+    /// Button("Go Back") {
+    ///     navigator.pop()
+    /// }
+    /// ```
+    @MainActor
+    @discardableResult
+    public func pop(last k: Int = 1) -> Bool {
+        if path.count >= k {
+            log(.navigation(.popping))
+            path.removeLast(k)
+            return true
+        }
+        return false
+    }
+
+    /// Pops all items from the current navigation path, returning to the root view.
+    /// ```swift
+    /// Button("Go Root") {
+    ///     navigator.popAll()
+    /// }
+    /// ```
+    @MainActor
+    @discardableResult
+    public func popAll() -> Bool {
         let result = !path.isEmpty
         path = NavigationPath()
         return result
     }
 
-    internal func popAny() throws -> Bool {
+    /// Pops all items from *any* navigation path, returning each to the root view.
+    /// ```swift
+    /// Button("Pop Any") {
+    ///     navigator.popAny()
+    /// }
+    /// ```
+    @MainActor
+    @discardableResult
+    public func popAny() throws -> Bool {
         guard !isNavigationLocked else {
             log(.warning("Navigator \(id) error navigation locked"))
             throw NavigationError.navigationLocked
@@ -216,13 +151,57 @@ extension NavigationState {
 
     internal func recursivePopAny() -> Bool {
         var popped = popAll()
-        for child in children.values {
+        for child in _children.values {
             if let child = child.object {
                 popped = child.recursivePopAny() || popped
             }
         }
         return popped
     }
+
+    /// Pops an items from the navigation path, or dismiss if we're on the root view.
+    /// ```swift
+    /// Button("Go Back") {
+    ///     navigator.back()
+    /// }
+    /// ```
+    /// This mimics standard SwiftUI dismiss behavior.
+    @MainActor
+    @discardableResult
+    public func back() -> Bool {
+        pop() || dismiss()
+    }
+
+    /// Indicates whether or not the navigation path is empty.
+    public var isEmpty: Bool {
+        path.isEmpty
+    }
+
+    /// Number of items in the navigation path.
+    public var count: Int {
+        path.count
+    }
+
+}
+
+extension View {
+
+    public func navigate(to destination: Binding<(some NavigationDestination)?>) -> some View {
+        self.modifier(NavigateToModifier(destination: destination, method: nil))
+    }
+
+    public func navigate(to destination: Binding<(some NavigationDestination)?>, method: NavigationMethod) -> some View {
+        self.modifier(NavigateToModifier(destination: destination, method: method))
+    }
+
+    public func navigate(trigger: Binding<Bool>, destination: some NavigationDestination) -> some View {
+        self.modifier(NavigateTriggerModifier(trigger: trigger, destination: destination, method: nil))
+    }
+
+    public func navigate(trigger: Binding<Bool>, destination: some NavigationDestination, method: NavigationMethod) -> some View {
+        self.modifier(NavigateTriggerModifier(trigger: trigger, destination: destination, method: method))
+    }
+
 }
 
 private struct NavigateToModifier<T: NavigationDestination>: ViewModifier {

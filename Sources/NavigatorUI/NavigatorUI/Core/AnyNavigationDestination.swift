@@ -114,7 +114,7 @@ private struct NavigationAutoDestinationModeModifier: ViewModifier {
     public func body(content: Content) -> some View {
         content
             .onAppear {
-                navigator.state.autoDestinationModeOverride = enabled
+                navigator.autoDestinationModeOverride = enabled
             }
     }
 }

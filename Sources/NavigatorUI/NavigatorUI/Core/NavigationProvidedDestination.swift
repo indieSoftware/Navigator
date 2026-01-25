@@ -29,7 +29,24 @@ extension NavigationProvidedDestination {
 extension Navigator {
     /// Implements the internal lookup mechanism for `NavigationProvidedDestination`.
     public func navigationProvidedView<D: NavigationDestination>(for destination: D) -> (any View)? {
-        root.state.view(for: destination)
+        root.view(for: destination)
+    }
+
+    internal func register<D: NavigationDestination>(_ provider: NavigationViewProvidingSentinel<D>) {
+        navigationProviders[ObjectIdentifier(D.self)] = provider
+    }
+
+    internal func unregister(type: Any.Type) {
+        navigationProviders.removeValue(forKey: ObjectIdentifier(type))
+    }
+
+    internal func view<D: NavigationDestination>(for destination: D) -> (any View)? {
+        if let provider = navigationProviders[ObjectIdentifier(D.self)] as? NavigationViewProvidingSentinel<D> {
+            log(.providing(.destination(destination)))
+            return provider.views(destination)
+        }
+        log(.warning("missing onNavigationProvidedView for \(type(of: destination))"))
+        return nil
     }
 }
 
@@ -71,7 +88,7 @@ extension View {
 
 internal struct NavigationProvidedViewModifier<D: NavigationDestination>: ViewModifier {
     @Environment(\.navigator) private var navigator
-    @StateObject private var sentinel: NavigationViewProvidingSentinel<D>
+    @State private var sentinel: NavigationViewProvidingSentinel<D>
 
     init(_ views: @escaping (D) -> any View) {
         self._sentinel = .init(wrappedValue: .init(views))
@@ -80,51 +97,31 @@ internal struct NavigationProvidedViewModifier<D: NavigationDestination>: ViewMo
     func body(content: Content) -> some View {
         content
             .task(id: 1) {
-                navigator.register(provider: sentinel)
+                sentinel.register(navigator: navigator)
+                navigator.root.register(sentinel)
             }
     }
 }
 
-extension Navigator {
-    internal func register<D: NavigationDestination>(provider: NavigationViewProvidingSentinel<D>) {
-        root.state.register(provider)
-    }
-}
-
-internal final class NavigationViewProvidingSentinel<D: NavigationDestination>: ObservableObject {
+internal final class NavigationViewProvidingSentinel<D: NavigationDestination> {
 
     internal let views: (D) -> any View
 
-    private weak var state: NavigationState?
+    private weak var navigator: Navigator?
 
     init(_ views: @escaping (D) -> any View) {
         self.views = views
     }
 
     deinit {
-        state?.unregister(type: D.self)
-    }
-
-    func register(state: NavigationState) {
-        self.state = state
-    }
-}
-
-extension NavigationState {
-    internal func register<D: NavigationDestination>(_ provider: NavigationViewProvidingSentinel<D>) {
-        navigationProviders[ObjectIdentifier(D.self)] = provider
-    }
-
-    internal func unregister(type: Any.Type) {
-        navigationProviders.removeValue(forKey: ObjectIdentifier(type))
-    }
-
-    internal func view<D: NavigationDestination>(for destination: D) -> (any View)? {
-        if let provider = navigationProviders[ObjectIdentifier(D.self)] as? NavigationViewProvidingSentinel<D> {
-            log(.providing(.destination(destination)))
-            return provider.views(destination)
+        let navigator = self.navigator
+        MainActor.assumeIsolated {
+            navigator?.unregister(type: D.self)
         }
-        log(.warning("missing onNavigationProvidedView for \(type(of: destination))"))
-        return nil
+    }
+
+    @MainActor
+    func register(navigator: Navigator) {
+        self.navigator = navigator.root
     }
 }

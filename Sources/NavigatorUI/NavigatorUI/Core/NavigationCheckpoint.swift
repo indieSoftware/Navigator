@@ -91,7 +91,17 @@ extension Navigator {
     /// ```
     @MainActor
     public func returnToCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) {
-        state.returnToCheckpoint(checkpoint)
+        guard let (navigator, found) = find(checkpoint) else {
+            log(.warning("checkpoint not found in current navigation tree: \(checkpoint.name)"))
+            return
+        }
+        log(.checkpoint(.returning(checkpoint.name)))
+        navigator.returnToIndex(found.index)
+        // send trigger to specific action handler
+        if let identifier = found.identifier {
+            let values = NavigationSendValues(navigator: self, identifier: identifier, value: CheckpointAction())
+            publisher.send(values)
+        }
     }
 
     /// Returns to a named checkpoint in the navigation system, passing value to that checkpoint's completion handler.
@@ -104,60 +114,6 @@ extension Navigator {
     /// ```
     @MainActor
     public func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint<T>, value: T) {
-        state.returnToCheckpoint(checkpoint, value: value)
-    }
-
-    /// Allows the code to determine if the checkpoint has been set and is known to the system.
-    public nonisolated func canReturnToCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) -> Bool {
-        state.canReturnToCheckpoint(checkpoint)
-    }
-
-    @MainActor 
-    internal func addCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) {
-        state.addCheckpoint(checkpoint)
-    }
-
-    @MainActor
-    internal func returnToIndex(_ index: Int) {
-        state.returnToIndex(index)
-    }
-
-}
-
-extension NavigationState {
-
-    // Most of the following code does recursive data manipulation best performed on the state object itself.
-
-    internal func find<T>(_ checkpoint: NavigationCheckpoint<T>) -> (NavigationState, AnyNavigationCheckpoint)? {
-        if let found = checkpoints.values
-            .filter({ $0.name == checkpoint.name && (isPresenting || $0.index < path.count) })
-            .sorted(by: { $0.index > $1.index }) // descending, which makes last...
-            .first {
-            return (self, found)
-        }
-        return parent?.find(checkpoint)
-    }
-
-    @MainActor internal func returnToCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) {
-        guard let (navigator, found) = find(checkpoint) else {
-            log(.warning("checkpoint not found in current navigation tree: \(checkpoint.name)"))
-            return
-        }
-        log(.checkpoint(.returning(checkpoint.name)))
-        navigator.returnToIndex(found.index)
-        // send trigger to specific action handler
-        if let identifier = found.identifier {
-            let values = NavigationSendValues(navigator: Navigator(state: self), identifier: identifier, value: CheckpointAction())
-            publisher.send(values)
-        }
-    }
-    
-    @MainActor internal func returnToIndex(_ index: Int) {
-        _ = dismissAnyChildren()
-        _ = pop(to: index)
-    }
-
-    @MainActor internal func returnToCheckpoint<T: Hashable>(_ checkpoint: NavigationCheckpoint<T>, value: T) {
         guard let (navigator, found) = find(checkpoint) else {
             log(.warning("checkpoint value handler not found: \(checkpoint.name)"))
             return
@@ -166,16 +122,18 @@ extension NavigationState {
         navigator.returnToIndex(found.index)
         // send value to specific receive handler
         if let identifier = found.identifier {
-            let values = NavigationSendValues(navigator: Navigator(state: self), identifier: identifier, value: value)
+            let values = NavigationSendValues(navigator: self, identifier: identifier, value: value)
             publisher.send(values)
         }
     }
 
-    internal nonisolated func canReturnToCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) -> Bool {
+    /// Allows the code to determine if the checkpoint has been set and is known to the system.
+    public func canReturnToCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) -> Bool {
         find(checkpoint) != nil
     }
 
-    @MainActor internal func addCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) {
+    @MainActor
+    internal func addCheckpoint<T>(_ checkpoint: NavigationCheckpoint<T>) {
         let entry = checkpoint.setting(index: path.count)
         if let found = checkpoints[entry.key] {
             if checkpoint.identifier != found.identifier {
@@ -185,6 +143,22 @@ extension NavigationState {
         }
         checkpoints[entry.key] = entry
         log(.checkpoint(.adding(checkpoint.name)))
+    }
+
+    @MainActor
+    internal func returnToIndex(_ index: Int) {
+        _ = dismissAnyChildren()
+        _ = pop(to: index)
+    }
+
+    internal func find<T>(_ checkpoint: NavigationCheckpoint<T>) -> (Navigator, AnyNavigationCheckpoint)? {
+        if let found = checkpoints.values
+            .filter({ $0.name == checkpoint.name && (isPresenting || $0.index < path.count) })
+            .sorted(by: { $0.index > $1.index }) // descending, which makes last...
+            .first {
+            return (self, found)
+        }
+        return parent?.find(checkpoint)
     }
 
     internal func cleanCheckpoints() {
@@ -285,7 +259,7 @@ private struct NavigationCheckpointActionModifier<T>: ViewModifier {
     }
     func body(content: Content) -> some View {
         content
-            .onReceive(navigator.state.publisher) { values in
+            .onReceive(navigator.publisher) { values in
                 if let _: CheckpointAction = values.consume(checkpoint.identifier) {
                     navigator.log(.checkpoint(.returning(checkpoint.name)))
                     action()
@@ -309,7 +283,7 @@ private struct NavigationCheckpointValueModifier<T: Hashable>: ViewModifier {
     }
     func body(content: Content) -> some View {
         content
-            .onReceive(navigator.state.publisher) { values in
+            .onReceive(navigator.publisher) { values in
                 if let value: T = values.consume(checkpoint.identifier) {
                     navigator.log(.checkpoint(.returningWithValue(checkpoint.name, value)))
                     completion(value)

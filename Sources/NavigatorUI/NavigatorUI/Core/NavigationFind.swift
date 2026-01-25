@@ -11,34 +11,21 @@ extension Navigator {
 
     /// Returns first navigator found with given id
     @MainActor public func find(id: UUID) -> Navigator? {
-        if let state = state.root.recursiveFindChild({ $0.id == id }) {
-            return Navigator(state: state)
-        }
-        return nil
+        root.recursiveFindChild({ $0.id == id })
     }
 
     /// Returns first navigator found with given name
     @MainActor public func named(_ name: String) -> Navigator? {
-        if let state = state.root.recursiveFindChild({ $0.name == name }) {
-            return Navigator(state: state)
-        }
-        return nil
+        root.recursiveFindChild({ $0.name == name })
     }
 
     /// Returns child navigator found with given name
     @MainActor public func child(named name: String) -> Navigator? {
-        if let state = state.recursiveFindChild({ $0.name == name }) {
-            return Navigator(state: state)
-        }
-        return nil
+        recursiveFindChild({ $0.name == name })
     }
 
-}
-
-extension NavigationState {
-    
-    /// Find a parent state that matches the current condition
-    internal func recursiveFindParent(_ condition: (NavigationState) -> Bool) -> NavigationState? {
+    /// Find a parent navigator that matches the current condition
+    internal func recursiveFindParent(_ condition: (Navigator) -> Bool) -> Navigator? {
         if let parent = parent {
             if condition(parent) {
                 return parent
@@ -49,13 +36,13 @@ extension NavigationState {
         return nil
     }
 
-    /// Finds a child state that matches the current condition starting from the current node
-    internal func recursiveFindChild(_ condition: (NavigationState) -> Bool) -> NavigationState? {
+    /// Finds a child navigator that matches the current condition starting from the current node
+    internal func recursiveFindChild(_ condition: (Navigator) -> Bool) -> Navigator? {
         if condition(self) {
             return self
         }
-        for child in children.values {
-            if let state = child.object, let found = state.recursiveFindChild(condition) {
+        for child in _children.values {
+            if let navigator = child.object, let found = navigator.recursiveFindChild(condition) {
                 return found
             }
         }

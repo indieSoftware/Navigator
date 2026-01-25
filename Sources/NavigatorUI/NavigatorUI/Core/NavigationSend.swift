@@ -78,7 +78,7 @@ extension Navigator {
             resume(action(self), values: remainingValues)
         } else {
             log(.send(.sending(value)))
-            state.publisher.send(NavigationSendValues(navigator: root, value: value, values: remainingValues))
+            publisher.send(NavigationSendValues(navigator: root, value: value, values: remainingValues))
         }
     }
 
@@ -86,7 +86,7 @@ extension Navigator {
     internal func resume(_ action: NavigationReceiveResumeType, values: [any Hashable] = [], delay: TimeInterval? = nil) {
         switch action {
         case .auto:
-            let delay: TimeInterval = delay ?? state.executionDelay
+            let delay: TimeInterval = delay ?? executionDelay
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                 self.send(values: values)
             }
@@ -286,7 +286,7 @@ private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
     @Environment(\.navigator) var navigator: Navigator
     func body(content: Content) -> some View {
         content
-            .onReceive(navigator.state.publisher) { values in
+            .onReceive(navigator.publisher) { values in
                 if let value: T = values.consume() {
                     navigator.log(.send(.receiving(value)))
                     let type = handler(value, navigator)
@@ -327,8 +327,13 @@ internal final class NavigationSendValues {
     }
 
     deinit {
-        if consumed == false {
-            navigator.log(.error("missing receive handler for type: \(type(of: value))!!!"))
+        let navigator = self.navigator
+        let valueType = String(describing: type(of: value))
+        let consumed = self.consumed
+        MainActor.assumeIsolated {
+            if consumed == false {
+                navigator.log(.error("missing receive handler for type: \(valueType)!!!"))
+            }
         }
     }
 

@@ -9,12 +9,6 @@ import Foundation
 
 extension Navigator {
     public func log(_ event: NavigationEvent.Event) {
-        state.log(event)
-    }
-}
-
-extension NavigationState {
-    nonisolated internal func log(_ event: NavigationEvent.Event) {
         guard let configuration, let logger = configuration.logger else {
             return
         }
@@ -44,7 +38,7 @@ nonisolated public struct NavigationEvent: CustomStringConvertible {
     public var description: String {
         "Navigator \(navigator) \(event)"
     }
-    
+
 }
 
 extension NavigationEvent {

@@ -74,7 +74,7 @@ extension NavigationAction {
     /// Cancels if navigation is locked.
     @MainActor public static var locked: NavigationAction {
         .init { navigator in
-            navigator.state.isNavigationLocked ? .cancel : .immediately
+            navigator.isNavigationLocked ? .cancel : .immediately
         }
     }
 

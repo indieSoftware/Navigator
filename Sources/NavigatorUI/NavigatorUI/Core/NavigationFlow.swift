@@ -40,7 +40,7 @@ extension Navigator {
 
     @MainActor public func start(_ flow: some NavigationFlow) {
         var mutableFlow = flow
-        mutableFlow.checkpoint = .init(id: state.id, index: count)
+        mutableFlow.checkpoint = .init(id: id, index: count)
         switch mutableFlow.start() {
         case .destination(let destination):
             navigate(to: destination)
@@ -69,24 +69,24 @@ extension Navigator {
 
     @MainActor public func complete(_ flow: some NavigationFlow) {
         guard let checkpoint = flow.checkpoint else { return }
-        if let state = find(id: checkpoint.id) {
-            state.returnToIndex(checkpoint.index)
+        if let navigator = find(id: checkpoint.id) {
+            navigator.returnToIndex(checkpoint.index)
             flow.onComplete()
         }
     }
 
     @MainActor public func cancel(_ flow: some NavigationFlow) {
         guard let checkpoint = flow.checkpoint else { return }
-        if let state = find(id: checkpoint.id) {
-            state.returnToIndex(checkpoint.index)
+        if let navigator = find(id: checkpoint.id) {
+            navigator.returnToIndex(checkpoint.index)
             flow.onCancel()
         }
     }
 
     @MainActor public func error(_ flow: some NavigationFlow, error: Error) {
         guard let checkpoint = flow.checkpoint else { return }
-        if let state = find(id: checkpoint.id) {
-            state.returnToIndex(checkpoint.index)
+        if let navigator = find(id: checkpoint.id) {
+            navigator.returnToIndex(checkpoint.index)
             flow.onError(error)
         }
     }

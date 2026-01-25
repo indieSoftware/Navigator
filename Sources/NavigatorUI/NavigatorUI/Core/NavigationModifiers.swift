@@ -36,8 +36,8 @@ extension View {
     /// Note that mapping only works with views pushed or presented by Navigator.
     public func navigationMap(inherits: Bool = true,_ modifier: @escaping (any NavigationDestination) -> any NavigationDestination) -> some View {
         self.modifier(NavigationExecutionModifier { navigator in
-            navigator.state.navigationMap = modifier
-            navigator.state.navigationMapInherits = inherits
+            navigator.navigationMap = modifier
+            navigator.navigationMapInherits = inherits
         })
     }
 
@@ -66,8 +66,8 @@ extension View {
         @ViewBuilder _ modifier: @escaping (any NavigationDestination) -> any View
     ) -> some View {
         self.modifier(NavigationExecutionModifier { navigator in
-            navigator.state.navigationModifier = modifier
-            navigator.state.navigationModifierInherits = inherits
+            navigator.navigationModifier = modifier
+            navigator.navigationModifierInherits = inherits
         })
     }
 
@@ -94,8 +94,8 @@ extension View {
         @ViewBuilder _ modifier: @escaping (any NavigationDestination) -> any View
     ) -> some View {
         self.modifier(NavigationExecutionModifier { navigator in
-            navigator.state.presentationModifier = modifier
-            navigator.state.presentationModifierInherits = inherits
+            navigator.presentationModifier = modifier
+            navigator.presentationModifierInherits = inherits
         })
     }
 
@@ -107,21 +107,6 @@ extension Navigator {
     /// See `navigationModifier` for examples.
     @MainActor
     public func mappedNavigationView(for destination: any NavigationDestination) -> AnyView {
-        state.mappedNavigationView(for: destination)
-    }
-
-    /// Retrieves mapped values for external presentation modes.
-    ///
-    /// See `presentationModifier` for examples.
-    @MainActor
-    public func mappedPresentationView(for destination: any NavigationDestination) -> AnyView {
-        state.mappedPresentationView(for: destination)
-    }
-}
-
-extension NavigationState {
-    @MainActor
-    internal func mappedNavigationView(for destination: any NavigationDestination) -> AnyView {
         let mapped = navigationMap?(destination) ?? destination
         if let modifier = navigationModifier {
             return AnyView(modifier(mapped))
@@ -130,8 +115,11 @@ extension NavigationState {
         }
     }
 
+    /// Retrieves mapped values for external presentation modes.
+    ///
+    /// See `presentationModifier` for examples.
     @MainActor
-    internal func mappedPresentationView(for destination: any NavigationDestination) -> AnyView {
+    public func mappedPresentationView(for destination: any NavigationDestination) -> AnyView {
         let mapped = navigationMap?(destination) ?? destination
         if let modifier = presentationModifier {
             return AnyView(modifier(mapped))

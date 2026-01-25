@@ -22,7 +22,13 @@ extension Navigator {
     @MainActor
     @discardableResult
     public func dismiss() -> Bool {
-        state.dismiss()
+        if isPresented {
+            dismissAction?()
+            dismissAction = nil
+            log(.navigation(.dismissed))
+            return true
+        }
+        return false
     }
 
     /// Dismisses presented sheet or fullScreenCover views presented by this Navigator.
@@ -34,8 +40,8 @@ extension Navigator {
     /// This is used in the parent view to dismiss its children, effectively the opposite of `dismiss()`.
     @MainActor
     public func dismissPresentedViews() {
-        state.sheet = nil
-        state.cover = nil
+        sheet = nil
+        cover = nil
     }
 
     /// Dismisses *any* `ManagedNavigationStack` or `ManagedPresentationView` presented by this Navigator
@@ -49,7 +55,24 @@ extension Navigator {
     @MainActor
     @discardableResult
     public func dismissAnyChildren() -> Bool {
-        state.dismissAnyChildren()
+        for child in _children.values {
+            if let childNavigator = child.object {
+                if #available (iOS 18.0, *) {
+                    if childNavigator.dismiss() || childNavigator.dismissAnyChildren() {
+                        return true
+                    }
+                } else {
+                    var dismissed: Bool
+                    // both functions need to execute, || would short-circuit
+                    dismissed = childNavigator.dismissAnyChildren()
+                    dismissed = childNavigator.dismiss() || dismissed
+                    if dismissed {
+                        return true
+                    }
+                }
+            }
+        }
+        return false
     }
 
     /// Returns to the root Navigator and dismisses *any* presented `ManagedNavigationStack` or `ManagedPresentationView`.
@@ -63,7 +86,11 @@ extension Navigator {
     @MainActor
     @discardableResult
     public func dismissAny() throws -> Bool {
-        try state.dismissAny()
+        guard !isNavigationLocked else {
+            log(.warning("Navigator \(id) error navigation locked"))
+            throw NavigationError.navigationLocked
+        }
+        return root.dismissAnyChildren()
     }
 
 }
@@ -105,51 +132,6 @@ extension View {
         ManagedPresentationView {
             self
         }
-    }
-
-}
-
-extension NavigationState {
-
-    @MainActor internal func dismiss() -> Bool {
-        if isPresented {
-            dismissAction?()
-            dismissAction = nil
-            log(.navigation(.dismissed))
-            return true
-        }
-        return false
-    }
-
-    /// Returns to the root Navigator and dismisses *any* presented ManagedNavigationStack.
-    @MainActor internal func dismissAny() throws -> Bool {
-        guard !isNavigationLocked else {
-            log(.warning("Navigator \(id) error navigation locked"))
-            throw NavigationError.navigationLocked
-        }
-        return root.dismissAnyChildren()
-    }
-
-    /// Dismisses *any* ManagedNavigationStack presented by this Navigator.
-    @MainActor internal func dismissAnyChildren() -> Bool {
-        for child in children.values {
-            if let childNavigator = child.object {
-                if #available (iOS 18.0, *) {
-                    if childNavigator.dismiss() || childNavigator.dismissAnyChildren() {
-                        return true
-                    }
-                } else {
-                    var dismissed: Bool
-                    // both functions need to execute, || would short-circuit
-                    dismissed = childNavigator.dismissAnyChildren()
-                    dismissed = childNavigator.dismiss() || dismissed
-                    if dismissed {
-                        return true
-                    }
-                }
-            }
-        }
-        return false
     }
 
 }
