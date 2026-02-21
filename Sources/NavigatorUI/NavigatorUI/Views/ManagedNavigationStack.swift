@@ -112,8 +112,7 @@ public struct ManagedNavigationStack<Content: View>: View {
         }
 
         var body: some View {
-            @Bindable var nav = navigator
-            NavigationStack(path: $nav.path) {
+            NavigationStack(path: Bindable(navigator).path) {
                 content
                     .navigationDestination(for: AnyNavigationDestination.self) { destination in
                         navigator.mappedNavigationView(for: destination.wrapped)
@@ -129,33 +128,36 @@ public struct ManagedNavigationStack<Content: View>: View {
     // Allow NavigationStack to create and manage its own Navigator
     internal struct CreateNavigationStack: View {
 
-        @State private var navigator: Navigator
         @Environment(\.navigator) private var parent
         @Environment(\.isPresented) private var isPresented
         @Environment(\.dismiss) private var dismiss
+
+        @LazyState private var navigator: Navigator
 
         private let sceneName: String?
         private let content: (Navigator) -> Content
 
         init(name: String?, sceneName: String?, content: @escaping (Navigator) -> Content) {
-            self.navigator = .init(owner: .stack, name: name)
+            self._navigator = .init(wrappedValue: Navigator(owner: .stack, name: name))
             self.sceneName = sceneName
             self.content = content
         }
 
         var body: some View {
-            @Bindable var nav = navigator
-            NavigationStack(path: $nav.path) {
+            let _ = {
+                parent.addChild(navigator, dismissible: isPresented ? dismiss : nil)
+            }()
+            NavigationStack(path: Bindable(navigator).path) {
                 content(navigator)
                     .navigationDestination(for: AnyNavigationDestination.self) { destination in
                         navigator.mappedNavigationView(for: destination.wrapped)
                     }
+                    .environment(\.navigator, navigator)
             }
             .modifier(NavigationPresentationModifiers(navigator: navigator))
             .modifier(NavigationSceneStorageModifier(navigator: navigator, name: sceneName))
             .environment(\.navigator, navigator)
             .onAppear {
-                parent.addChild(navigator, dismissible: isPresented ? dismiss : nil)
                 Navigator.current = navigator
             }
         }

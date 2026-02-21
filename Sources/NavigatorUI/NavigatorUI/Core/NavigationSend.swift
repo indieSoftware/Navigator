@@ -8,8 +8,11 @@
 import Combine
 import SwiftUI
 
-extension Navigator {
+public protocol NavigationSending {
+    @MainActor func send(values: [any Hashable])
+}
 
+extension NavigationSending {
     /// Sends a value or values to navigation receivers throughout the application.
     ///
     /// This is the core functionality behind deep linking support in Navigator.
@@ -60,6 +63,9 @@ extension Navigator {
     public func send(_ values: any Hashable...) {
         send(values: values)
     }
+}
+
+extension Navigator: NavigationSending {
 
     @available(*, deprecated, renamed: "send", message: "Use send(...) instead.")
     @MainActor
@@ -162,7 +168,7 @@ extension View {
     /// Note that there should be one and only one registered handler for a given type in the navigation tree. If more than
     /// one exists the first handler will consume the value and the remaining handlers should be ignored.
     public func onNavigationReceive<T: Hashable>(handler: @escaping NavigationReceiveResumeValueOnlyHandler<T>) -> some View {
-        self.modifier(OnNavigationReceiveModifier(handler: { (value, _) in handler(value) }))
+        self.modifier(OnNavigationReceiveModifier<T>(handler: { (value, _) in handler(value) }))
     }
 
     /// Handler receives values of a specific type broadcast via `navigator.send`.
@@ -180,7 +186,7 @@ extension View {
     /// Note that there should be one and only one registered handler for a given type in the navigation tree. If more than
     /// one exists the first handler will consume the value and the remaining handlers should be ignored.
     public func onNavigationReceive<T: Hashable>(handler: @escaping NavigationReceiveResumeHandler<T>) -> some View {
-        self.modifier(OnNavigationReceiveModifier(handler: handler))
+        self.modifier(OnNavigationReceiveModifier<T>(handler: handler))
     }
 
     // Handler receives values of a specific type broadcast via `navigator.send` and assigns the result to bound value
@@ -284,6 +290,9 @@ private struct NavigationSendValuesModifier<T: Hashable & Equatable>: ViewModifi
 private struct OnNavigationReceiveModifier<T: Hashable>: ViewModifier {
     internal let handler: NavigationReceiveResumeHandler<T>
     @Environment(\.navigator) var navigator: Navigator
+    init(handler: @escaping NavigationReceiveResumeHandler<T>) {
+        self.handler = handler
+    }
     func body(content: Content) -> some View {
         content
             .onReceive(navigator.publisher) { values in

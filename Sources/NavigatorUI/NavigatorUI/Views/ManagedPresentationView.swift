@@ -40,22 +40,24 @@ public struct ManagedPresentationView<Content: View>: View {
     @Environment(\.isPresented) private var isPresented
     @Environment(\.dismiss) private var dismiss
 
-    @State private var navigator: Navigator
+    @LazyState private var navigator: Navigator
 
     private let content: Content
 
     /// Initializes NavigationStack
     public init(@ViewBuilder content: () -> Content) {
         self.content = content()
-        self.navigator = .init(owner: .presenter, name: nil)
+        self._navigator = .init(wrappedValue: Navigator(owner: .presenter, name: nil))
     }
 
     public var body: some View {
+        let _ = {
+            parent.addChild(navigator, dismissible: isPresented ? dismiss : nil)
+        }()
         content
             .modifier(NavigationPresentationModifiers(navigator: navigator))
             .environment(\.navigator, navigator)
             .onAppear {
-                parent.addChild(navigator, dismissible: isPresented ? dismiss : nil)
                 Navigator.current = navigator
             }
     }

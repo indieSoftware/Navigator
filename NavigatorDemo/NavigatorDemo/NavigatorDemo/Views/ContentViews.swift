@@ -52,7 +52,6 @@ struct ContentSheetSection: View {
 
             Button("Present Locked Cover (Imperative)") {
                 navigator.navigate(to: HomeDestinations.presented2)
-                navigator.returnToCheckpoint(KnownCheckpoints.home)
             }
 
             Button("Present Dismissible View") {

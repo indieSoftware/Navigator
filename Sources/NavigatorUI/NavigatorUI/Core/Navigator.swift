@@ -28,8 +28,8 @@ import SwiftUI
 /// ```swift
 /// @Environmnt(\.navigator) var navigator
 /// ```
-@Observable
 @MainActor
+@Observable
 public final class Navigator: @unchecked Sendable {
 
     public enum Owner: Int, Sendable {
@@ -55,6 +55,8 @@ public final class Navigator: @unchecked Sendable {
     internal var path: NavigationPath = .init() {
         didSet {
             cleanCheckpoints()
+            isEmpty = path.isEmpty
+            count = path.count
         }
     }
 
@@ -69,6 +71,20 @@ public final class Navigator: @unchecked Sendable {
 
     /// Navigation locks, if any
     internal var navigationLocks: Set<UUID> = []
+
+    // MARK: - Observable Properties
+
+    /// True if the current ManagedNavigationStack or navigationDismissible is presented.
+    public internal(set) var isPresented: Bool = false
+
+    /// True if the current ManagedNavigationStack or navigationDismissible is presenting a child.
+    public internal(set) var isPresenting: Bool = false
+
+    /// Empty path flag
+    public internal(set) var isEmpty: Bool = false
+
+    /// Number of items in the navigation path.
+    public internal(set) var count: Int = 0
 
     // MARK: - Non-Observable Properties
 
@@ -90,16 +106,11 @@ public final class Navigator: @unchecked Sendable {
 
     /// Parent navigator, if any.
     @ObservationIgnored
-    internal weak var parent: Navigator? = nil
+    public internal(set) weak var parent: Navigator? = nil
 
     /// Presented children, if any.
     @ObservationIgnored
     internal var _children: [UUID : WeakNavigator] = [:]
-
-    /// True if the current ManagedNavigationStack or navigationDismissible is presented.
-    public var isPresented: Bool {
-        dismissAction != nil
-    }
 
     /// Dismissible function for this particular navigator.
     @ObservationIgnored
@@ -198,6 +209,8 @@ public final class Navigator: @unchecked Sendable {
     internal func addChild(_ child: Navigator, dismissible: DismissAction?) {
         // always update dismissible closure
         child.dismissAction = dismissible
+        child.isPresented = dismissible != nil
+        self.isPresenting = child.isPresented
         // exit if already added
         guard !_children.keys.contains(child.id) else {
             return
@@ -220,6 +233,9 @@ public final class Navigator: @unchecked Sendable {
     internal func removeChild(_ child: Navigator) {
         log(.lifecycle(.removing(child.id)))
         _children.removeValue(forKey: child.id)
+        if child.isPresented {
+            self.isPresenting = false
+        }
         child.dismissAction = nil
     }
 

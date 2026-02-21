@@ -1,5 +1,9 @@
 # Navigator Changelog
 
+### 2.0.0
+
+* Navigator environment variable now uses Observation and is not depend on NavigationState ObservableObject
+
 ### 1.4.6
 
 * Tweak changes presentedSheetOrCover to presentingSheetOrCover to better match Apple's existing semantics

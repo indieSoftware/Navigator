@@ -7,8 +7,26 @@
 
 import SwiftUI
 
-extension Navigator {
+public protocol Navigating {
+    /// Navigates to a specific NavigationDestination overriding the destination's specified navigation method.
+    /// ```swift
+    /// Button("Button Present Home Page 55") {
+    ///     navigator.navigate(to: HomeDestinations.pageN(55), method: .sheet)
+    /// }
+    /// ```
+    @MainActor func navigate<D: NavigationDestination>(to destination: D, method: NavigationMethod)
 
+    /// Pops an items from the navigation path, or dismiss if we're on the root view.
+    /// ```swift
+    /// Button("Go Back") {
+    ///     navigator.back()
+    /// }
+    /// ```
+    /// This mimics standard SwiftUI dismiss behavior.
+    @MainActor @discardableResult func back() -> Bool
+}
+
+extension Navigating {
     /// Navigates to a specific ``NavigationDestination`` using the destination's ``NavigationMethod``.
     ///
     /// This may push an item onto the stacks navigation path, or present a sheet or fullscreen cover view.
@@ -21,13 +39,10 @@ extension Navigator {
     public func navigate<D: NavigationDestination>(to destination: D) {
         navigate(to: destination, method: destination.method)
     }
+}
 
-    /// Navigates to a specific NavigationDestination overriding the destination's specified navigation method.
-    /// ```swift
-    /// Button("Button Present Home Page 55") {
-    ///     navigator.navigate(to: HomeDestinations.pageN(55), method: .sheet)
-    /// }
-    /// ```
+extension Navigator: Navigating {
+
     @MainActor
     public func navigate<D: NavigationDestination>(to destination: D, method: NavigationMethod) {
         switch method {
@@ -159,27 +174,10 @@ extension Navigator {
         return popped
     }
 
-    /// Pops an items from the navigation path, or dismiss if we're on the root view.
-    /// ```swift
-    /// Button("Go Back") {
-    ///     navigator.back()
-    /// }
-    /// ```
-    /// This mimics standard SwiftUI dismiss behavior.
     @MainActor
     @discardableResult
     public func back() -> Bool {
         pop() || dismiss()
-    }
-
-    /// Indicates whether or not the navigation path is empty.
-    public var isEmpty: Bool {
-        path.isEmpty
-    }
-
-    /// Number of items in the navigation path.
-    public var count: Int {
-        path.count
     }
 
 }

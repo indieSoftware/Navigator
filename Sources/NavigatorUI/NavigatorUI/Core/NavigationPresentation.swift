@@ -41,15 +41,10 @@ extension Navigator {
         }
     }
 
-    /// Returns true if the current ManagedNavigationStack or navigationDismissible is presenting.
-    public var isPresenting: Bool {
-        _children.values.first(where: { $0.object?.isPresented ?? false }) != nil
-    }
-
     /// Returns true if any child of the current ManagedNavigationStack or navigationDismissible is presenting.
-    public var isAnyChildPresenting: Bool {
+    public func isAnyChildPresenting() -> Bool {
         _children.values.first(where: {
-            if let object = $0.object, object.isPresented || object.isAnyChildPresenting {
+            if let object = $0.object, object.isPresented || object.isAnyChildPresenting() {
                 return true
             }
             return false
