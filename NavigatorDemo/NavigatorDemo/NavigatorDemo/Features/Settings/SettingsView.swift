@@ -18,10 +18,13 @@ class SettingsRootViewModel: ObservableObject {
 struct SettingsRootView: View {
     @EnvironmentObject var rootViewModel: SettingsRootViewModel
     var body: some View {
-        ManagedNavigationStack(scene: RootTabs.settings.id) {
+        ManagedNavigationStack(scene: RootTabs.settings.id) { navigator in
             SettingsView(name: "Root Settings")
                 .navigationTitle("Settings")
                 .navigationAutoReceive(SettingsDestinations.self)
+                .onChange(of: navigator.count) {
+                    print("Count = \(navigator.count)")
+                }
         }
     }
 }
