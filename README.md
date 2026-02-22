@@ -6,7 +6,7 @@
 
 Advanced Navigation Support for SwiftUI.
 
-## Navigator 1.4.6
+## Navigator 2.0.0
 
 Navigator provides SwiftUI with a simple yet powerful navigation layer based on NavigationStack. 
 
@@ -25,7 +25,7 @@ This is *not* just another push/pop navigation stack library. It supports...
 
 You might want to reread that last bullet point again...
 
-Navigator is written entirely in Swift and SwiftUI, and supports iOS 16 and above.
+Navigator 2.0 is written entirely in Swift and SwiftUI, supports Observation, and runs on iOS 17 and above.
 
 ## The Code
 
