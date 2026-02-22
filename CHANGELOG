@@ -3,6 +3,7 @@
 ### 2.0.0
 
 * Navigator environment variable now uses Observation and is not depend on NavigationState ObservableObject
+* Addition of protocols for navigating and sending.
 
 ### 1.4.6
 
