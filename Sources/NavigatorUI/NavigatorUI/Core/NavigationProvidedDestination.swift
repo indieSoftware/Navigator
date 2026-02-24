@@ -20,7 +20,12 @@ import SwiftUI
 public protocol NavigationProvidedDestination: NavigationDestination {}
 
 extension NavigationProvidedDestination {
-    // default implementation of the view body
+    /// Default implementation that renders the destination using
+    /// a ``NavigationProvidedView``.
+    ///
+    /// This delegates to any matching `onNavigationProvidedView` handlers
+    /// registered with the root navigator, falling back to the destination's
+    /// placeholder content when no provider is available.
     public var body: some View {
         NavigationProvidedView(for: self)
     }

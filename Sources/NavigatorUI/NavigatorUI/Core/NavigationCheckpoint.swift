@@ -46,6 +46,10 @@ import SwiftUI
 /// Defining with `{ checkpoint() }` ensures a unique name for each variable instance.
 nonisolated public struct NavigationCheckpoint<T>: Equatable, Hashable, Sendable {
 
+    /// The unique name for this checkpoint, including its value type.
+    ///
+    /// Names are used internally to index and resolve checkpoints when
+    /// returning to them later.
     public let name: String
 
     internal let identifier: String?
@@ -70,9 +74,29 @@ nonisolated public struct NavigationCheckpoint<T>: Equatable, Hashable, Sendable
 
 }
 
+/// A marker protocol for types that define reusable navigation checkpoints.
+///
+/// Types conforming to this protocol are expected to expose static
+/// ``NavigationCheckpoint`` properties, typically via the helper
+/// ``NavigationCheckpoints/checkpoint(_:)``.
 public protocol NavigationCheckpoints {}
 
 extension NavigationCheckpoints {
+
+    /// Creates a new checkpoint for the conforming type.
+    ///
+    /// This helper is usually called from a computed static property to
+    /// ensure each checkpoint gets a unique name:
+    ///
+    /// ```swift
+    /// struct KnownCheckpoints: NavigationCheckpoints {
+    ///     static var home: NavigationCheckpoint<Void> { checkpoint() }
+    /// }
+    /// ```
+    ///
+    /// - Parameter name: An optional name to incorporate into the checkpoint,
+    ///   defaulting to the calling property name.
+    /// - Returns: A new checkpoint value for the specified type.
     public static func checkpoint<T>(_ name: String = #function) -> NavigationCheckpoint<T> {
         assert("\(Self.self)" != name, "Call within computed property. e.g. '{ checkpoint() }` and not `= checkpoint()'.")
         return NavigationCheckpoint<T>(name: "\(Self.self).\(name)")

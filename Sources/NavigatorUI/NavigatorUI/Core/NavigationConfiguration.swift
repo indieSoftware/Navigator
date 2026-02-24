@@ -52,6 +52,20 @@ nonisolated public struct NavigationConfiguration {
     /// AutoDestinationMode
     public let autoDestinationMode: Bool
 
+    /// Creates a new navigation configuration.
+    ///
+    /// - Parameters:
+    ///   - restorationKey: An optional key used to enable state restoration
+    ///     for named managed navigation stacks. Change the key when you add
+    ///     or remove checkpoints or destination types.
+    ///   - logger: A closure that receives navigation events for logging.
+    ///     The default implementation prints events in debug builds.
+    ///   - executionDelay: Controls the timing of deep-link animations.
+    ///     Smaller values speed up multi-step navigation; larger values make
+    ///     each step more visible.
+    ///   - verbosity: Controls which events are emitted by the logger.
+    ///   - autoDestinationMode: When enabled, allows navigation to
+    ///     ``NavigationDestination`` values without explicit registration.
     public init(
         restorationKey: String? = nil,
         logger: ((NavigationEvent) -> Void)? = {

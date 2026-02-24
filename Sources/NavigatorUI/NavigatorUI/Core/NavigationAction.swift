@@ -9,11 +9,27 @@ import SwiftUI
 
 extension Navigator {
 
+    /// Performs one or more navigation actions as a single send operation.
+    ///
+    /// This is a convenience wrapper around ``Navigator/send(values:)`` for
+    /// ``NavigationAction`` values.
+    ///
+    /// ```swift
+    /// navigator.perform(
+    ///     .dismissAny,
+    ///     .popAny
+    /// )
+    /// ```
+    ///
+    /// - Parameter actions: The actions to enqueue for execution.
     @MainActor
     public func perform(_ actions: NavigationAction...) {
         send(values: actions)
     }
 
+    /// Performs a sequence of navigation actions provided as an array.
+    ///
+    /// - Parameter actions: The actions to enqueue for execution.
     @MainActor
     public func perform(actions: [NavigationAction]) {
         send(values: actions)
@@ -21,25 +37,46 @@ extension Navigator {
 
 }
 
+/// A named, hashable unit of navigation work that can be enqueued and
+/// executed by a ``Navigator``.
+///
+/// Actions are usually created via one of the static factory helpers
+/// (such as ``NavigationAction/dismissAny``) and sent using
+/// ``Navigator/send(values:)`` or ``Navigator/perform(_:)``.
 nonisolated public struct NavigationAction: Hashable {
 
+    /// A human-readable name used for logging, equality, and hashing.
     public let name: String
 
     private let action: (Navigator) -> NavigationReceiveResumeType
 
+    /// Creates a navigation action with an optional name and the work to perform.
+    ///
+    /// - Parameters:
+    ///   - name: An optional name used for logging and identity. Defaults to the
+    ///     calling function name.
+    ///   - action: The closure that performs the navigation work and returns
+    ///     a ``NavigationReceiveResumeType`` to control any remaining values.
     public init(_ name: String = #function, action: @escaping (Navigator) -> NavigationReceiveResumeType) {
         self.name = name
         self.action = action
     }
 
+    /// Executes the underlying action with the given navigator.
+    ///
+    /// - Parameter navigator: The navigator that should perform the work.
+    /// - Returns: A ``NavigationReceiveResumeType`` indicating how to handle
+    ///   any remaining values in the send queue.
     public func callAsFunction(_ navigator: Navigator) -> NavigationReceiveResumeType {
         action(navigator)
     }
 
+    /// Hashes the action based on its name.
     public func hash(into hasher: inout Hasher) {
         hasher.combine(name)
     }
 
+    /// Two navigation actions are equal when their names match.
     public static func == (lhs: NavigationAction, rhs: NavigationAction) -> Bool {
         lhs.name == rhs.name
     }

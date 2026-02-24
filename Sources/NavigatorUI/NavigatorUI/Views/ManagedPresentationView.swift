@@ -44,12 +44,25 @@ public struct ManagedPresentationView<Content: View>: View {
 
     private let content: Content
 
-    /// Initializes NavigationStack
+    /// Wraps presented content in a managed navigator-aware context.
+    ///
+    /// Use this whenever you present views outside of a managed navigation
+    /// stack but still want them to participate in navigation and deep linking.
+    ///
+    /// ```swift
+    /// .sheet(item: $destination) { destination in
+    ///     ManagedPresentationView {
+    ///         destination()
+    ///     }
+    /// }
+    /// ```
     public init(@ViewBuilder content: () -> Content) {
         self.content = content()
         self._navigator = .init(wrappedValue: Navigator(owner: .presenter, name: nil))
     }
 
+    /// The view content configured with a dedicated `Navigator` and
+    /// presentation environment.
     public var body: some View {
         let _ = {
             parent.addChild(navigator, dismissible: isPresented ? dismiss : nil)

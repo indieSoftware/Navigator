@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+/// A type that can perform imperative navigation actions.
+///
+/// Conforming types provide operations for navigating to destinations and
+/// moving backward through the navigation stack.
 public protocol Navigating {
     /// Navigates to a specific NavigationDestination overriding the destination's specified navigation method.
     /// ```swift
@@ -43,6 +47,14 @@ extension Navigating {
 
 extension Navigator: Navigating {
 
+    /// Navigates to a specific ``NavigationDestination`` using an explicit method.
+    ///
+    /// This is the low-level implementation behind the higher-level
+    /// ``Navigating/navigate(to:)`` protocol requirement.
+    ///
+    /// - Parameters:
+    ///   - destination: The destination to present.
+    ///   - method: The navigation method to use when presenting the destination.
     @MainActor
     public func navigate<D: NavigationDestination>(to destination: D, method: NavigationMethod) {
         switch method {
@@ -184,18 +196,75 @@ extension Navigator {
 
 extension View {
 
+    /// Triggers navigation to a destination whenever the bound value is set.
+    ///
+    /// Use this when you want to drive navigation from application state.
+    /// The bound value is reset to `nil` after navigation completes.
+    ///
+    /// ```swift
+    /// struct ContentView: View {
+    ///     @Environment(\.navigator) private var navigator
+    ///     @State private var nextDestination: (any NavigationDestination)?
+    ///
+    ///     var body: some View {
+    ///         List(items) { item in
+    ///             Button(item.title) {
+    ///                 nextDestination = ItemDestination.details(item)
+    ///             }
+    ///         }
+    ///         .navigate(to: $nextDestination)
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// - Parameter destination: A binding to an optional destination.
+    /// - Returns: A view that performs navigation when the binding changes.
     public func navigate(to destination: Binding<(some NavigationDestination)?>) -> some View {
         self.modifier(NavigateToModifier(destination: destination, method: nil))
     }
 
+    /// Triggers navigation to a destination with an explicit method whenever
+    /// the bound value is set.
+    ///
+    /// - Parameters:
+    ///   - destination: A binding to an optional destination.
+    ///   - method: The navigation method to use when presenting the destination.
     public func navigate(to destination: Binding<(some NavigationDestination)?>, method: NavigationMethod) -> some View {
         self.modifier(NavigateToModifier(destination: destination, method: method))
     }
 
+    /// Triggers navigation to a destination when the bound boolean becomes `true`.
+    ///
+    /// Use this when you want to keep the destination fixed but control when
+    /// navigation occurs via a simple trigger flag.
+    ///
+    /// ```swift
+    /// struct ContentView: View {
+    ///     @State private var showDetails = false
+    ///
+    ///     var body: some View {
+    ///         Button("Show Details") {
+    ///             showDetails = true
+    ///         }
+    ///         .navigate(trigger: $showDetails, destination: DetailsDestination())
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - trigger: A binding that fires navigation when set to `true`.
+    ///   - destination: The destination to present.
     public func navigate(trigger: Binding<Bool>, destination: some NavigationDestination) -> some View {
         self.modifier(NavigateTriggerModifier(trigger: trigger, destination: destination, method: nil))
     }
 
+    /// Triggers navigation to a destination with an explicit method when
+    /// the bound boolean becomes `true`.
+    ///
+    /// - Parameters:
+    ///   - trigger: A binding that fires navigation when set to `true`.
+    ///   - destination: The destination to present.
+    ///   - method: The navigation method to use when presenting the destination.
     public func navigate(trigger: Binding<Bool>, destination: some NavigationDestination, method: NavigationMethod) -> some View {
         self.modifier(NavigateTriggerModifier(trigger: trigger, destination: destination, method: method))
     }

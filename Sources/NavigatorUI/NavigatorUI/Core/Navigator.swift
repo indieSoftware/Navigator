@@ -32,6 +32,7 @@ import SwiftUI
 @Observable
 public final class Navigator: @unchecked Sendable {
 
+    /// Identifies who owns and manages a given navigator in the tree.
     public enum Owner: Int, Sendable {
         case application
         case root
@@ -252,10 +253,12 @@ public final class Navigator: @unchecked Sendable {
 
 extension Navigator: Hashable, Equatable {
 
+    /// Hashes the navigator using its unique identifier.
     nonisolated public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
 
+    /// Two navigators are equal when they share the same identifier.
     nonisolated public static func == (lhs: Navigator, rhs: Navigator) -> Bool {
         lhs.id == rhs.id
     }

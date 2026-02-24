@@ -7,11 +7,23 @@
 
 import SwiftUI
 
-/// Wrapper boxes a specific NavigationDestination.
+/// A type-erased wrapper around a specific ``NavigationDestination``.
+///
+/// `AnyNavigationDestination` stores both the underlying destination and the
+/// ``NavigationMethod`` used to present it, allowing heterogeneous destinations
+/// to be stored in a single `NavigationPath`.
 public struct AnyNavigationDestination {
+
+    /// The wrapped navigation destination.
     public var wrapped: any NavigationDestination
+
+    /// The navigation method used to present the wrapped destination.
     public var method: NavigationMethod
 
+    /// Creates a type-erased wrapper for the given destination.
+    ///
+    /// - Parameter destination: The destination to wrap. Its configured
+    ///   ``NavigationDestination/method`` is captured at creation time.
     @MainActor
     public init<D: NavigationDestination>(_ destination: D) {
         self.wrapped = destination
@@ -26,8 +38,10 @@ public struct AnyNavigationDestination {
 
 extension AnyNavigationDestination: Identifiable {
 
+    /// An identifier derived from the wrapped destination's identifier.
     public nonisolated var id: Int { wrapped.id }
 
+    /// Renders the wrapped destination as an `AnyView`.
     @MainActor public func callAsFunction() -> AnyView {
         wrapped.asAnyView()
     }

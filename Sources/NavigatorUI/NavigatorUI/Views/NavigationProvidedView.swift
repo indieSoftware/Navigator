@@ -37,16 +37,29 @@ public struct NavigationProvidedView<D: NavigationDestination, P: View>: View {
     private let destination: D
     private let placeholder: P?
 
+    /// Creates a provided view that resolves the given destination using
+    /// any registered `onNavigationProvidedView` handlers.
+    ///
+    /// When no provider is available, a debug-only placeholder message is shown.
     public init(for destination: D) where P == EmptyView {
         self.destination = destination
         self.placeholder = nil
     }
 
+    /// Creates a provided view with a custom placeholder.
+    ///
+    /// The placeholder content is shown whenever no provider is available
+    /// for the destination.
+    ///
+    /// - Parameters:
+    ///   - destination: The destination to resolve.
+    ///   - placeholder: A view builder that returns placeholder content.
     public init(for destination: D, @ViewBuilder placeholder: @escaping () -> P) {
         self.destination = destination
         self.placeholder = placeholder()
     }
 
+    /// The resolved destination view, a placeholder view, or an empty view.
     public var body: some View {
         if let view = navigator.navigationProvidedView(for: destination) {
             AnyView(view)

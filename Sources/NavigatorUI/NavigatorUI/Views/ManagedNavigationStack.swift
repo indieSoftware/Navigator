@@ -82,6 +82,8 @@ public struct ManagedNavigationStack<Content: View>: View {
         self.isScene = true
     }
 
+    /// The managed navigation stack that either uses an existing navigator
+    /// (when wrapped in ``ManagedPresentationView``) or creates its own.
     public var body: some View {
         if isWrappedInPresentationView {
             WrappedNavigationStack(navigator: navigator.setting(name), sceneName: sceneName, content: content(navigator))
