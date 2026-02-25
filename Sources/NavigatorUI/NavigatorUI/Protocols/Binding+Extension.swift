@@ -10,6 +10,21 @@ import SwiftUI
 /// Allows bindings to be passed in ``NavigationDestination`` types as
 /// hashable values when the bound type is also `Hashable`.
 ///
+/// ```swift
+/// enum SettingsDestinations: NavigationDestination {
+///     case profile(User, isEditing: Binding<Bool>)
+///
+///     var body: some View {
+///         switch self {
+///         case .profile(let user, let isEditing):
+///             ProfileView(user: user, isEditing: isEditing)
+///         }
+///     }
+/// }
+///
+/// // Usage: navigator.navigate(to: SettingsDestinations.profile(user, isEditing: $isEditing))
+/// ```
+///
 /// > Warning: `Binding` values are **not** `Codable` and will disable
 /// > state restoration in any ``ManagedNavigationStack`` that uses them.
 /// >

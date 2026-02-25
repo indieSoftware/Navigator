@@ -10,6 +10,21 @@ import SwiftUI
 /// Allows callback handlers to be passed in ``NavigationDestination`` types
 /// as a hashable value based on an identifier.
 ///
+/// ```swift
+/// enum FormDestinations: NavigationDestination {
+///     case edit(Item, onSave: Callback<Item>)
+///
+///     var body: some View {
+///         switch self {
+///         case .edit(let item, let onSave):
+///             EditView(item: item) { updated in
+///                 onSave(updated)
+///             }
+///         }
+///     }
+/// }
+/// ```
+///
 /// > Warning: `Callback` handlers are **not** `Codable` and will disable
 /// > state restoration in any ``ManagedNavigationStack`` that uses them.
 /// >

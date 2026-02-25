@@ -12,6 +12,19 @@ import SwiftUI
 ///
 /// `LazyState` is useful when you want to delay the construction of an
 /// expensive `@Observable` object until it is actually needed by the view.
+///
+/// ```swift
+/// struct DetailView: View {
+///     @LazyState private var viewModel = DetailViewModel()
+///
+///     var body: some View {
+///         // viewModel is created only when body is first evaluated
+///         Text(viewModel.title)
+///     }
+/// }
+/// ```
+/// Unlike `@State`, `@LazyState` is not a property wrapper that creates an observable value when the view is first created or when the view
+/// is updated. Instead, it is a property wrapper that lazily creates an observable value on first access.
 @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, visionOS 1.0, *)
 @MainActor
 @propertyWrapper
