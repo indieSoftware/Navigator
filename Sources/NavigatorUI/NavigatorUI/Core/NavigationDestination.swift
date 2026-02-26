@@ -104,6 +104,25 @@ import SwiftUI
 
     /// Can be overridden to define a specific send resume type for each destination.
     var receiveResumeType: NavigationReceiveResumeType { get }
+    
+    /// Can be overridden to define specific presentation detents for sheet presentations.
+    ///
+    /// Return an empty set to use the system default (full-height sheet).
+    /// ```swift
+    /// var detents: Set<PresentationDetent> {
+    ///     switch self {
+    ///     case .settings: [.medium, .large]
+    ///     case .info: [.medium]
+    ///     default: []
+    ///     }
+    /// }
+    /// ```
+    var detents: Set<PresentationDetent> { get }
+
+    /// Can be overridden to define the initially selected detent for sheet presentations.
+    ///
+    /// If nil, the system will choose the default detent.
+    var selectedDetent: PresentationDetent? { get }
 
 }
 
@@ -117,6 +136,16 @@ extension NavigationDestination {
     /// Default resume behavior.
     public var receiveResumeType: NavigationReceiveResumeType {
         .auto
+    }
+    
+    /// Default detents (empty = system default, full-height sheet).
+    public var detents: Set<PresentationDetent> {
+        []
+    }
+    
+    /// Default selected detent (nil = system default).
+    public var selectedDetent: PresentationDetent? {
+        nil
     }
 
     /// Convenience shortcut to implicitly return AnyView.

@@ -19,10 +19,35 @@ nonisolated public enum HomeDestinations: Codable, NavigationDestination {
     case external3
     case presented1
     case presented2
+    
+    case halfSheet1
+    case halfSheet2
 
     // Illustrates external mapping of destination type to views. See Settings for simple mapping.
     public var body: some View {
         HomeDestinationsView(select: self)
+    }
+    
+    public var detents: Set<PresentationDetent> {
+        switch self {
+        case .halfSheet1:
+            [.medium,. large]
+        case .halfSheet2:
+            [.fraction(0.3), .medium, .large]
+        default:
+            [.medium, .large]
+        }
+    }
+    
+    public var selectedDetent: PresentationDetent? {
+        switch self {
+        case .halfSheet1:
+                .medium
+        case .halfSheet2:
+                .fraction(0.3)
+        default:
+            nil
+        }
     }
 
 }
@@ -82,6 +107,14 @@ internal struct HomeDestinationsView: View {
             // This presented view can not be globally dismissed via navigation action, deep links, etc.
             NestedHomeContentView(title: "Via Cover")
                 .navigationLocked()
+            
+        case .halfSheet1:
+            // Demonstrates internally presented view via method
+            NestedHomeContentView(title: "Via Half Sheet1")
+            
+        case .halfSheet2:
+            // Demonstrates internally presented view via method
+            NestedHomeContentView(title: "Via Half Sheet2")
         }
     }
 }
@@ -97,6 +130,11 @@ extension HomeDestinations {
             .managedSheet
         case .presented2:
             .managedCover
+            
+        case .halfSheet1:
+            .sheet
+        case .halfSheet2:
+            .managedSheet
         }
     }
     

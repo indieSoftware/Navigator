@@ -11,6 +11,9 @@ import SwiftUI
 public struct AnyNavigationDestination {
     public var wrapped: any NavigationDestination
     public var method: NavigationMethod
+    
+    @MainActor public var detents: Set<PresentationDetent> { wrapped.detents }
+    @MainActor public var selectedDetent: PresentationDetent? { wrapped.selectedDetent }
 
     @MainActor
     public init<D: NavigationDestination>(_ destination: D) {
