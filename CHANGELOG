@@ -4,6 +4,7 @@
 
 * Navigator environment variable now uses Observation and is not depend on NavigationState ObservableObject
 * Addition of protocols for navigating and sending.
+* First pass at agent agnostic skills file and folder.
 
 ### 1.4.6
 
