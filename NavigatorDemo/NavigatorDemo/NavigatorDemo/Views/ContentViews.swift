@@ -51,11 +51,6 @@ struct ContentSheetSection: View {
                     print("HomeDestinations.halfSheet1 is the current destination")
                 }
             }
-
-            Button("Present Half Sheet1 (Declarative)") {
-                presentSheet = HomeDestinations.halfSheet1
-            }
-            .navigate(to: $presentSheet)
             
             Button("Present Half Sheet2 (Imperative)") {
                 navigator.navigate(to: HomeDestinations.halfSheet2)
@@ -63,11 +58,6 @@ struct ContentSheetSection: View {
                     print("HomeDestinations.halfSheet2 is the current destination")
                 }
             }
-
-            Button("Present Half Sheet2 (Declarative)") {
-                presentSheet = HomeDestinations.halfSheet2
-            }
-            .navigate(to: $presentSheet)
 
             Button("Present Sheet as Cover (Declarative)") {
                 presentCover = HomeDestinations.presented1
