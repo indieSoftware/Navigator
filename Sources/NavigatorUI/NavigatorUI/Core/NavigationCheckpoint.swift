@@ -323,7 +323,7 @@ private struct NavigationReturnToCheckpointModifier<T: Hashable>: ViewModifier {
     @Environment(\.navigator) internal var navigator: Navigator
     func body(content: Content) -> some View {
         content
-            .onChange(of: checkpoint) { checkpoint in
+            .onChange(of: checkpoint) { _, checkpoint in
                 if let checkpoint {
                     navigator.returnToCheckpoint(checkpoint)
                     self.checkpoint = nil
@@ -338,7 +338,7 @@ private struct NavigationReturnToCheckpointTriggerModifier<T>: ViewModifier {
     @Environment(\.navigator) internal var navigator: Navigator
     func body(content: Content) -> some View {
         content
-            .onChange(of: trigger) { trigger in
+            .onChange(of: trigger) { _, trigger in
                 if trigger {
                     navigator.returnToCheckpoint(checkpoint)
                     self.trigger = false

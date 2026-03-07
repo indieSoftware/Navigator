@@ -338,7 +338,7 @@ private struct NavigationSendValueModifier<T: Hashable & Equatable>: ViewModifie
     @Environment(\.navigator) internal var navigator: Navigator
     func body(content: Content) -> some View {
         content
-            .onChange(of: item) { item in
+            .onChange(of: item) { _, item in
                 if let item {
                     navigator.send(item)
                     self.item = nil
@@ -352,7 +352,7 @@ private struct NavigationSendValuesModifier<T: Hashable & Equatable>: ViewModifi
     @Environment(\.navigator) internal var navigator: Navigator
     func body(content: Content) -> some View {
         content
-            .onChange(of: values) { values in
+            .onChange(of: values) { _, values in
                 if let values {
                     navigator.send(values: values)
                     self.values = nil

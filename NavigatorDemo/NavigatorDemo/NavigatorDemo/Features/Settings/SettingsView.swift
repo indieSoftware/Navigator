@@ -22,7 +22,7 @@ struct SettingsRootView: View {
             SettingsView(name: "Root Settings")
                 .navigationTitle("Settings")
                 .navigationAutoReceive(SettingsDestinations.self)
-                .onChange(of: navigator.count) {
+                .onChange(of: _, navigator.count) {
                     print("Count = \(navigator.count)")
                 }
         }

@@ -110,7 +110,7 @@ internal struct NavigationSceneStorageModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .onChange(of: scenePhase) { phase in
+            .onChange(of: scenePhase) { _, phase in
                 guard name != nil else {
                     return
                 }

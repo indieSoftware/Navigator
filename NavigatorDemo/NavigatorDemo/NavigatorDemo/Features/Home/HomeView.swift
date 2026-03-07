@@ -109,10 +109,10 @@ struct HomeContentView: View {
         .task {
             print("HomeContentView")
         }
-        .onChange(of: isEmpty) { v in
+        .onChange(of: isEmpty) { _, v in
             print("Empty:", v)
         }
-        .onChange(of: navigator) { _ in
+        .onChange(of: navigator) {
             print("Navigator changed") // never prints
         }
     }
