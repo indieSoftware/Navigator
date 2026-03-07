@@ -19,6 +19,9 @@ public struct AnyNavigationDestination {
 
     /// The navigation method used to present the wrapped destination.
     public var method: NavigationMethod
+    
+    @MainActor public var detents: Set<PresentationDetent> { wrapped.detents }
+    @MainActor public var selectedDetent: PresentationDetent? { wrapped.selectedDetent }
 
     /// Creates a type-erased wrapper for the given destination.
     ///

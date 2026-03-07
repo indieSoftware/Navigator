@@ -44,6 +44,30 @@ struct ContentSheetSection: View {
                 presentSheet = HomeDestinations.presented1
             }
             .navigate(to: $presentSheet)
+            
+            Button("Present Half Sheet1 (Imperative)") {
+                navigator.navigate(to: HomeDestinations.halfSheet1)
+                if let d = navigator.presentingSheetOrCover as? HomeDestinations, d == .halfSheet1 {
+                    print("HomeDestinations.halfSheet1 is the current destination")
+                }
+            }
+
+            Button("Present Half Sheet1 (Declarative)") {
+                presentSheet = HomeDestinations.halfSheet1
+            }
+            .navigate(to: $presentSheet)
+            
+            Button("Present Half Sheet2 (Imperative)") {
+                navigator.navigate(to: HomeDestinations.halfSheet2)
+                if let d = navigator.presentingSheetOrCover as? HomeDestinations, d == .halfSheet2 {
+                    print("HomeDestinations.halfSheet2 is the current destination")
+                }
+            }
+
+            Button("Present Half Sheet2 (Declarative)") {
+                presentSheet = HomeDestinations.halfSheet2
+            }
+            .navigate(to: $presentSheet)
 
             Button("Present Sheet as Cover (Declarative)") {
                 presentCover = HomeDestinations.presented1

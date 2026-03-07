@@ -102,6 +102,10 @@ internal struct NavigationPresentationModifiers: ViewModifier {
         content
             .sheet(item: $nav.sheet) { (destination) in
                 managedView(for: destination)
+                    .modifier(PresentationDetentsModifier(
+                        detents: destination.detents,
+                        initialSelection: destination.selectedDetent
+                    ))
             }
             #if os(iOS) || os(tvOS) || os(watchOS)
             .fullScreenCover(item: $nav.cover) { (destination) in
@@ -119,6 +123,36 @@ internal struct NavigationPresentationModifiers: ViewModifier {
             } else {
                 navigator.mappedPresentationView(for: destination.wrapped)
             }
+        }
+    }
+
+}
+
+/// Applies `.presentationDetents()` conditionally based on destination configuration.
+///
+/// When detents are provided, they constrain the sheet to the specified sizes.
+/// When a selected detent is provided, the sheet opens at that size initially.
+internal struct PresentationDetentsModifier: ViewModifier {
+
+    let detents: Set<PresentationDetent>
+    let initialSelection: PresentationDetent?
+
+    @State private var selectedDetent: PresentationDetent = .large
+
+    func body(content: Content) -> some View {
+        if detents.isEmpty {
+            content
+        } else if initialSelection != nil {
+            content
+                .presentationDetents(detents, selection: $selectedDetent)
+                .onAppear {
+                    if let initialSelection {
+                        selectedDetent = initialSelection
+                    }
+                }
+        } else {
+            content
+                .presentationDetents(detents)
         }
     }
 
