@@ -100,7 +100,7 @@ internal struct NavigationPresentationModifiers: ViewModifier {
     func body(content: Content) -> some View {
         @Bindable var nav = navigator
         content
-            .sheet(item: $nav.sheet) { (destination) in
+            .sheet(item: $nav.sheet, onDismiss: { navigator.onDismissRemovePresentedChildren() }) { (destination) in
                 managedView(for: destination)
                     .modifier(PresentationDetentsModifier(
                         detents: destination.detents,
@@ -108,7 +108,7 @@ internal struct NavigationPresentationModifiers: ViewModifier {
                     ))
             }
             #if os(iOS) || os(tvOS) || os(watchOS)
-            .fullScreenCover(item: $nav.cover) { (destination) in
+            .fullScreenCover(item: $nav.cover, onDismiss: { navigator.onDismissRemovePresentedChildren() }) { (destination) in
                 managedView(for: destination)
             }
             #endif

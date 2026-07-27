@@ -1,5 +1,9 @@
 # Navigator Changelog
 
+### 2.1.3
+
+* Navigator deinit not called in some situations making navigator-tree stale #112
+
 ### 2.1.2
 
 * Add new NavigationLink convenience inits for strings, string resources, and localized string resources

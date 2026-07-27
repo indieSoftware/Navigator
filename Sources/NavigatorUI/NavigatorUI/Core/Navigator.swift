@@ -253,15 +253,26 @@ public final class Navigator: @unchecked Sendable {
         set(current: child)
     }
 
+    /// Removes any presented children
+    internal func onDismissRemovePresentedChildren() {
+        _children.values.forEach {
+            if let child = $0.object {
+                removeChild(child)
+            }
+        }
+    }
+
     /// Removes a child navigator from a parent.
     internal func removeChild(_ child: Navigator) {
-        log(.lifecycle(.removing(child.id, name: child.name)))
-        _children.removeValue(forKey: child.id)
-        child.dismissAction = nil
-        if child.isPresented {
-            self.isPresenting = false
-            if let current = find(id: id) {
-                set(current: current)
+        if let child = _children.removeValue(forKey: child.id)?.object {
+            log(.lifecycle(.removing(child.id, name: child.name)))
+            child._children.removeAll()
+            child.dismissAction = nil
+            if child.isPresented {
+                self.isPresenting = false
+                if let current = find(id: id) {
+                    set(current: current)
+                }
             }
         }
     }

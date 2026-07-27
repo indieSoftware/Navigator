@@ -152,11 +152,21 @@ struct HomePage2View: View {
                 Button("Clear Home Via Find") {
                     navigator.named("home")?.popAll()
                 }
-                Button("Clear Settings With Action") {
+                Button("Clear Settings With Perform") {
                     // Roundabout way of doing this, primarily for testing
+                    //
+                    // Will use perform action find the correct navigator in the tree and then call the closure.
                     navigator.perform(.with(navigator: RootTabs.settings.id) {
                         $0.popAll()
                     })
+                }
+                Button("Clear Settings With Action") {
+                    // Roundabout way of doing this, primarily for testing
+                    //
+                    // Will use perform action find the correct navigator in the tree and then call the closure.
+                    navigator.named(RootTabs.settings.id) {
+                        $0.popAll()
+                    }
                 }
             }
             ContentSheetSection()

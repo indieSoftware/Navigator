@@ -19,6 +19,14 @@ extension Navigator {
         root.recursiveFindChild { $0.name == name }
     }
 
+    /// Finds first navigator with given name and calls closure with navigator as parameter
+    @MainActor public func named(_ name: String, action: (Navigator) -> Void) {
+        guard let navigator = root.recursiveFindChild({ $0.name == name })  else {
+            return
+        }
+        action(navigator)
+    }
+
     /// Returns child navigator found with given name
     @MainActor public func child(named name: String) -> Navigator? {
         recursiveFindChild { $0.name == name }

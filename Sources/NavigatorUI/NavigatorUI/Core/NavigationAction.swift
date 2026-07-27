@@ -130,7 +130,7 @@ extension NavigationAction {
         }
     }
 
-    /// Dismisses any presented views and resets all paths back to zero.
+    /// Dismisses any presented views and resets all known paths back to zero.
     ///
     ///  Inserts value into the queue for next send in order to correctly handle that values resume type.
     @MainActor public static var popAny: NavigationAction {
