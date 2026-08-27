@@ -55,6 +55,15 @@ struct ApplicationRootView: View {
             self.appRootType = appRootType == .split ? .tabbed : .split
             return .auto
         }
+        // inline router demo with no route handler
+        .onNavigationRoute { (r: SharedRoutes, navigator: Navigator) in
+            // SharedRoutes only has one route, so handle it
+            navigator.send(
+                NavigationAction.dismissAny,
+                RootTabs.home,
+                NavigationAction.popAll(in: RootTabs.home.id)
+            )
+        }
         // enable presentation options on the navigation root (this must be *inside* the root navigator)
         .navigationAutoReceive(AppRootDestinations.self)
         // setup known mapping for all views

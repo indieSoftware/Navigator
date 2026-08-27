@@ -164,10 +164,13 @@ struct ContentRoutingSection: View {
                 navigator.perform(route: KnownRoutes.homePage2Page3)
             }
             Button("Route To Home Page 2, 3, 99") {
-                navigator.perform(route: KnownRoutes.homePage2Page3PageN(99))
+                navigator.route(KnownRoutes.homePage2Page3PageN(99))
             }
             Button("Route To Settings Page 2") {
                 try? resolver.homeExternalRouter.route(to: .settingsPage2)
+            }
+            Button("Shared Route Home") {
+                navigator.route(SharedRoutes.home)
             }
         }
     }

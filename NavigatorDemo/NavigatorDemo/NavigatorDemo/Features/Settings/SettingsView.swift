@@ -95,6 +95,12 @@ struct SettingsView: View {
                 }
             }
 
+            Section("Route Actions") {
+                Button("Route Tab Home") {
+                    navigator.route(SharedRoutes.home)
+                }
+            }
+
             Section("Resume Actions") {
                 Button("Present Resumable Loading View") {
                     navigator.send(

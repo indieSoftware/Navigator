@@ -34,6 +34,27 @@ extension Navigator {
     public func perform<R: NavigationRoutes>(route: R) {
         send(route)
     }
+
+    /// Sends a strongly-typed route through the navigation system.
+    ///
+    /// This is a convenience wrapper around ``Navigator/send(values:)``
+    /// for values that conform to ``NavigationRoutes``.
+    ///
+    /// ```swift
+    /// enum AppRoute: NavigationRoutes {
+    ///     case home
+    ///     case details(id: UUID)
+    /// }
+    ///
+    /// navigator.route(AppRoute.details(id: id))
+    /// ```
+    ///
+    /// - Parameter route: The route value to broadcast.
+    @MainActor
+    public func route<R: NavigationRoutes>(_ route: R) {
+        send(route)
+    }
+
 }
 
 /// A type that can handle navigation routes of a specific type.
@@ -94,6 +115,39 @@ extension View {
         self.onNavigationReceive { (route: R.Route, navigator) in
             router.route(to: route, with: navigator)
             return .auto
+        }
+    }
+
+    /// Registers a handler for navigation routes emitted by an ancestor `Navigator`.
+    ///
+    /// Apply this modifier to a view that should respond to navigation routes
+    /// produced by the nearest `Navigator` in the environment. The provided
+    /// `router` function receives each route and is responsible for performing the
+    /// appropriate navigation or side effects.
+    ///
+    /// This variant avoids the need for a separate route handler that conforms to `NavigationRouteHandling`.
+    ///
+    /// ```swift
+    /// struct ContentView: View {
+    ///     enum Route: NavigationRoutes {
+    ///         case details(id: UUID)
+    ///     }
+    ///
+    ///     var body: some View {
+    ///         ItemsList()
+    ///             .onNavigationRoute { (r: Route, navigator) in
+    ///                 switch route {
+    ///                  case .details(let id):
+    ///                      navigator.navigate(to: DetailsDestination(id: id))
+    ///                 }
+    ///             }
+    ///     }
+    /// }
+    /// ```
+    public func onNavigationRoute<R: NavigationRoutes>(router: @escaping (R, Navigator) -> Void) -> some View {
+        self.onNavigationReceive { (route: R, navigator) in
+            router(route, navigator)
+            return .immediately
         }
     }
 }
